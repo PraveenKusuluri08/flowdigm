@@ -1,76 +1,102 @@
-// components/Sidebar/ShapeItem.jsx
-import React, { useState } from 'react';
-import { Star } from 'lucide-react';
-import { useSidebar } from '../../hooks/useSidebar';
+// components/Sidebar/ShapeItem.tsx - Create this component for sidebar items
 
-interface Shape{
-    id: string;
-    name: string;
-    icon: React.ComponentType<{ size?: number; className?: string }>;
-}
+import React from 'react';
 
 interface ShapeItemProps {
-  shape: Shape;
+  shape: {
+    id: string;
+    name: string;
+    icon: React.ComponentType<any> | (() => JSX.Element);
+    tooltip?: string;
+  };
 }
 
-const ShapeItem = ({ shape }:ShapeItemProps) => {
-  const { state, dispatch } = useSidebar();
-  const [isDragging, setIsDragging] = useState(false);
-  
-  const handleDragStart = (e: { dataTransfer: { setData: (arg0: string, arg1: string) => void; effectAllowed: string; }; }) => {
-    setIsDragging(true);
-    dispatch({ type: 'SET_DRAGGED_SHAPE', payload: shape });
-    dispatch({ type: 'ADD_TO_RECENT', payload: shape });
+export const ShapeItem: React.FC<ShapeItemProps> = ({ shape }) => {
+  const handleDragStart = (e: React.DragEvent) => {
+    console.log('Dragging shape:', shape.id);
     
-    // Set drag data
-    e.dataTransfer.setData('application/json', JSON.stringify(shape));
-    e.dataTransfer.effectAllowed = 'copy';
+    // Create drag data
+    const dragData = {
+      shapeId: shape.id,
+      shapeName: shape.name,
+      timestamp: Date.now()
+    };
+    
+    e.dataTransfer.setData('application/json', JSON.stringify(dragData));
+    e.dataTransfer.effectAllowed = 'move';
+    
+    // Visual feedback
+    const target = e.currentTarget as HTMLElement;
+    target.style.opacity = '0.5';
   };
-  
-  const handleDragEnd = () => {
-    setIsDragging(false);
-    dispatch({ type: 'SET_DRAGGED_SHAPE', payload: null });
+
+  const handleDragEnd = (e: React.DragEvent) => {
+    // Restore visual feedback
+    const target = e.currentTarget as HTMLElement;
+    target.style.opacity = '1';
   };
-  
-  const handleClick = () => {
-    dispatch({ type: 'SELECT_SHAPE', payload: shape });
+
+  const renderIcon = () => {
+    const IconComponent = shape.icon;
+    
+    if (typeof IconComponent === 'function') {
+      try {
+        return <IconComponent />;
+      } catch (error) {
+        console.error('Error rendering icon:', error);
+        return <div className="w-6 h-6 bg-gray-400 rounded"></div>;
+      }
+    } else {
+      return <IconComponent size={24} />;
+    }
   };
-  
-  const handleToggleFavorite = (e) => {
-    e.stopPropagation();
-    dispatch({ type: 'TOGGLE_FAVORITE', payload: shape });
-  };
-  
-  const isSelected = state.selectedShape?.id === shape.id;
-  const isFavorite = state.favoriteShapes.some(s => s.id === shape.id);
-  
+
   return (
     <div
       draggable
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      onClick={handleClick}
-      className={`
-        group flex items-center gap-2 p-2 m-1 rounded cursor-pointer transition-all
-        ${isSelected ? 'bg-blue-100 border border-blue-300' : 'hover:bg-gray-100'}
-        ${isDragging ? 'opacity-50 scale-95' : ''}
-      `}
-      title={shape.name}
+      className="flex items-center gap-2 p-2 hover:bg-gray-100 cursor-move select-none rounded"
+      title={shape.tooltip || shape.name}
     >
-      <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center border border-gray-300 rounded bg-white">
-        <shape.icon size={16} className="text-gray-600" />
+      <div className="flex-shrink-0">
+        {renderIcon()}
       </div>
-      <span className="text-sm text-gray-700 truncate flex-1">{shape.name}</span>
-      <button
-        onClick={handleToggleFavorite}
-        className={`opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-gray-200 transition-opacity ${
-          isFavorite ? 'opacity-100 text-yellow-500' : 'text-gray-400'
-        }`}
-      >
-        <Star size={12} fill={isFavorite ? 'currentColor' : 'none'} />
-      </button>
+      <span className="text-sm truncate">{shape.tooltip}</span>
     </div>
   );
 };
 
-export default ShapeItem;
+// Usage in your sidebar component
+export const SidebarCategory: React.FC<{
+  category: any;
+  isCollapsed: boolean;
+  onToggle: () => void;
+}> = ({ category, isCollapsed, onToggle }) => {
+  const CategoryIcon = category.icon;
+
+  return (
+    <div className="mb-2">
+      <button
+        onClick={onToggle}
+        className="flex items-center justify-between w-full p-2 text-left hover:bg-gray-100 rounded"
+      >
+        <div className="flex items-center gap-2">
+          <CategoryIcon size={16} />
+          <span className="font-medium">{category.name}</span>
+        </div>
+        <span className={`transform transition-transform ${isCollapsed ? '' : 'rotate-90'}`}>
+          ▶
+        </span>
+      </button>
+      
+      {!isCollapsed && (
+        <div className="ml-4 space-y-1">
+          {category.shapes.map((shape: any) => (
+            <ShapeItem key={shape.id} shape={shape} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
