@@ -6,6 +6,7 @@ import Header from './components/Layout/Header';
 import LeftSidebar from './components/Sidebar/LeftSidebar';
 import DrawingCanvas from './components/CanvasEditor/Drawingcanvas';
 import Toolbar from './components/CanvasEditor/Toolbar';
+import ReactFlowCanvas from './components/CanvasEditor/ReactFlowCanvas';
 // import useKeyboardShortcuts from './hooks/useKeyboardShortcuts';
 
 // Main app component with keyboard shortcuts
@@ -28,7 +29,7 @@ const AppContent = () => {
           <Toolbar />
           
           {/* Drawing Canvas */}
-          <DrawingCanvas />
+          <ReactFlowCanvas />
         </div>
       </div>
     </div>
