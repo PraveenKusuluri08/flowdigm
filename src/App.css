@@ -10,10 +10,9 @@
 .main-content {
   display: flex;
   flex: 1;
+  height: 100%;
   overflow: hidden;
 }
-
-
 
 /* ReactFlow Canvas Styles */
 .react-flow__node {
@@ -227,55 +226,6 @@
   min-height: 500px;
 }
 
-/* BPMN Font and Icons */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-/* Custom BPMN styles */
-.bpmn-icon {
-  font-family: 'bpmn', sans-serif;
-  font-size: 16px;
-  line-height: 1;
-}
-
-.bpmn-node {
-  border: 2px solid #ccc;
-  border-radius: 4px;
-  background: white;
-  padding: 8px;
-  min-width: 100px;
-  min-height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-
-.bpmn-event-node {
-  border-radius: 50%;
-  min-width: 40px;
-  min-height: 40px;
-}
-
-.bpmn-gateway-node {
-  transform: rotate(45deg);
-  min-width: 50px;
-  min-height: 50px;
-}
-
-.bpmn-gateway-node > * {
-  transform: rotate(-45deg);
-}
-
-.bpmn-data-object-node {
-  transform: skew(-20deg);
-  min-width: 80px;
-  min-height: 60px;
-}
-
-.bpmn-data-object-node > * {
-  transform: skew(20deg);
-}
-
 /* BPMN Editor Toolbar */
 .bpmn-toolbar {
   display: flex;
@@ -428,4 +378,53 @@
 
 .react-flow__background {
   z-index: 1 !important;
+}
+
+/* BPMN Font and Icons */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Custom BPMN styles */
+.bpmn-icon {
+  font-family: 'bpmn', sans-serif;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.bpmn-node {
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  background: white;
+  padding: 8px;
+  min-width: 100px;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.bpmn-event-node {
+  border-radius: 50%;
+  min-width: 40px;
+  min-height: 40px;
+}
+
+.bpmn-gateway-node {
+  transform: rotate(45deg);
+  min-width: 50px;
+  min-height: 50px;
+}
+
+.bpmn-gateway-node > * {
+  transform: rotate(-45deg);
+}
+
+.bpmn-data-object-node {
+  transform: skew(-20deg);
+  min-width: 80px;
+  min-height: 60px;
+}
+
+.bpmn-data-object-node > * {
+  transform: skew(20deg);
 }

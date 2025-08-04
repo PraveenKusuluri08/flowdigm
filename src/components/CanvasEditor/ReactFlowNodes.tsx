@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Handle, Position } from 'reactflow';
 
-// Working connection handles component
+// Working connection handles component - ONLY VISIBLE ON HOVER
 const ConnectionHandles = ({ selected }: { selected: boolean }) => {
   const handleStyle = {
     background: selected ? '#3b82f6' : '#6b7280',
@@ -23,7 +23,7 @@ const ConnectionHandles = ({ selected }: { selected: boolean }) => {
         type="target" 
         position={Position.Top} 
         style={handleStyle}
-        className="hover:scale-110 transition-transform"
+        className="opacity-0 hover:opacity-100 group-hover:opacity-100 transition-opacity"
       />
       
       {/* Right handle - for outgoing connections */}
@@ -32,7 +32,7 @@ const ConnectionHandles = ({ selected }: { selected: boolean }) => {
         type="source" 
         position={Position.Right} 
         style={handleStyle}
-        className="hover:scale-110 transition-transform"
+        className="opacity-0 hover:opacity-100 group-hover:opacity-100 transition-opacity"
       />
       
       {/* Bottom handle - for outgoing connections */}
@@ -41,7 +41,7 @@ const ConnectionHandles = ({ selected }: { selected: boolean }) => {
         type="source" 
         position={Position.Bottom} 
         style={handleStyle}
-        className="hover:scale-110 transition-transform"
+        className="opacity-0 hover:opacity-100 group-hover:opacity-100 transition-opacity"
       />
       
       {/* Left handle - for incoming connections */}
@@ -50,7 +50,7 @@ const ConnectionHandles = ({ selected }: { selected: boolean }) => {
         type="target" 
         position={Position.Left} 
         style={handleStyle}
-        className="hover:scale-110 transition-transform"
+        className="opacity-0 hover:opacity-100 group-hover:opacity-100 transition-opacity"
       />
     </>
   );
@@ -318,116 +318,157 @@ export const CircleNode = ({ data, selected }: { data: any; selected?: boolean }
   );
 };
 
-// AWS Service Node
+// AWS Service Node - ICON ONLY
 export const AWSServiceNode = ({ data, selected }: { data: any; selected?: boolean }) => {
+  // Use the actual icon from data if available, otherwise show a default
+  const renderIcon = () => {
+    if (data.icon) {
+      // If it's a React element (SVG), render it with proper styling
+      if (React.isValidElement(data.icon)) {
+        return React.cloneElement(data.icon, {
+          style: { 
+            width: '48px', 
+            height: '48px', 
+            color: '#FF9900' // AWS orange
+          }
+        });
+      }
+      return data.icon;
+    }
+    
+    // Fallback to specific icons based on shapeId
+    switch (data.shapeId) {
+      case 'aws-ec2': return <span style={{ color: '#FF9900', fontSize: '48px' }}>🖥️</span>;
+      case 'aws-lambda': return <span style={{ color: '#FF9900', fontSize: '48px' }}>⚡</span>;
+      case 'aws-ecs': return <span style={{ color: '#FF9900', fontSize: '48px' }}>🐳</span>;
+      case 'aws-eks': return <span style={{ color: '#FF9900', fontSize: '48px' }}>☸️</span>;
+      case 'aws-s3': return <span style={{ color: '#FF9900', fontSize: '48px' }}>📦</span>;
+      case 'aws-ebs': return <span style={{ color: '#FF9900', fontSize: '48px' }}>💾</span>;
+      case 'aws-efs': return <span style={{ color: '#FF9900', fontSize: '48px' }}>📁</span>;
+      case 'aws-rds': return <span style={{ color: '#FF9900', fontSize: '48px' }}>🗄️</span>;
+      case 'aws-dynamodb': return <span style={{ color: '#FF9900', fontSize: '48px' }}>⚡</span>;
+      default: return <span style={{ color: '#FF9900', fontSize: '48px' }}>☁️</span>;
+    }
+  };
+
   return (
-    <ResizableNode data={data} selected={selected} minWidth={100} minHeight={70}>
-      <div className="w-full h-full p-2 flex flex-col">
-        {/* Header */}
-        <div className="flex items-center mb-1">
-          <div 
-            className="w-4 h-4 rounded mr-2 flex-shrink-0"
-            style={{ backgroundColor: '#FF9900' }}
-          />
-          <span className="text-xs font-bold text-orange-600">AWS</span>
-        </div>
-        
-        {/* Icon */}
-        <div className="flex-1 flex items-center justify-center">
-          <div className="mb-1">
-            {data.icon || <span className="text-2xl" style={{ color: '#FF9900' }}>☁️</span>}
-          </div>
-        </div>
-        
-        {/* Content */}
-        <div className="text-center">
-          <div 
-            className="font-semibold text-gray-800 break-words leading-tight"
-            style={{ fontSize: Math.min((data.width || 120) / 12, 12) }}
-          >
-            {data.serviceName || data.label}
-          </div>
-          <div 
-            className="text-gray-500 break-words leading-tight mt-1"
-            style={{ fontSize: Math.min((data.width || 120) / 15, 9) }}
-          >
-            {data.description || data.category}
-          </div>
-        </div>
+    <div 
+      className="relative group"
+      style={{
+        width: data.width || 80,
+        height: data.height || 80,
+        userSelect: 'none',
+      }}
+    >
+      {/* Icon Only */}
+      <div className="w-full h-full flex items-center justify-center">
+        {renderIcon()}
       </div>
-    </ResizableNode>
+      
+      {/* Connection handles */}
+      <ConnectionHandles selected={selected || false} />
+    </div>
   );
 };
 
-// Azure Service Node
+// Azure Service Node - ICON ONLY
 export const AzureServiceNode = ({ data, selected }: { data: any; selected?: boolean }) => {
+  // Use the actual icon from data if available, otherwise show a default
+  const renderIcon = () => {
+    if (data.icon) {
+      // If it's a React element (SVG), render it with proper styling
+      if (React.isValidElement(data.icon)) {
+        return React.cloneElement(data.icon, {
+          style: { 
+            width: '48px', 
+            height: '48px', 
+            color: '#0078D4' // Azure blue
+          }
+        });
+      }
+      return data.icon;
+    }
+    
+    // Fallback to specific icons based on shapeId
+    switch (data.shapeId) {
+      case 'azure-vm': return <span style={{ color: '#0078D4', fontSize: '48px' }}>🖥️</span>;
+      case 'azure-functions': return <span style={{ color: '#0078D4', fontSize: '48px' }}>⚡</span>;
+      case 'azure-aks': return <span style={{ color: '#0078D4', fontSize: '48px' }}>☸️</span>;
+      case 'azure-storage': return <span style={{ color: '#0078D4', fontSize: '48px' }}>📦</span>;
+      case 'azure-sql': return <span style={{ color: '#0078D4', fontSize: '48px' }}>🗄️</span>;
+      case 'azure-cosmos': return <span style={{ color: '#0078D4', fontSize: '48px' }}>🌌</span>;
+      default: return <span style={{ color: '#0078D4', fontSize: '48px' }}>☁️</span>;
+    }
+  };
+
   return (
-    <ResizableNode data={data} selected={selected} minWidth={100} minHeight={70}>
-      <div className="w-full h-full p-2 flex flex-col">
-        <div className="flex items-center mb-1">
-          <div className="w-4 h-4 rounded mr-2 bg-blue-500 flex-shrink-0" />
-          <span className="text-xs font-bold text-blue-600">Azure</span>
-        </div>
-        
-        {/* Icon */}
-        <div className="flex-1 flex items-center justify-center">
-          <div className="mb-1">
-            {data.icon || <span className="text-2xl" style={{ color: '#0078D4' }}>☁️</span>}
-          </div>
-        </div>
-        
-        <div className="text-center">
-          <div 
-            className="font-semibold text-gray-800 break-words leading-tight"
-            style={{ fontSize: Math.min((data.width || 120) / 12, 12) }}
-          >
-            {data.serviceName || data.label}
-          </div>
-          <div 
-            className="text-gray-500 break-words leading-tight mt-1"
-            style={{ fontSize: Math.min((data.width || 120) / 15, 9) }}
-          >
-            {data.description || data.category}
-          </div>
-        </div>
+    <div 
+      className="relative group"
+      style={{
+        width: data.width || 80,
+        height: data.height || 80,
+        userSelect: 'none',
+      }}
+    >
+      {/* Icon Only */}
+      <div className="w-full h-full flex items-center justify-center">
+        {renderIcon()}
       </div>
-    </ResizableNode>
+      
+      {/* Connection handles */}
+      <ConnectionHandles selected={selected || false} />
+    </div>
   );
 };
 
-// GCP Service Node
+// GCP Service Node - ICON ONLY
 export const GCPServiceNode = ({ data, selected }: { data: any; selected?: boolean }) => {
+  // Use the actual icon from data if available, otherwise show a default
+  const renderIcon = () => {
+    if (data.icon) {
+      // If it's a React element (SVG), render it with proper styling
+      if (React.isValidElement(data.icon)) {
+        return React.cloneElement(data.icon, {
+          style: { 
+            width: '48px', 
+            height: '48px', 
+            color: '#4285F4' // GCP blue
+          }
+        });
+      }
+      return data.icon;
+    }
+    
+    // Fallback to specific icons based on shapeId
+    switch (data.shapeId) {
+      case 'gcp-compute-engine': return <span style={{ color: '#4285F4', fontSize: '48px' }}>🖥️</span>;
+      case 'gcp-cloud-functions': return <span style={{ color: '#4285F4', fontSize: '48px' }}>⚡</span>;
+      case 'gcp-gke': return <span style={{ color: '#4285F4', fontSize: '48px' }}>☸️</span>;
+      case 'gcp-cloud-storage': return <span style={{ color: '#4285F4', fontSize: '48px' }}>📦</span>;
+      case 'gcp-cloud-sql': return <span style={{ color: '#4285F4', fontSize: '48px' }}>🗄️</span>;
+      case 'gcp-firestore': return <span style={{ color: '#4285F4', fontSize: '48px' }}>🔥</span>;
+      case 'gcp-bigquery': return <span style={{ color: '#4285F4', fontSize: '48px' }}>📊</span>;
+      default: return <span style={{ color: '#4285F4', fontSize: '48px' }}>☁️</span>;
+    }
+  };
+
   return (
-    <ResizableNode data={data} selected={selected} minWidth={100} minHeight={70}>
-      <div className="w-full h-full p-2 flex flex-col">
-        <div className="flex items-center mb-1">
-          <div className="w-4 h-4 rounded mr-2 bg-blue-400 flex-shrink-0" />
-          <span className="text-xs font-bold text-blue-600">GCP</span>
-        </div>
-        
-        {/* Icon */}
-        <div className="flex-1 flex items-center justify-center">
-          <div className="mb-1">
-            {data.icon || <span className="text-2xl" style={{ color: '#4285F4' }}>☁️</span>}
-          </div>
-        </div>
-        
-        <div className="text-center">
-          <div 
-            className="font-semibold text-gray-800 break-words leading-tight"
-            style={{ fontSize: Math.min((data.width || 120) / 12, 12) }}
-          >
-            {data.serviceName || data.label}
-          </div>
-          <div 
-            className="text-gray-500 break-words leading-tight mt-1"
-            style={{ fontSize: Math.min((data.width || 120) / 15, 9) }}
-          >
-            {data.description || data.category}
-          </div>
-        </div>
+    <div 
+      className="relative group"
+      style={{
+        width: data.width || 80,
+        height: data.height || 80,
+        userSelect: 'none',
+      }}
+    >
+      {/* Icon Only */}
+      <div className="w-full h-full flex items-center justify-center">
+        {renderIcon()}
       </div>
-    </ResizableNode>
+      
+      {/* Connection handles */}
+      <ConnectionHandles selected={selected || false} />
+    </div>
   );
 };
 

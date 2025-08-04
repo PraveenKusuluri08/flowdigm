@@ -1,18 +1,17 @@
 import React, { useState } from 'react';
+import { CanvasProvider } from './context/CanvasEditorProvider';
 import { ReactFlowProvider } from 'reactflow';
 import 'reactflow/dist/style.css';
 import './App.css';
-
 import MainLeftNavbar from './components/MainLeftNavbar';
-import Header from './components/Layout/Header';
 import LeftSidebar from './components/Sidebar/LeftSidebar';
 import Toolbar from './components/CanvasEditor/Toolbar';
 import DrawingCanvas from './components/CanvasEditor/Drawingcanvas';
-import { CanvasProvider } from './context/CanvasEditorProvider';
-import { SidebarProvider } from './context/Sidebarprovider';
+import Header from './components/Layout/Header';
 
 function App() {
-  const [activeSection, setActiveSection] = useState('shapes'); // Default to shapes
+  const [activeSection, setActiveSection] = useState('shapes');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const renderContent = () => {
     switch (activeSection) {
@@ -92,9 +91,7 @@ function App() {
           <div className="flex flex-col h-full">
             <Header />
             <div className="flex flex-1">
-              <SidebarProvider>
-                <LeftSidebar />
-              </SidebarProvider>
+              <LeftSidebar />
               <div className="flex-1 flex flex-col canvas-container">
                 <div className="canvas-toolbar">
                   <Toolbar />
@@ -134,7 +131,9 @@ function App() {
         <ReactFlowProvider>
           <MainLeftNavbar 
             activeSection={activeSection} 
-            onSectionChange={setActiveSection} 
+            onSectionChange={setActiveSection}
+            collapsed={sidebarCollapsed}
+            setCollapsed={setSidebarCollapsed}
           />
           <div className="flex-1 overflow-hidden">
             {renderContent()}

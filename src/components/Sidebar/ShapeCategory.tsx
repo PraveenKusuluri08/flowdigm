@@ -1,7 +1,6 @@
 // components/Sidebar/ShapeCategory.tsx - Fixed import
-import React, { type JSX } from 'react';
+import React, { useState, type JSX } from 'react';
 import { ChevronRight, ChevronDown } from 'lucide-react';
-import { useSidebar } from '../../hooks/useSidebar';
 import {ShapeItem} from './ShapeItem'; // This should now work
 
 interface ShapeCategoryProps {
@@ -28,8 +27,7 @@ interface ShapeCategoryProps {
 }
 
 const ShapeCategory: React.FC<ShapeCategoryProps> = ({ categoryKey, category }) => {
-  const { state, dispatch } = useSidebar();
-  const isExpanded = state.expandedCategories.includes(categoryKey);
+  const [isExpanded, setIsExpanded] = useState(true); // Default to expanded
   
   // Convert shapes to array format if it's an object
   const shapesArray = Array.isArray(category.shapes) 
@@ -42,29 +40,11 @@ const ShapeCategory: React.FC<ShapeCategoryProps> = ({ categoryKey, category }) 
         type: shape.type
       }));
   
-  // Safe filter function with proper null/undefined checks
-  const filteredShapes = shapesArray.filter(shape => {
-    if (!state.searchTerm) return true; // Show all if no search term
-    
-    const searchLower = state.searchTerm.toLowerCase();
-    
-    // Safely check shape properties with fallbacks
-    const shapeName = (shape.tooltip || shape.name || '').toLowerCase();
-    const shapeType = (shape.type || '').toLowerCase();
-    const shapeId = (shape.id || '').toLowerCase();
-    
-    return shapeName.includes(searchLower) || 
-           shapeType.includes(searchLower) || 
-           shapeId.includes(searchLower);
-  });
-  
-  // Don't render category if no shapes match search
-  if (state.searchTerm && filteredShapes.length === 0) {
-    return null;
-  }
+  // For now, show all shapes since we don't have search functionality
+  const filteredShapes = shapesArray;
   
   const handleToggleCategory = () => {
-    dispatch({ type: 'TOGGLE_CATEGORY', payload: categoryKey });
+    setIsExpanded(!isExpanded);
   };
 
   // Handle icon rendering for both string and component types

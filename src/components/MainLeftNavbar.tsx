@@ -24,13 +24,18 @@ interface NavItem {
 interface MainLeftNavbarProps {
   activeSection: string;
   onSectionChange: (section: string) => void;
+  collapsed?: boolean;
+  setCollapsed?: (collapsed: boolean) => void;
 }
 
 const MainLeftNavbar: React.FC<MainLeftNavbarProps> = ({ 
   activeSection, 
-  onSectionChange 
+  onSectionChange,
+  collapsed = false,
+  setCollapsed
 }) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const isCollapsed = collapsed;
+  const setIsCollapsed = setCollapsed || (() => {});
 
   const topNavItems: NavItem[] = [
     {
