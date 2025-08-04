@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@bpmn-io/element-template-chooser": "^2.0.0",
+    "@bpmn-io/properties-panel": "^3.31.0",
     "@tailwindcss/vite": "^4.1.11",
     "@types/uuid": "^10.0.0",
     "aws-svg-icons": "^3.0.0-2021-07-30",

@@ -9,7 +9,9 @@ import {
   User, 
   LogOut,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  GitBranch,
+  Home
 } from 'lucide-react';
 import logo from '../assets/images/logo.jpeg';
 
@@ -39,6 +41,12 @@ const MainLeftNavbar: React.FC<MainLeftNavbarProps> = ({
 
   const topNavItems: NavItem[] = [
     {
+      id: 'dashboard',
+      label: 'Dashboard',
+      icon: Home,
+      onClick: () => onSectionChange('dashboard')
+    },
+    {
       id: 'ai',
       label: 'AI',
       icon: Brain,
@@ -55,6 +63,12 @@ const MainLeftNavbar: React.FC<MainLeftNavbarProps> = ({
       label: 'Diagrams',
       icon: FileText,
       onClick: () => onSectionChange('diagrams')
+    },
+    {
+      id: 'bpmn',
+      label: 'BPMN',
+      icon: GitBranch,
+      onClick: () => onSectionChange('bpmn')
     },
     {
       id: 'save',
@@ -206,24 +220,17 @@ const MainLeftNavbar: React.FC<MainLeftNavbarProps> = ({
             <NavButton key={item.id} item={item} />
           ))}
           
-          {/* Additional Collapse Button */}
-          <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className={`
-              w-full flex items-center text-left transition-all duration-200 text-gray-500 hover:bg-orange-50 hover:text-orange-600
-              ${isCollapsed ? 'justify-center px-2 py-4' : 'gap-4 px-6 py-4'}
-            `}
-            title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          >
-            {isCollapsed ? (
-              <ChevronRight size={20} className="flex-shrink-0" />
-            ) : (
-              <>
-                <ChevronLeft size={20} className="flex-shrink-0" />
-                <span className="text-sm font-medium">Collapse</span>
-              </>
-            )}
-          </button>
+          {/* Additional Collapse Button - Only show when expanded */}
+          {!isCollapsed && (
+            <button
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="w-full flex items-center text-left transition-all duration-200 text-gray-500 hover:bg-orange-50 hover:text-orange-600 gap-4 px-6 py-4"
+              title="Collapse sidebar"
+            >
+              <ChevronLeft size={20} className="flex-shrink-0" />
+              <span className="text-sm font-medium">Collapse</span>
+            </button>
+          )}
         </nav>
       </div>
     </div>
