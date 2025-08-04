@@ -1,134 +1,79 @@
-// components/CanvasEditor/ReactFlowNodes.tsx - WORKING Resize
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+// components/CanvasEditor/ReactFlowNodes.tsx - USING REACTFLOW BUILT-IN RESIZING
+import React, { useState, useEffect, useRef } from 'react';
 import { Handle, Position } from 'reactflow';
 
-// Simple working resize handle
-const ResizeHandle = ({ position, onResize, nodeRef }) => {
-  const [isResizing, setIsResizing] = useState(false);
-
-  const handleMouseDown = useCallback((e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    
-    if (!nodeRef.current) return;
-    
-    setIsResizing(true);
-    
-    const startX = e.clientX;
-    const startY = e.clientY;
-    const startWidth = nodeRef.current.offsetWidth;
-    const startHeight = nodeRef.current.offsetHeight;
-    
-    const handleMouseMove = (moveEvent) => {
-      const deltaX = moveEvent.clientX - startX;
-      const deltaY = moveEvent.clientY - startY;
-      
-      let newWidth = startWidth;
-      let newHeight = startHeight;
-      
-      // Calculate new size based on handle position
-      if (position.includes('right')) {
-        newWidth = Math.max(50, startWidth + deltaX);
-      }
-      if (position.includes('left')) {
-        newWidth = Math.max(50, startWidth - deltaX);
-      }
-      if (position.includes('bottom')) {
-        newHeight = Math.max(30, startHeight + deltaY);
-      }
-      if (position.includes('top')) {
-        newHeight = Math.max(30, startHeight - deltaY);
-      }
-      
-      // Apply size immediately for visual feedback
-      if (nodeRef.current) {
-        nodeRef.current.style.width = `${newWidth}px`;
-        nodeRef.current.style.height = `${newHeight}px`;
-      }
-    };
-    
-    const handleMouseUp = () => {
-      setIsResizing(false);
-      
-      if (nodeRef.current && onResize) {
-        const finalWidth = nodeRef.current.offsetWidth;
-        const finalHeight = nodeRef.current.offsetHeight;
-        
-        onResize({
-          width: finalWidth,
-          height: finalHeight
-        });
-      }
-      
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
-    
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-  }, [position, onResize, nodeRef]);
-
-  const getHandleStyle = () => {
-    const baseStyle = {
-      position: 'absolute',
-      width: '8px',
-      height: '8px',
-      backgroundColor: '#3b82f6',
-      border: '1px solid white',
-      borderRadius: '2px',
-      cursor: getCursor(position),
-      zIndex: 1000,
-    };
-
-    const positionStyle = getPositionStyle(position);
-    return { ...baseStyle, ...positionStyle };
-  };
-
-  const getCursor = (pos) => {
-    if (pos === 'top-left' || pos === 'bottom-right') return 'nw-resize';
-    if (pos === 'top-right' || pos === 'bottom-left') return 'ne-resize';
-    if (pos === 'top' || pos === 'bottom') return 'ns-resize';
-    if (pos === 'left' || pos === 'right') return 'ew-resize';
-    return 'default';
-  };
-
-  const getPositionStyle = (pos) => {
-    switch (pos) {
-      case 'top-left': return { top: '-4px', left: '-4px' };
-      case 'top': return { top: '-4px', left: '50%', transform: 'translateX(-50%)' };
-      case 'top-right': return { top: '-4px', right: '-4px' };
-      case 'right': return { top: '50%', right: '-4px', transform: 'translateY(-50%)' };
-      case 'bottom-right': return { bottom: '-4px', right: '-4px' };
-      case 'bottom': return { bottom: '-4px', left: '50%', transform: 'translateX(-50%)' };
-      case 'bottom-left': return { bottom: '-4px', left: '-4px' };
-      case 'left': return { top: '50%', left: '-4px', transform: 'translateY(-50%)' };
-      default: return {};
-    }
+// Working connection handles component
+const ConnectionHandles = ({ selected }: { selected: boolean }) => {
+  const handleStyle = {
+    background: selected ? '#3b82f6' : '#6b7280',
+    width: 12,
+    height: 12,
+    border: '2px solid white',
+    borderRadius: '50%',
+    zIndex: 1000,
+    transition: 'all 0.2s ease',
+    cursor: 'crosshair',
   };
 
   return (
-    <div
-      style={getHandleStyle()}
-      onMouseDown={handleMouseDown}
-    />
+    <>
+      {/* Top handle - for incoming connections */}
+      <Handle 
+        id="top"
+        type="target" 
+        position={Position.Top} 
+        style={handleStyle}
+        className="hover:scale-110 transition-transform"
+      />
+      
+      {/* Right handle - for outgoing connections */}
+      <Handle 
+        id="right"
+        type="source" 
+        position={Position.Right} 
+        style={handleStyle}
+        className="hover:scale-110 transition-transform"
+      />
+      
+      {/* Bottom handle - for outgoing connections */}
+      <Handle 
+        id="bottom"
+        type="source" 
+        position={Position.Bottom} 
+        style={handleStyle}
+        className="hover:scale-110 transition-transform"
+      />
+      
+      {/* Left handle - for incoming connections */}
+      <Handle 
+        id="left"
+        type="target" 
+        position={Position.Left} 
+        style={handleStyle}
+        className="hover:scale-110 transition-transform"
+      />
+    </>
   );
 };
 
-// Base resizable node
-const ResizableNode = ({ children, data, selected = false, minWidth = 50, minHeight = 30 }) => {
-  const nodeRef = useRef(null);
-  
-  const handleResize = useCallback((newSize) => {
-    if (data.onResize) {
-      data.onResize(newSize);
-    }
-  }, [data]);
-
+// Base resizable node component
+const ResizableNode = ({ 
+  children, 
+  data, 
+  selected = false, 
+  minWidth = 50, 
+  minHeight = 30 
+}: {
+  children: React.ReactNode;
+  data: any;
+  selected?: boolean;
+  minWidth?: number;
+  minHeight?: number;
+}) => {
   return (
     <div 
-      ref={nodeRef}
-      className={`relative bg-white border-2 rounded shadow-sm hover:shadow-md transition-shadow ${
-        selected ? 'border-blue-500' : ''
+      className={`relative bg-white border-2 rounded shadow-sm hover:shadow-md transition-all duration-200 ${
+        selected ? 'border-blue-500 shadow-lg' : 'border-gray-300'
       }`}
       style={{
         width: data.width || 80,
@@ -144,144 +89,237 @@ const ResizableNode = ({ children, data, selected = false, minWidth = 50, minHei
     >
       {children}
       
-      {/* Resize handles - only show when selected */}
-      {selected && (
-        <>
-          <ResizeHandle position="top-left" onResize={handleResize} nodeRef={nodeRef} />
-          <ResizeHandle position="top" onResize={handleResize} nodeRef={nodeRef} />
-          <ResizeHandle position="top-right" onResize={handleResize} nodeRef={nodeRef} />
-          <ResizeHandle position="right" onResize={handleResize} nodeRef={nodeRef} />
-          <ResizeHandle position="bottom-right" onResize={handleResize} nodeRef={nodeRef} />
-          <ResizeHandle position="bottom" onResize={handleResize} nodeRef={nodeRef} />
-          <ResizeHandle position="bottom-left" onResize={handleResize} nodeRef={nodeRef} />
-          <ResizeHandle position="left" onResize={handleResize} nodeRef={nodeRef} />
-        </>
-      )}
-      
       {/* Connection handles */}
-      <Handle 
-        type="target" 
-        position={Position.Top} 
-        style={{ 
-          background: '#3b82f6', 
-          width: 10, 
-          height: 10,
-          border: '2px solid white',
-          zIndex: 100
-        }}
-      />
-      <Handle 
-        type="source" 
-        position={Position.Right} 
-        style={{ 
-          background: '#3b82f6', 
-          width: 10, 
-          height: 10,
-          border: '2px solid white',
-          zIndex: 100
-        }}
-      />
-      <Handle 
-        type="target" 
-        position={Position.Bottom} 
-        style={{ 
-          background: '#3b82f6', 
-          width: 10, 
-          height: 10,
-          border: '2px solid white',
-          zIndex: 100
-        }}
-      />
-      <Handle 
-        type="source" 
-        position={Position.Left} 
-        style={{ 
-          background: '#3b82f6', 
-          width: 10, 
-          height: 10,
-          border: '2px solid white',
-          zIndex: 100
-        }}
-      />
+      <ConnectionHandles selected={selected || false} />
     </div>
   );
 };
 
 // Rectangle Node
-export const RectangleNode = ({ data, selected }) => {
+export const RectangleNode = ({ data, selected }: { data: any; selected?: boolean }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editText, setEditText] = useState(data.label || '');
+  const inputRef = useRef<HTMLInputElement>(null);
+  
+  // Focus input when editing starts
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [isEditing]);
+  
+  const handleDoubleClick = () => {
+    console.log('🎯 Rectangle double-click triggered!', { data, isEditing });
+    console.log('🎯 onChange function available:', !!data.onChange);
+    setIsEditing(true);
+    setEditText(data.label || '');
+  };
+  
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditText(e.target.value);
+  };
+  
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSave();
+    } else if (e.key === 'Escape') {
+      setIsEditing(false);
+      setEditText(data.label || '');
+    }
+  };
+  
+  const handleInputBlur = () => {
+    handleSave();
+  };
+  
+  const handleSave = () => {
+    console.log('💾 Saving rectangle text:', editText);
+    setIsEditing(false);
+    if (data.onChange) {
+      console.log('✅ Calling onChange with new data');
+      data.onChange({ ...data, label: editText });
+    } else {
+      console.log('❌ No onChange function available');
+    }
+  };
+
   return (
     <ResizableNode data={data} selected={selected}>
-      <div className="w-full h-full flex items-center justify-center p-2">
-        <span 
-          className="font-medium text-gray-700 text-center break-words"
-          style={{ fontSize: Math.min((data.width || 80) / 8, 16) }}
-        >
-          {data.label || 'Rectangle'}
-        </span>
+      <div className="w-full h-full flex flex-col items-center justify-center p-2">
+        {/* Text Content - Editable */}
+        <div className="text-center w-full relative group">
+          {isEditing ? (
+            <input
+              ref={inputRef}
+              type="text"
+              value={editText}
+              onChange={handleInputChange}
+              onKeyDown={handleInputKeyDown}
+              onBlur={handleInputBlur}
+              className="w-full text-center font-medium text-gray-700 bg-blue-50 border border-blue-300 rounded px-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              style={{ fontSize: Math.min((data.width || 80) / 10, 12) }}
+            />
+          ) : (
+            <>
+              <div 
+                className="font-medium text-gray-700 text-center break-words leading-tight cursor-pointer hover:bg-blue-50 rounded px-1 py-1 transition-colors border border-transparent hover:border-blue-200"
+                style={{ fontSize: Math.min((data.width || 80) / 10, 12) }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDoubleClick();
+                }}
+                onDoubleClick={(e) => {
+                  e.stopPropagation();
+                  handleDoubleClick();
+                }}
+                title="Click to edit text"
+              >
+                {data.label || data.name || 'Click to edit'}
+              </div>
+              {/* Edit button that appears on hover */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDoubleClick();
+                }}
+                className="absolute top-0 right-0 bg-blue-500 text-white rounded-full w-6 h-6 text-xs opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-600 flex items-center justify-center z-10"
+                title="Click to edit text"
+                style={{ transform: 'translate(50%, -50%)' }}
+              >
+                ✏️
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </ResizableNode>
   );
 };
 
-// Circle Node (special handling to maintain aspect ratio)
-export const CircleNode = ({ data, selected }) => {
-  const nodeRef = useRef(null);
-  const size = Math.min(data.width || 80, data.height || 60);
+// Circle Node
+export const CircleNode = ({ data, selected }: { data: any; selected?: boolean }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editText, setEditText] = useState(data.label || '');
+  const inputRef = useRef<HTMLInputElement>(null);
   
-  const handleResize = useCallback((newSize) => {
-    // Keep aspect ratio for circles
-    const newDimension = Math.max(newSize.width, newSize.height);
-    if (data.onResize) {
-      data.onResize({
-        width: newDimension,
-        height: newDimension
-      });
+  // Focus input when editing starts
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
     }
-  }, [data]);
+  }, [isEditing]);
+  
+  const handleDoubleClick = () => {
+    console.log('🎯 Circle double-click triggered!', { data, isEditing });
+    console.log('🎯 onChange function available:', !!data.onChange);
+    setIsEditing(true);
+    setEditText(data.label || '');
+  };
+  
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditText(e.target.value);
+  };
+  
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSave();
+    } else if (e.key === 'Escape') {
+      setIsEditing(false);
+      setEditText(data.label || '');
+    }
+  };
+  
+  const handleInputBlur = () => {
+    handleSave();
+  };
+  
+  const handleSave = () => {
+    console.log('💾 Saving circle text:', editText);
+    setIsEditing(false);
+    if (data.onChange) {
+      console.log('✅ Calling onChange with new data');
+      data.onChange({ ...data, label: editText });
+    } else {
+      console.log('❌ No onChange function available');
+    }
+  };
 
   return (
     <div 
-      ref={nodeRef}
-      className={`relative bg-white border-2 rounded-full shadow-sm hover:shadow-md transition-shadow flex items-center justify-center ${
-        selected ? 'border-blue-500' : ''
+      className={`relative bg-white border-2 rounded-full shadow-sm hover:shadow-md transition-all duration-200 ${
+        selected ? 'border-blue-500 shadow-lg' : 'border-gray-300'
       }`}
       style={{
-        width: size,
-        height: size,
+        width: data.width || 80,
+        height: data.height || 80,
         backgroundColor: data.fill || '#ffffff',
         borderColor: selected ? '#3b82f6' : (data.stroke || '#000000'),
         borderWidth: data.strokeWidth || 2,
+        minWidth: 50,
+        minHeight: 50,
         userSelect: 'none',
+        boxSizing: 'border-box',
       }}
     >
-      <span 
-        className="font-medium text-gray-700 text-center px-1 break-words"
-        style={{ fontSize: Math.min(size / 6, 14) }}
-      >
-        {data.label || 'Circle'}
-      </span>
-      
-      {/* Resize handles for circle */}
-      {selected && (
-        <>
-          <ResizeHandle position="top-right" onResize={handleResize} nodeRef={nodeRef} />
-          <ResizeHandle position="bottom-right" onResize={handleResize} nodeRef={nodeRef} />
-          <ResizeHandle position="bottom-left" onResize={handleResize} nodeRef={nodeRef} />
-          <ResizeHandle position="top-left" onResize={handleResize} nodeRef={nodeRef} />
-        </>
-      )}
-      
       {/* Connection handles */}
-      <Handle type="target" position={Position.Top} style={{ background: '#3b82f6', width: 10, height: 10, border: '2px solid white' }} />
-      <Handle type="source" position={Position.Right} style={{ background: '#3b82f6', width: 10, height: 10, border: '2px solid white' }} />
-      <Handle type="target" position={Position.Bottom} style={{ background: '#3b82f6', width: 10, height: 10, border: '2px solid white' }} />
-      <Handle type="source" position={Position.Left} style={{ background: '#3b82f6', width: 10, height: 10, border: '2px solid white' }} />
+      <ConnectionHandles selected={selected || false} />
+      
+      {/* Content */}
+      <div className="w-full h-full flex flex-col items-center justify-center p-2">
+        {/* Text Content - Editable */}
+        <div className="text-center w-full relative group">
+          {isEditing ? (
+            <input
+              ref={inputRef}
+              type="text"
+              value={editText}
+              onChange={handleInputChange}
+              onKeyDown={handleInputKeyDown}
+              onBlur={handleInputBlur}
+              className="w-full text-center font-medium text-gray-700 bg-blue-50 border border-blue-300 rounded px-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              style={{ fontSize: Math.min((data.width || 80) / 10, 12) }}
+            />
+          ) : (
+            <>
+              <div 
+                className="font-medium text-gray-700 text-center break-words leading-tight cursor-pointer hover:bg-blue-50 rounded px-1 py-1 transition-colors border border-transparent hover:border-blue-200"
+                style={{ fontSize: Math.min((data.width || 80) / 10, 12) }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDoubleClick();
+                }}
+                onDoubleClick={(e) => {
+                  e.stopPropagation();
+                  handleDoubleClick();
+                }}
+                title="Click to edit text"
+              >
+                {data.label || data.name || 'Click to edit'}
+              </div>
+              {/* Edit button that appears on hover */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDoubleClick();
+                }}
+                className="absolute top-0 right-0 bg-blue-500 text-white rounded-full w-6 h-6 text-xs opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-600 flex items-center justify-center z-10"
+                title="Click to edit text"
+                style={{ transform: 'translate(50%, -50%)' }}
+              >
+                ✏️
+              </button>
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
 
 // AWS Service Node
-export const AWSServiceNode = ({ data, selected }) => {
+export const AWSServiceNode = ({ data, selected }: { data: any; selected?: boolean }) => {
   return (
     <ResizableNode data={data} selected={selected} minWidth={100} minHeight={70}>
       <div className="w-full h-full p-2 flex flex-col">
@@ -289,24 +327,31 @@ export const AWSServiceNode = ({ data, selected }) => {
         <div className="flex items-center mb-1">
           <div 
             className="w-4 h-4 rounded mr-2 flex-shrink-0"
-            style={{ backgroundColor: data.stroke || '#FF9900' }}
+            style={{ backgroundColor: '#FF9900' }}
           />
           <span className="text-xs font-bold text-orange-600">AWS</span>
         </div>
         
+        {/* Icon */}
+        <div className="flex-1 flex items-center justify-center">
+          <div className="mb-1">
+            {data.icon || <span className="text-2xl" style={{ color: '#FF9900' }}>☁️</span>}
+          </div>
+        </div>
+        
         {/* Content */}
-        <div className="flex-1 text-center">
+        <div className="text-center">
           <div 
             className="font-semibold text-gray-800 break-words leading-tight"
             style={{ fontSize: Math.min((data.width || 120) / 12, 12) }}
           >
-            {data.serviceName || data.label?.replace('aws-', '').toUpperCase()}
+            {data.serviceName || data.label}
           </div>
           <div 
             className="text-gray-500 break-words leading-tight mt-1"
             style={{ fontSize: Math.min((data.width || 120) / 15, 9) }}
           >
-            {data.description || 'Amazon Web Services'}
+            {data.description || data.category}
           </div>
         </div>
       </div>
@@ -315,7 +360,7 @@ export const AWSServiceNode = ({ data, selected }) => {
 };
 
 // Azure Service Node
-export const AzureServiceNode = ({ data, selected }) => {
+export const AzureServiceNode = ({ data, selected }: { data: any; selected?: boolean }) => {
   return (
     <ResizableNode data={data} selected={selected} minWidth={100} minHeight={70}>
       <div className="w-full h-full p-2 flex flex-col">
@@ -324,18 +369,25 @@ export const AzureServiceNode = ({ data, selected }) => {
           <span className="text-xs font-bold text-blue-600">Azure</span>
         </div>
         
-        <div className="flex-1 text-center">
+        {/* Icon */}
+        <div className="flex-1 flex items-center justify-center">
+          <div className="mb-1">
+            {data.icon || <span className="text-2xl" style={{ color: '#0078D4' }}>☁️</span>}
+          </div>
+        </div>
+        
+        <div className="text-center">
           <div 
             className="font-semibold text-gray-800 break-words leading-tight"
             style={{ fontSize: Math.min((data.width || 120) / 12, 12) }}
           >
-            {data.serviceName || data.label?.replace('azure-', '').toUpperCase()}
+            {data.serviceName || data.label}
           </div>
           <div 
             className="text-gray-500 break-words leading-tight mt-1"
             style={{ fontSize: Math.min((data.width || 120) / 15, 9) }}
           >
-            {data.description || 'Microsoft Azure'}
+            {data.description || data.category}
           </div>
         </div>
       </div>
@@ -344,7 +396,7 @@ export const AzureServiceNode = ({ data, selected }) => {
 };
 
 // GCP Service Node
-export const GCPServiceNode = ({ data, selected }) => {
+export const GCPServiceNode = ({ data, selected }: { data: any; selected?: boolean }) => {
   return (
     <ResizableNode data={data} selected={selected} minWidth={100} minHeight={70}>
       <div className="w-full h-full p-2 flex flex-col">
@@ -353,18 +405,25 @@ export const GCPServiceNode = ({ data, selected }) => {
           <span className="text-xs font-bold text-blue-600">GCP</span>
         </div>
         
-        <div className="flex-1 text-center">
+        {/* Icon */}
+        <div className="flex-1 flex items-center justify-center">
+          <div className="mb-1">
+            {data.icon || <span className="text-2xl" style={{ color: '#4285F4' }}>☁️</span>}
+          </div>
+        </div>
+        
+        <div className="text-center">
           <div 
             className="font-semibold text-gray-800 break-words leading-tight"
             style={{ fontSize: Math.min((data.width || 120) / 12, 12) }}
           >
-            {data.serviceName || data.label?.replace('gcp-', '').toUpperCase()}
+            {data.serviceName || data.label}
           </div>
           <div 
             className="text-gray-500 break-words leading-tight mt-1"
             style={{ fontSize: Math.min((data.width || 120) / 15, 9) }}
           >
-            {data.description || 'Google Cloud'}
+            {data.description || data.category}
           </div>
         </div>
       </div>
@@ -373,36 +432,193 @@ export const GCPServiceNode = ({ data, selected }) => {
 };
 
 // Triangle Node
-export const TriangleNode = ({ data, selected }) => {
+export const TriangleNode = ({ data, selected }: { data: any; selected?: boolean }) => {
+  console.log('TriangleNode rendering with data:', data);
+  
+  const [isEditing, setIsEditing] = useState(false);
+  const [editText, setEditText] = useState(data.label || '');
+  const inputRef = useRef<HTMLInputElement>(null);
+  
+  // Focus input when editing starts
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [isEditing]);
+  
+  const handleDoubleClick = () => {
+    console.log('🎯 Triangle double-click triggered!', { data, isEditing });
+    console.log('🎯 onChange function available:', !!data.onChange);
+    setIsEditing(true);
+    setEditText(data.label || '');
+  };
+  
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditText(e.target.value);
+  };
+  
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSave();
+    } else if (e.key === 'Escape') {
+      setIsEditing(false);
+      setEditText(data.label || '');
+    }
+  };
+  
+  const handleInputBlur = () => {
+    handleSave();
+  };
+  
+  const handleSave = () => {
+    console.log('💾 Saving triangle text:', editText);
+    setIsEditing(false);
+    if (data.onChange) {
+      console.log('✅ Calling onChange with new data');
+      data.onChange({ ...data, label: editText });
+    } else {
+      console.log('❌ No onChange function available');
+    }
+  };
+  
+  const width = data.width || 80;
+  const height = data.height || 60;
+  const fill = data.fill || '#ffffff';
+  const stroke = data.stroke || '#000000';
+  const strokeWidth = data.strokeWidth || 2;
+  
   return (
-    <ResizableNode data={data} selected={selected}>
-      <div className="w-full h-full flex items-center justify-center relative">
-        <div 
-          className="border-l-transparent border-r-transparent"
+    <div 
+      className="relative"
+      style={{
+        width: width,
+        height: height,
+        userSelect: 'none',
+      }}
+    >
+      {/* Triangle SVG */}
+      <svg 
+        width={width} 
+        height={height} 
+        viewBox={`0 0 ${width} ${height}`}
           style={{
-            width: 0,
-            height: 0,
-            borderLeftWidth: (data.width || 80) / 2,
-            borderRightWidth: (data.width || 80) / 2,
-            borderBottomWidth: (data.height || 60) - 10,
-            borderBottomColor: data.fill || '#ffffff',
-            borderBottomStyle: 'solid',
-            filter: `drop-shadow(0 0 0 ${data.strokeWidth || 2}px ${data.stroke || '#000000'})`,
-          }}
+          position: 'absolute',
+          top: 0,
+          left: 0,
+        }}
+      >
+        <polygon
+          points={`${width/2},10 ${width-10},${height-10} 10,${height-10}`}
+          fill={fill}
+          stroke={selected ? '#3b82f6' : stroke}
+          strokeWidth={selected ? strokeWidth + 2 : strokeWidth}
         />
-        <span 
-          className="absolute bottom-2 font-medium text-gray-700 text-center"
-          style={{ fontSize: Math.min((data.width || 80) / 10, 12) }}
-        >
-          {data.label || 'Triangle'}
-        </span>
+      </svg>
+      
+      {/* Text Content - Editable */}
+      <div className="absolute inset-0 flex items-center justify-center p-2">
+        <div className="text-center w-full relative group">
+          {isEditing ? (
+            <input
+              ref={inputRef}
+              type="text"
+              value={editText}
+              onChange={handleInputChange}
+              onKeyDown={handleInputKeyDown}
+              onBlur={handleInputBlur}
+              className="w-full text-center font-medium text-gray-700 bg-blue-50 border border-blue-300 rounded px-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              style={{ fontSize: Math.min(width / 10, 12) }}
+            />
+          ) : (
+            <>
+              <div 
+                className="font-medium text-gray-700 text-center break-words leading-tight cursor-pointer hover:bg-blue-50 rounded px-1 py-1 transition-colors border border-transparent hover:border-blue-200"
+                style={{ fontSize: Math.min(width / 10, 12) }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDoubleClick();
+                }}
+                onDoubleClick={(e) => {
+                  e.stopPropagation();
+                  handleDoubleClick();
+                }}
+                title="Click to edit text"
+              >
+                {data.label || data.name || 'Click to edit'}
+              </div>
+              {/* Edit button that appears on hover */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDoubleClick();
+                }}
+                className="absolute top-0 right-0 bg-blue-500 text-white rounded-full w-6 h-6 text-xs opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-600 flex items-center justify-center z-10"
+                title="Click to edit text"
+                style={{ transform: 'translate(50%, -50%)' }}
+              >
+                ✏️
+              </button>
+            </>
+          )}
+        </div>
       </div>
-    </ResizableNode>
+      
+      {/* Connection handles */}
+      <ConnectionHandles selected={selected || false} />
+      </div>
   );
 };
 
 // Diamond Node
-export const DiamondNode = ({ data, selected }) => {
+export const DiamondNode = ({ data, selected }: { data: any; selected?: boolean }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editText, setEditText] = useState(data.label || '');
+  const inputRef = useRef<HTMLInputElement>(null);
+  
+  // Focus input when editing starts
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [isEditing]);
+  
+  const handleDoubleClick = () => {
+    console.log('🎯 Diamond double-click triggered!', { data, isEditing });
+    console.log('🎯 onChange function available:', !!data.onChange);
+    setIsEditing(true);
+    setEditText(data.label || '');
+  };
+  
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditText(e.target.value);
+  };
+  
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSave();
+    } else if (e.key === 'Escape') {
+      setIsEditing(false);
+      setEditText(data.label || '');
+    }
+  };
+  
+  const handleInputBlur = () => {
+    handleSave();
+  };
+  
+  const handleSave = () => {
+    console.log('💾 Saving diamond text:', editText);
+    setIsEditing(false);
+    if (data.onChange) {
+      console.log('✅ Calling onChange with new data');
+      data.onChange({ ...data, label: editText });
+    } else {
+      console.log('❌ No onChange function available');
+    }
+  };
+
   return (
     <ResizableNode data={data} selected={selected}>
       <div className="w-full h-full flex items-center justify-center relative">
@@ -414,22 +630,505 @@ export const DiamondNode = ({ data, selected }) => {
             borderWidth: data.strokeWidth || 2,
           }}
         />
+        {/* Text Content - Editable */}
+        <div className="relative z-10 text-center w-full relative group">
+          {isEditing ? (
+            <input
+              ref={inputRef}
+              type="text"
+              value={editText}
+              onChange={handleInputChange}
+              onKeyDown={handleInputKeyDown}
+              onBlur={handleInputBlur}
+              className="w-full text-center font-medium text-gray-700 bg-blue-50 border border-blue-300 rounded px-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              style={{ fontSize: Math.min((data.width || 80) / 10, 12) }}
+            />
+          ) : (
+            <>
+              <div 
+                className="font-medium text-gray-700 text-center break-words leading-tight cursor-pointer hover:bg-blue-50 rounded px-1 py-1 transition-colors border border-transparent hover:border-blue-200"
+                style={{ fontSize: Math.min((data.width || 80) / 10, 12) }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDoubleClick();
+                }}
+                onDoubleClick={(e) => {
+                  e.stopPropagation();
+                  handleDoubleClick();
+                }}
+                title="Click to edit text"
+              >
+                {data.label || data.name || 'Click to edit'}
+              </div>
+              {/* Edit button that appears on hover */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDoubleClick();
+                }}
+                className="absolute top-0 right-0 bg-blue-500 text-white rounded-full w-6 h-6 text-xs opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-600 flex items-center justify-center z-10"
+                title="Click to edit text"
+                style={{ transform: 'translate(50%, -50%)' }}
+              >
+                ✏️
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </ResizableNode>
+  );
+};
+
+// Imported Image Node
+export const ImportedImageNode = ({ data, selected }: { data: any; selected?: boolean }) => {
+  console.log('ImportedImageNode rendering with data:', data);
+  
+  return (
+    <ResizableNode data={data} selected={selected} minWidth={50} minHeight={50}>
+      <div className="w-full h-full flex flex-col">
+        {/* Image */}
+        {data.icon && (
+          <div className="flex-1 flex items-center justify-center p-2">
+            <img 
+              src={data.icon} 
+              alt={data.label || 'Imported Image'}
+              className="max-w-full max-h-full object-contain"
+              style={{ maxWidth: '100%', maxHeight: '100%' }}
+              onLoad={() => console.log('Image loaded successfully:', data.icon)}
+              onError={(e) => console.error('Image failed to load:', data.icon, e)}
+            />
+          </div>
+        )}
+        
+        {/* Label */}
+        {data.label && (
+          <div className="text-center p-1 bg-gray-50 border-t">
+            <span 
+              className="text-xs font-medium text-gray-700 break-words"
+              style={{ fontSize: Math.min((data.width || 80) / 10, 12) }}
+            >
+              {data.label}
+            </span>
+          </div>
+        )}
+        
+        {/* Debug info - remove in production */}
+        <div className="text-xs text-gray-400 p-1">
+          Type: {data.type} | Icon: {data.icon ? 'Yes' : 'No'}
+        </div>
+      </div>
+    </ResizableNode>
+  );
+};
+
+// Hexagon Node
+export const HexagonNode = ({ data, selected }: { data: any; selected?: boolean }) => {
+  return (
+    <ResizableNode data={data} selected={selected}>
+      <div className="w-full h-full flex items-center justify-center relative">
+        <div 
+          className="absolute inset-2 transform rotate-45 border-2"
+          style={{
+            backgroundColor: data.fill || '#ffffff',
+            borderColor: data.stroke || '#000000',
+            borderWidth: data.strokeWidth || 2,
+          }}
+        />
         <span 
           className="relative z-10 font-medium text-gray-700 text-center px-1"
           style={{ fontSize: Math.min((data.width || 80) / 10, 12) }}
         >
-          {data.label || 'Diamond'}
+          {data.label || 'Hexagon'}
         </span>
       </div>
     </ResizableNode>
   );
 };
 
-// Simple versions for other shapes
-export const HexagonNode = ({ data, selected }) => <RectangleNode data={{...data, label: data.label || 'Hexagon'}} selected={selected} />;
-export const StarNode = ({ data, selected }) => <RectangleNode data={{...data, label: data.label || 'Star'}} selected={selected} />;
-export const LineNode = ({ data, selected }) => <RectangleNode data={{...data, label: data.label || 'Line'}} selected={selected} />;
-export const TextNode = ({ data, selected }) => <RectangleNode data={{...data, label: data.label || 'Text'}} selected={selected} />;
-export const CloudNode = ({ data, selected }) => <RectangleNode data={{...data, label: data.label || 'Cloud'}} selected={selected} />;
-export const ServerNode = ({ data, selected }) => <RectangleNode data={{...data, label: data.label || 'Server'}} selected={selected} />;
-export const DatabaseNode = ({ data, selected }) => <RectangleNode data={{...data, label: data.label || 'Database'}} selected={selected} />;
+// Star Node
+export const StarNode = ({ data, selected }: { data: any; selected?: boolean }) => {
+  return (
+    <ResizableNode data={data} selected={selected}>
+      <div className="w-full h-full flex items-center justify-center">
+        <div 
+          className="text-4xl"
+          style={{ color: data.fill || '#FFD700' }}
+        >
+          ⭐
+        </div>
+        <span 
+          className="absolute bottom-1 font-medium text-gray-700 text-center text-xs"
+        >
+          {data.label || 'Star'}
+        </span>
+      </div>
+    </ResizableNode>
+  );
+};
+
+// Line Node
+export const LineNode = ({ data, selected }: { data: any; selected?: boolean }) => {
+  return (
+    <ResizableNode data={data} selected={selected}>
+      <div className="w-full h-full flex items-center justify-center">
+        <div 
+          className="w-full h-1"
+          style={{
+            backgroundColor: data.stroke || '#000000',
+            height: data.strokeWidth || 2,
+          }}
+        />
+      </div>
+    </ResizableNode>
+  );
+};
+
+// Text Node Component for floating text
+export const TextNode = ({ data, selected }: { data: any; selected?: boolean }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editText, setEditText] = useState(data.label || '');
+  const inputRef = useRef<HTMLInputElement>(null);
+  
+  // Focus input when editing starts
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [isEditing]);
+  
+  const handleDoubleClick = () => {
+    setIsEditing(true);
+    setEditText(data.label || '');
+  };
+  
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditText(e.target.value);
+  };
+  
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSave();
+    } else if (e.key === 'Escape') {
+      setIsEditing(false);
+      setEditText(data.label || '');
+    }
+  };
+  
+  const handleInputBlur = () => {
+    handleSave();
+  };
+  
+  const handleSave = () => {
+    setIsEditing(false);
+    // Update the node data through ReactFlow
+    if (data.onChange) {
+      data.onChange({ ...data, label: editText });
+    }
+  };
+  
+  return (
+    <div 
+      className={`relative bg-transparent border-0 shadow-none hover:shadow-sm transition-all duration-200 ${
+        selected ? 'ring-2 ring-blue-500' : ''
+      }`}
+      style={{
+        width: data.width || 120,
+        height: data.height || 40,
+        userSelect: 'none',
+      }}
+    >
+      {/* Content */}
+      <div className="w-full h-full flex items-center justify-center">
+        {isEditing ? (
+          <input
+            ref={inputRef}
+            type="text"
+            value={editText}
+            onChange={handleInputChange}
+            onKeyDown={handleInputKeyDown}
+            onBlur={handleInputBlur}
+            className="w-full text-center font-medium text-gray-700 bg-transparent border-none outline-none focus:ring-2 focus:ring-blue-500 rounded px-1"
+            style={{ fontSize: Math.min((data.width || 120) / 10, 16) }}
+          />
+        ) : (
+          <div 
+            className="font-medium text-gray-700 text-center break-words leading-tight cursor-text hover:bg-gray-50 rounded px-2 py-1"
+            style={{ fontSize: Math.min((data.width || 120) / 10, 16) }}
+            onDoubleClick={handleDoubleClick}
+            title="Double-click to edit text"
+          >
+            {data.label || 'Double-click to edit'}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Cloud Node
+export const CloudNode = ({ data, selected }: { data: any; selected?: boolean }) => {
+  return (
+    <ResizableNode data={data} selected={selected}>
+      <div className="w-full h-full flex items-center justify-center">
+        <div 
+          className="text-3xl"
+          style={{ color: data.fill || '#87CEEB' }}
+        >
+          ☁️
+        </div>
+        <span 
+          className="absolute bottom-1 font-medium text-gray-700 text-center text-xs"
+        >
+          {data.label || 'Cloud'}
+        </span>
+      </div>
+    </ResizableNode>
+  );
+};
+
+// Server Node
+export const ServerNode = ({ data, selected }: { data: any; selected?: boolean }) => {
+  return (
+    <ResizableNode data={data} selected={selected} minWidth={80} minHeight={60}>
+      <div className="w-full h-full flex flex-col items-center justify-center p-2">
+        <div 
+          className="text-2xl mb-1"
+          style={{ color: data.fill || '#4A5568' }}
+        >
+          🖥️
+        </div>
+        <span 
+          className="font-medium text-gray-700 text-center text-xs break-words"
+        >
+          {data.label || 'Server'}
+        </span>
+      </div>
+    </ResizableNode>
+  );
+};
+
+// Database Node
+export const DatabaseNode = ({ data, selected }: { data: any; selected?: boolean }) => {
+  return (
+    <ResizableNode data={data} selected={selected} minWidth={80} minHeight={60}>
+      <div className="w-full h-full flex flex-col items-center justify-center p-2">
+        <div 
+          className="text-2xl mb-1"
+          style={{ color: data.fill || '#3182CE' }}
+        >
+          🗄️
+        </div>
+        <span 
+          className="font-medium text-gray-700 text-center text-xs break-words"
+        >
+          {data.label || 'Database'}
+        </span>
+      </div>
+    </ResizableNode>
+  );
+};
+
+// Arrow Nodes
+export const ArrowRightNode = ({ data, selected }: { data: any; selected?: boolean }) => {
+  return (
+    <ResizableNode data={data} selected={selected}>
+      <div className="w-full h-full flex items-center justify-center">
+        <div 
+          className="text-3xl"
+          style={{ color: data.fill || '#000000' }}
+        >
+          →
+        </div>
+      </div>
+    </ResizableNode>
+  );
+};
+
+export const ArrowLeftNode = ({ data, selected }: { data: any; selected?: boolean }) => {
+  return (
+    <ResizableNode data={data} selected={selected}>
+      <div className="w-full h-full flex items-center justify-center">
+        <div 
+          className="text-3xl"
+          style={{ color: data.fill || '#000000' }}
+        >
+          ←
+        </div>
+      </div>
+    </ResizableNode>
+  );
+};
+
+export const ArrowUpNode = ({ data, selected }: { data: any; selected?: boolean }) => {
+  return (
+    <ResizableNode data={data} selected={selected}>
+      <div className="w-full h-full flex items-center justify-center">
+        <div 
+          className="text-3xl"
+          style={{ color: data.fill || '#000000' }}
+        >
+          ↑
+        </div>
+      </div>
+    </ResizableNode>
+  );
+};
+
+export const ArrowDownNode = ({ data, selected }: { data: any; selected?: boolean }) => {
+  return (
+    <ResizableNode data={data} selected={selected}>
+      <div className="w-full h-full flex items-center justify-center">
+        <div 
+          className="text-3xl"
+          style={{ color: data.fill || '#000000' }}
+        >
+          ↓
+        </div>
+      </div>
+    </ResizableNode>
+  );
+};
+
+// Process Node (for flowchart)
+export const ProcessNode = ({ data, selected }: { data: any; selected?: boolean }) => {
+  return (
+    <ResizableNode data={data} selected={selected}>
+      <div className="w-full h-full flex items-center justify-center p-2">
+        <span 
+          className="font-medium text-gray-700 text-center break-words"
+          style={{ fontSize: Math.min((data.width || 80) / 8, 16) }}
+        >
+          {data.label || 'Process'}
+        </span>
+      </div>
+    </ResizableNode>
+  );
+};
+
+// Document Node
+export const DocumentNode = ({ data, selected }: { data: any; selected?: boolean }) => {
+  return (
+    <ResizableNode data={data} selected={selected}>
+      <div className="w-full h-full flex flex-col items-center justify-center p-2">
+        <div 
+          className="text-2xl mb-1"
+          style={{ color: data.fill || '#4A5568' }}
+        >
+          📄
+        </div>
+        <span 
+          className="font-medium text-gray-700 text-center text-xs break-words"
+        >
+          {data.label || 'Document'}
+        </span>
+      </div>
+    </ResizableNode>
+  );
+};
+
+// User Node
+export const UserNode = ({ data, selected }: { data: any; selected?: boolean }) => {
+  return (
+    <ResizableNode data={data} selected={selected}>
+      <div className="w-full h-full flex flex-col items-center justify-center p-2">
+        <div 
+          className="text-2xl mb-1"
+          style={{ color: data.fill || '#4A5568' }}
+        >
+          👤
+        </div>
+        <span 
+          className="font-medium text-gray-700 text-center text-xs break-words"
+        >
+          {data.label || 'User'}
+        </span>
+      </div>
+    </ResizableNode>
+  );
+};
+
+// Users Node
+export const UsersNode = ({ data, selected }: { data: any; selected?: boolean }) => {
+  return (
+    <ResizableNode data={data} selected={selected}>
+      <div className="w-full h-full flex flex-col items-center justify-center p-2">
+        <div 
+          className="text-2xl mb-1"
+          style={{ color: data.fill || '#4A5568' }}
+        >
+          👥
+        </div>
+        <span 
+          className="font-medium text-gray-700 text-center text-xs break-words"
+        >
+          {data.label || 'Users'}
+        </span>
+      </div>
+    </ResizableNode>
+  );
+};
+
+// Router Node
+export const RouterNode = ({ data, selected }: { data: any; selected?: boolean }) => {
+  return (
+    <ResizableNode data={data} selected={selected}>
+      <div className="w-full h-full flex flex-col items-center justify-center p-2">
+        <div 
+          className="text-2xl mb-1"
+          style={{ color: data.fill || '#4A5568' }}
+        >
+          🌐
+        </div>
+        <span 
+          className="font-medium text-gray-700 text-center text-xs break-words"
+        >
+          {data.label || 'Router'}
+        </span>
+      </div>
+    </ResizableNode>
+  );
+};
+
+// Firewall Node
+export const FirewallNode = ({ data, selected }: { data: any; selected?: boolean }) => {
+  return (
+    <ResizableNode data={data} selected={selected}>
+      <div className="w-full h-full flex flex-col items-center justify-center p-2">
+        <div 
+          className="text-2xl mb-1"
+          style={{ color: data.fill || '#E53E3E' }}
+        >
+          🛡️
+        </div>
+        <span 
+          className="font-medium text-gray-700 text-center text-xs break-words"
+        >
+          {data.label || 'Firewall'}
+        </span>
+      </div>
+    </ResizableNode>
+  );
+};
+
+// Building Node
+export const BuildingNode = ({ data, selected }: { data: any; selected?: boolean }) => {
+  return (
+    <ResizableNode data={data} selected={selected}>
+      <div className="w-full h-full flex flex-col items-center justify-center p-2">
+        <div 
+          className="text-2xl mb-1"
+          style={{ color: data.fill || '#4A5568' }}
+        >
+          🏢
+        </div>
+        <span 
+          className="font-medium text-gray-700 text-center text-xs break-words"
+        >
+          {data.label || 'Building'}
+        </span>
+      </div>
+    </ResizableNode>
+  );
+};

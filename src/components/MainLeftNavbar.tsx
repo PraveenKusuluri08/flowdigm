@@ -11,6 +11,7 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
+import logo from '../assets/images/logo.jpeg';
 
 interface NavItem {
   id: string;
@@ -154,8 +155,23 @@ const MainLeftNavbar: React.FC<MainLeftNavbarProps> = ({
     `}>
       {/* Header */}
       <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-        {!isCollapsed && (
-          <h1 className="text-xl font-semibold text-gray-800">Draw.io Clone</h1>
+        {!isCollapsed ? (
+          <div className="flex items-center gap-3">
+            <img 
+              src={logo} 
+              alt="ArchPlot Logo" 
+              className="w-8 h-8 rounded-lg object-cover"
+            />
+            <h1 className="text-xl font-semibold text-gray-800">ArchPlot</h1>
+          </div>
+        ) : (
+          <div className="flex justify-center">
+            <img 
+              src={logo} 
+              alt="ArchPlot Logo" 
+              className="w-10 h-10 rounded-lg object-cover"
+            />
+          </div>
         )}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}

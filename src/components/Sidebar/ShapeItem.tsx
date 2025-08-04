@@ -6,22 +6,23 @@ interface ShapeItemProps {
   shape: {
     id: string;
     name: string;
-    icon: React.ComponentType<any> | (() => JSX.Element);
+    icon: React.ComponentType<any> | (() => React.ReactElement);
     tooltip?: string;
   };
 }
 
 export const ShapeItem: React.FC<ShapeItemProps> = ({ shape }) => {
   const handleDragStart = (e: React.DragEvent) => {
-    console.log('Dragging shape:', shape.id);
+    console.log('Dragging shape:', shape.id, 'with data:', shape);
     
     // Create drag data
     const dragData = {
       shapeId: shape.id,
-      shapeName: shape.name,
+      shapeName: shape.name || shape.tooltip,
       timestamp: Date.now()
     };
     
+    console.log('Setting drag data:', dragData);
     e.dataTransfer.setData('application/json', JSON.stringify(dragData));
     e.dataTransfer.effectAllowed = 'move';
     
@@ -39,15 +40,17 @@ export const ShapeItem: React.FC<ShapeItemProps> = ({ shape }) => {
   const renderIcon = () => {
     const IconComponent = shape.icon;
     
-    if (typeof IconComponent === 'function') {
-      try {
-        return <IconComponent />;
-      } catch (error) {
-        console.error('Error rendering icon:', error);
-        return <div className="w-6 h-6 bg-gray-400 rounded"></div>;
+    try {
+      // For BPMN icons that are function components
+      if (typeof IconComponent === 'function') {
+        return (IconComponent as () => React.ReactElement)();
+      } else {
+        // For regular React components
+        return React.createElement(IconComponent as React.ComponentType<any>, { size: 24 });
       }
-    } else {
-      return <IconComponent size={24} />;
+    } catch (error) {
+      console.error('Error rendering icon:', error);
+      return <div className="w-6 h-6 bg-gray-400 rounded"></div>;
     }
   };
 

@@ -9,9 +9,15 @@ interface ShapeCategoryProps {
   category: {
     name: string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    icon: React.ComponentType<any>;
+    icon: React.ComponentType<any> | string;
     shapes: Array<{
       id: string;
+      name?: string;
+      tooltip?: string;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      icon: React.ComponentType<any> | (() => JSX.Element);
+      type?: string;
+    }> | Record<string, {
       name?: string;
       tooltip?: string;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -25,8 +31,19 @@ const ShapeCategory: React.FC<ShapeCategoryProps> = ({ categoryKey, category }) 
   const { state, dispatch } = useSidebar();
   const isExpanded = state.expandedCategories.includes(categoryKey);
   
+  // Convert shapes to array format if it's an object
+  const shapesArray = Array.isArray(category.shapes) 
+    ? category.shapes 
+    : Object.entries(category.shapes || {}).map(([id, shape]) => ({
+        id,
+        name: shape.name || shape.tooltip || id,
+        tooltip: shape.tooltip,
+        icon: shape.icon,
+        type: shape.type
+      }));
+  
   // Safe filter function with proper null/undefined checks
-  const filteredShapes = category.shapes.filter(shape => {
+  const filteredShapes = shapesArray.filter(shape => {
     if (!state.searchTerm) return true; // Show all if no search term
     
     const searchLower = state.searchTerm.toLowerCase();
@@ -49,6 +66,15 @@ const ShapeCategory: React.FC<ShapeCategoryProps> = ({ categoryKey, category }) 
   const handleToggleCategory = () => {
     dispatch({ type: 'TOGGLE_CATEGORY', payload: categoryKey });
   };
+
+  // Handle icon rendering for both string and component types
+  const renderIcon = () => {
+    if (typeof category.icon === 'string') {
+      return <span className="text-lg">{category.icon}</span>;
+    }
+    const IconComponent = category.icon;
+    return <IconComponent size={16} className="text-gray-600" />;
+  };
   
   return (
     <div className="group">
@@ -61,7 +87,7 @@ const ShapeCategory: React.FC<ShapeCategoryProps> = ({ categoryKey, category }) 
         ) : (
           <ChevronRight size={16} className="text-gray-500" />
         )}
-        <category.icon size={16} className="text-gray-600" />
+        {renderIcon()}
         <span className="text-sm font-medium text-gray-700">{category.name}</span>
         <span className="text-xs text-gray-500 ml-auto">
           ({filteredShapes.length})
@@ -72,7 +98,15 @@ const ShapeCategory: React.FC<ShapeCategoryProps> = ({ categoryKey, category }) 
         <div className="ml-4 space-y-1 border-l border-gray-200 pl-2">
           {filteredShapes.length > 0 ? (
             filteredShapes.map(shape => (
-              <ShapeItem key={shape.id} shape={shape} />
+              <ShapeItem 
+                key={shape.id} 
+                shape={{
+                  id: shape.id,
+                  name: shape.name || shape.tooltip || shape.id,
+                  icon: shape.icon,
+                  tooltip: shape.tooltip
+                }} 
+              />
             ))
           ) : (
             <div className="text-xs text-gray-500 p-2">No shapes available</div>
