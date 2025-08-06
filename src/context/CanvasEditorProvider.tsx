@@ -572,10 +572,13 @@ const CanvasProvider = ({ children }) => {
 
   // New diagram functionality
   const createNewDiagram = useCallback(() => {
+    console.log('Creating new diagram...');
+    
     // Check for unsaved work
     if (hasUnsavedWork()) {
       const shouldProceed = window.confirm('You have unsaved changes. Do you want to create a new diagram anyway?');
       if (!shouldProceed) {
+        console.log('User cancelled new diagram creation');
         return;
       }
     }
@@ -586,6 +589,13 @@ const CanvasProvider = ({ children }) => {
     
     // Clear auto-save data
     clearAutoSave();
+    
+    console.log('New diagram created successfully');
+    
+    // Provide user feedback
+    setTimeout(() => {
+      alert('New diagram created successfully!');
+    }, 100);
   }, []);
 
   // Open image file functionality

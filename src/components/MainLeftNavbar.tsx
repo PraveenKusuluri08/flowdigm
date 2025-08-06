@@ -3,15 +3,13 @@ import {
   Brain, 
   Shapes, 
   FileText, 
-  Save, 
-  Download, 
-  Share2, 
   User, 
   LogOut,
   ChevronLeft,
   ChevronRight,
   GitBranch,
-  Home
+  Home,
+  Zap
 } from 'lucide-react';
 import logo from '../assets/images/logo.jpeg';
 
@@ -28,13 +26,15 @@ interface MainLeftNavbarProps {
   onSectionChange: (section: string) => void;
   collapsed?: boolean;
   setCollapsed?: (collapsed: boolean) => void;
+  onIntegrationOpen?: () => void;
 }
 
 const MainLeftNavbar: React.FC<MainLeftNavbarProps> = ({ 
   activeSection, 
   onSectionChange,
   collapsed = false,
-  setCollapsed
+  setCollapsed,
+  onIntegrationOpen
 }) => {
   const isCollapsed = collapsed;
   const setIsCollapsed = setCollapsed || (() => {});
@@ -71,33 +71,13 @@ const MainLeftNavbar: React.FC<MainLeftNavbarProps> = ({
       onClick: () => onSectionChange('bpmn')
     },
     {
-      id: 'save',
-      label: 'Save',
-      icon: Save,
+      id: 'integration',
+      label: 'Integration',
+      icon: Zap,
       isAction: true,
       onClick: () => {
-        console.log('Save clicked');
-        alert('Save functionality - Coming soon!');
-      }
-    },
-    {
-      id: 'export',
-      label: 'Export',
-      icon: Download,
-      isAction: true,
-      onClick: () => {
-        console.log('Export clicked');
-        alert('Export functionality - Coming soon!');
-      }
-    },
-    {
-      id: 'share',
-      label: 'Share',
-      icon: Share2,
-      isAction: true,
-      onClick: () => {
-        console.log('Share clicked');
-        alert('Share functionality - Coming soon!');
+        console.log('Integration clicked');
+        onIntegrationOpen?.();
       }
     }
   ];

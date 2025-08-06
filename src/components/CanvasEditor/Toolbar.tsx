@@ -1,7 +1,7 @@
 // components/Canvas/Toolbar.jsx
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-nocheck
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   MousePointer, 
   Square, 
@@ -14,9 +14,11 @@ import {
   ZoomOut,
   Grid3X3,
   Trash2,
-  Edit3
+  Edit3,
+  Shield
 } from 'lucide-react';
 import { useCanvas } from '../../hooks/useCanvas';
+import ValidationPanel from './ValidationPanel';
 
 const Toolbar = () => {
   const { 
@@ -26,6 +28,8 @@ const Toolbar = () => {
     deleteSelectedShapes,
     dispatch 
   } = useCanvas();
+
+  const [showValidation, setShowValidation] = useState(false);
 
   const tools = [
     { id: 'select', icon: MousePointer, label: 'Select', shortcut: 'V' },
@@ -169,6 +173,23 @@ const Toolbar = () => {
         {/* Separator */}
         <div className="w-px h-6 bg-gray-300 mr-4" />
 
+        {/* Validation Panel */}
+        <div className="flex items-center gap-1 mr-4">
+          <button
+            onClick={() => setShowValidation(!showValidation)}
+            title="Shape Validation"
+            className={`
+              p-2 rounded hover:bg-gray-100 transition-colors
+              ${showValidation ? 'bg-blue-100 text-blue-600' : 'text-gray-600'}
+            `}
+          >
+            <Shield size={18} />
+          </button>
+        </div>
+
+        {/* Separator */}
+        <div className="w-px h-6 bg-gray-300 mr-4" />
+
         {/* Grid Toggle */}
         <div className="flex items-center gap-1">
           <button
@@ -195,6 +216,12 @@ const Toolbar = () => {
           </div>
         )}
       </div>
+      
+      {/* Validation Panel */}
+      <ValidationPanel 
+        isOpen={showValidation} 
+        onClose={() => setShowValidation(false)} 
+      />
     </div>
   );
 };
