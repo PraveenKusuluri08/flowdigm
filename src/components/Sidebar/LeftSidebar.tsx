@@ -4,7 +4,7 @@ import { useSidebar } from '../../hooks/useSidebar';
 import SearchBar from './Searchbar';
 import QuickAccess from './QuickAccess';
 import ShapeCategory from './ShapeCategory';
-import { shapeCategories } from './shapeDefinition';
+import { shapeCategories } from '../CanvasEditor/shapeDefinition';
 import { bpmnShapes } from '../constants/bpmnShapes';
 import { 
   awsServices, 

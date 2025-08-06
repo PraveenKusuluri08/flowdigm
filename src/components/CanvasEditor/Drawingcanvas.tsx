@@ -4,29 +4,37 @@ import ReactFlow, {
   addEdge,
   Background,
   Controls,
-  MiniMap,
   useNodesState,
   useEdgesState,
   ConnectionMode,
   Panel,
   useReactFlow,
+  ConnectionLineType,
+  BackgroundVariant
 } from 'reactflow';
 import type { Connection, Edge, Node } from 'reactflow';
 import 'reactflow/dist/style.css';
 
 import { useCanvas } from '../../hooks/useCanvas';
-import { findShapeById } from '../Sidebar/shapeDefinition';
-import { 
-  awsServices, 
-  googleCloudServices, 
-  azureServices 
-} from '../Sidebar/CloudServiceIcons';
+import { findShapeById, getDefaultFill, getDefaultStroke } from './shapeDefinition';
+import { validateShapeLabel, autoCorrectShape } from '../../utils/shapeValidation';
 import { 
   RectangleNode,
   CircleNode,
   AWSServiceNode,
   AzureServiceNode,
   GCPServiceNode,
+  AWSEC2Node,
+  AWSS3Node,
+  AWSLambdaNode,
+  AWSRDSNode,
+  AWSVPCNode,
+  AzureVMNode,
+  AzureStorageNode,
+  AzureFunctionsNode,
+  GCPComputeNode,
+  GCPStorageNode,
+  GCPFunctionsNode,
   TriangleNode,
   DiamondNode,
   HexagonNode,
@@ -115,12 +123,23 @@ const nodeTypes = {
   
   // AWS Services
   'aws-service': AWSServiceNode,
+  'aws-ec2': AWSEC2Node,
+  'aws-s3': AWSS3Node,
+  'aws-lambda': AWSLambdaNode,
+  'aws-rds': AWSRDSNode,
+  'aws-vpc': AWSVPCNode,
   
   // Azure Services
   'azure-service': AzureServiceNode,
+  'azure-vm': AzureVMNode,
+  'azure-storage': AzureStorageNode,
+  'azure-functions': AzureFunctionsNode,
   
   // GCP Services
   'gcp-service': GCPServiceNode,
+  'gcp-compute': GCPComputeNode,
+  'gcp-storage': GCPStorageNode,
+  'gcp-functions': GCPFunctionsNode,
   
   // Imported Images
   'imported-image': ImportedImageNode,
@@ -154,9 +173,9 @@ interface LastAction {
 }
 
 const DrawingCanvas = () => {
-  const { state, addShape, updateShape, exportCanvas } = useCanvas();
+  const { state, addShape, updateShape } = useCanvas();
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const { project, getNodes, getEdges } = useReactFlow();
+  const { project } = useReactFlow();
   
   // Store ReactFlow instance for export
   const reactFlowInstanceRef = useRef<any>(null);
@@ -172,16 +191,50 @@ const DrawingCanvas = () => {
   // Simple node data change handler - NOW defined after setNodes is available
   const onNodeDataChange = useCallback((nodeId: string, newData: any) => {
     console.log('🔄 Node data change called:', nodeId, newData);
+    
+    // Validate shape label if label was changed
+    if (newData.label !== undefined) {
+      console.log('🔍 Validating shape label:', newData.label);
+      const validation = validateShapeLabel(newData);
+      
+      if (!validation.isValid && validation.expectedShapeId && validation.confidence >= 0.8) {
+        console.log('🔧 Auto-correcting shape:', {
+          current: validation.currentShapeId,
+          expected: validation.expectedShapeId,
+          confidence: validation.confidence
+        });
+        
+        // Show user notification about the change
+        if (window.confirm(`The label "${newData.label}" suggests this should be a ${validation.expectedShapeName}. Would you like to change the shape automatically?`)) {
+          const correctedData = autoCorrectShape(newData);
+          if (correctedData) {
+            newData = correctedData;
+            console.log('✅ Shape auto-corrected to:', newData.shapeId);
+          }
+        }
+      } else if (!validation.isValid && validation.suggestions.length > 0) {
+        console.log('💡 Shape validation suggestion:', validation.suggestions[0]);
+        // Could show a non-intrusive notification here
+      }
+    }
+    
     setNodes((nds) => {
       return nds.map((node) => {
         if (node.id === nodeId) {
-          return {
+          const updatedNode = {
             ...node,
             data: {
               ...node.data,
               ...newData,
             },
           };
+          
+          // If shape was changed, update the node type as well
+          if (newData.shapeId && newData.shapeId !== node.data.shapeId) {
+            updatedNode.type = newData.shapeId;
+          }
+          
+          return updatedNode;
         }
         return node;
       });
@@ -190,11 +243,15 @@ const DrawingCanvas = () => {
 
   // Simple resize handler - NOW defined after setNodes is available
   const handleNodeResize = useCallback((nodeId: string, newSize: { width: number; height: number }) => {
-    console.log('Resizing node:', nodeId, 'to:', newSize);
-    setNodes((nds) =>
-      nds.map((node) => {
+    console.log('🎯 handleNodeResize called!');
+    console.log('🎯 Resizing node:', nodeId, 'to:', newSize);
+    console.log('🎯 Current nodes count:', nodes.length);
+    
+    setNodes((nds) => {
+      console.log('🎯 setNodes callback - updating node:', nodeId);
+      const updatedNodes = nds.map((node) => {
         if (node.id === nodeId) {
-          return {
+          const updatedNode = {
             ...node,
             data: {
               ...node.data,
@@ -202,10 +259,15 @@ const DrawingCanvas = () => {
               height: newSize.height,
             },
           };
+          console.log('🎯 Updated node data:', updatedNode.data);
+          return updatedNode;
         }
         return node;
-      })
-    );
+      });
+      console.log('🎯 setNodes returning updated nodes');
+      return updatedNodes;
+    });
+    
     updateShape(nodeId, {
       width: newSize.width,
       height: newSize.height,
@@ -385,7 +447,7 @@ const DrawingCanvas = () => {
         const isTextInput = activeElement && (
           activeElement.tagName === 'INPUT' || 
           activeElement.tagName === 'TEXTAREA' ||
-          activeElement.contentEditable === 'true'
+          (activeElement as HTMLElement).contentEditable === 'true'
         );
         
         if (!isTextInput) {
@@ -406,131 +468,43 @@ const DrawingCanvas = () => {
     }
   }, [isConnecting, cancelConnection]);
 
-  // Map shape ID to node type - moved outside callback for better performance
-  const getNodeType = useCallback((shapeId: string) => {
-    console.log('Mapping shape ID to node type:', shapeId);
-    
-    // Basic shapes
-    if (['rect', 'rectangle', 'process'].includes(shapeId)) return 'rect';
-    if (['circle', 'terminator', 'connector', 'usecase', 'interface'].includes(shapeId)) return 'circle';
-    if (['triangle'].includes(shapeId)) return 'triangle';
-    if (['diamond', 'decision'].includes(shapeId)) return 'diamond';
-    if (['hexagon'].includes(shapeId)) return 'hexagon';
-    if (['star'].includes(shapeId)) return 'star';
-    if (['line'].includes(shapeId)) return 'line';
-    if (['text'].includes(shapeId)) return 'text';
-    if (['cloud'].includes(shapeId)) return 'cloud';
-    if (['server', 'infrastructure', 'datacenter'].includes(shapeId)) return 'server';
-    if (['database', 'data'].includes(shapeId)) return 'database';
-    
-    // Arrows
-    if (['arrow-right'].includes(shapeId)) return 'arrow-right';
-    if (['arrow-left'].includes(shapeId)) return 'arrow-left';
-    if (['arrow-up'].includes(shapeId)) return 'arrow-up';
-    if (['arrow-down'].includes(shapeId)) return 'arrow-down';
-    
-    // Flowchart
-    if (['document'].includes(shapeId)) return 'document';
-    
-    // Users & Devices
-    if (['user', 'admin', 'actor'].includes(shapeId)) return 'user';
-    if (['users'].includes(shapeId)) return 'users';
-    
-    // Infrastructure
-    if (['router'].includes(shapeId)) return 'router';
-    if (['firewall', 'vpn'].includes(shapeId)) return 'firewall';
-    if (['load-balancer'].includes(shapeId)) return 'server';
-    if (['cdn'].includes(shapeId)) return 'cloud';
-    
-    // Enterprise
-    if (['building', 'office', 'factory', 'branch'].includes(shapeId)) return 'building';
-    
-    // UML
-    if (['class', 'component', 'package'].includes(shapeId)) return 'rect';
-    
-    // AWS Services
-    if (shapeId.startsWith('aws-')) return 'aws-service';
-    
-    // Azure Services
-    if (shapeId.startsWith('azure-')) return 'azure-service';
-    
-    // GCP Services
-    if (shapeId.startsWith('gcp-')) return 'gcp-service';
-    
-    // BPMN 2.0 Shapes
-    if (shapeId.startsWith('bpmn-')) return shapeId;
-    
-    // Default to rectangle
-    console.log('No specific mapping found, defaulting to rect for:', shapeId);
-    return 'rect';
-  }, []);
-
   // Helper functions
   const generateId = () => `node_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
 
   const getShapeWidth = (shapeId: string) => {
-    if (shapeId.startsWith('aws-') || shapeId.startsWith('azure-') || shapeId.startsWith('gcp-')) {
-      return 120;
-    }
-    // BPMN shapes have specific dimensions
-    if (shapeId.startsWith('bpmn-')) {
-      const shapeDefinition = findShapeById(shapeId);
-      return (shapeDefinition as any)?.width || 80;
-    }
-    return 80;
+    const shapeDefinition = findShapeById(shapeId);
+    return shapeDefinition.width;
   };
 
   const getShapeHeight = (shapeId: string) => {
-    if (shapeId.startsWith('aws-') || shapeId.startsWith('azure-') || shapeId.startsWith('gcp-')) {
-      return 80;
-    }
-    // BPMN shapes have specific dimensions
-    if (shapeId.startsWith('bpmn-')) {
-      const shapeDefinition = findShapeById(shapeId);
-      return (shapeDefinition as any)?.height || 60;
-    }
-    return 60;
+    const shapeDefinition = findShapeById(shapeId);
+    return shapeDefinition.height;
   };
 
-  const getShapeFill = (shapeId: string) => '#ffffff';
+  const getShapeFill = (shapeId: string) => {
+    return getDefaultFill(shapeId);
+  };
 
   const getShapeStroke = (shapeId: string) => {
-    if (shapeId.startsWith('aws-')) return '#FF9900';
-    if (shapeId.startsWith('azure-')) return '#0078D4';
-    if (shapeId.startsWith('gcp-')) return '#4285F4';
-    return '#000000';
+    return getDefaultStroke(shapeId);
   };
 
-  const getServiceType = (shapeId: string) => {
+  const getServiceType = (shapeId: string): string | undefined => {
     if (shapeId.startsWith('aws-')) return 'aws';
     if (shapeId.startsWith('azure-')) return 'azure';
     if (shapeId.startsWith('gcp-')) return 'gcp';
-    return null;
+    return undefined;
   };
 
   const getServiceData = (shapeId: string) => {
-    // Check AWS services
-    for (const category of Object.values(awsServices)) {
-      if (category[shapeId]) {
-        return category[shapeId];
-      }
-    }
-    
-    // Check Google Cloud services
-    for (const category of Object.values(googleCloudServices)) {
-      if (category[shapeId]) {
-        return category[shapeId];
-      }
-    }
-    
-    // Check Azure services
-    for (const category of Object.values(azureServices)) {
-      if (category[shapeId]) {
-        return category[shapeId];
-      }
-    }
-    
-    return null;
+    const shapeDefinition = findShapeById(shapeId);
+    return {
+      name: shapeDefinition.name,
+      category: shapeDefinition.category,
+      color: shapeDefinition.color || '#ffffff',
+      description: shapeDefinition.description || shapeDefinition.name,
+      icon: shapeDefinition.icon || null
+    };
   };
 
   // Handle drop from sidebar - SIMPLIFIED WORKING VERSION
@@ -721,6 +695,9 @@ const DrawingCanvas = () => {
           strokeWidth: 0,
           minWidth: 50,
           minHeight: 20,
+          onResize: (newSize: { width: number; height: number }) => {
+            handleNodeResize(nodeId, newSize);
+          },
           onChange: (newData: any) => onNodeDataChange(nodeId, newData),
         },
       };
@@ -741,6 +718,10 @@ const DrawingCanvas = () => {
         strokeWidth: 2,
         minWidth: 50,
         minHeight: 30,
+        onResize: (newSize: { width: number; height: number }) => {
+          handleNodeResize(nodeId, newSize);
+        },
+        onChange: (newData: any) => onNodeDataChange(nodeId, newData),
       },
     };
 
@@ -800,12 +781,16 @@ const DrawingCanvas = () => {
         elementsSelectable={true}
         connectOnClick={true}
         // Enable ReactFlow's built-in resizing
-        nodeResizable={true}
+        nodeDragThreshold={1}
+        nodeOrigin={[0, 0]}
+        minZoom={0.5}
+        maxZoom={2}
+
         // Better connection line styling
         connectionLineStyle={{ stroke: '#3b82f6', strokeWidth: 2 }}
-        connectionLineType="smoothstep"
-        // Improved selection behavior
-        selectNodesOnDrag={false}
+        connectionLineType={ConnectionLineType.SmoothStep}
+        // Improved selection behavior - FIXED: Enable selection on drag for resizing
+        selectNodesOnDrag={true}
         // FIXED GRID: Disable panning and zooming to keep grid fixed
         panOnScroll={false}
         panOnDrag={true} // Temporarily enable to test drag and drop
@@ -814,10 +799,6 @@ const DrawingCanvas = () => {
         zoomOnDoubleClick={false}
         // Set initial viewport to avoid blind spots
         defaultViewport={{ x: 0, y: 0, zoom: 1 }}
-        // Handle node resizing with ReactFlow's built-in system
-        onNodeResize={(event, node, newSize) => {
-          handleNodeResize(node.id, newSize);
-        }}
         onInit={(instance) => {
           reactFlowInstanceRef.current = instance;
           // Store instance globally for export
@@ -851,7 +832,7 @@ const DrawingCanvas = () => {
         <Background 
           color="#e5e5e5" 
           gap={state.grid?.size || 20} 
-          variant="lines"
+          variant={BackgroundVariant.Lines}
         />
         
         <Controls 

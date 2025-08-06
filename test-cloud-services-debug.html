@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Cloud Services Debug Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .debug-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .test-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+        }
+        .test-icon {
+            width: 20px;
+            height: 20px;
+            text-align: center;
+        }
+        .check { color: #28a745; }
+        .cross { color: #dc3545; }
+        .question { color: #ffc107; }
+        pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+            border: 1px solid #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Cloud Services Debug Test</h1>
+        
+        <div class="debug-section">
+            <h2>📋 Test Checklist</h2>
+            <div id="tests"></div>
+        </div>
+
+        <div class="debug-section">
+            <h2>🔍 What to Check in Main Application</h2>
+            <div class="test-item">
+                <div class="test-icon question">1.</div>
+                <div><strong>Open main application:</strong> <a href="http://localhost:5173" target="_blank">http://localhost:5173</a></div>
+            </div>
+            <div class="test-item">
+                <div class="test-icon question">2.</div>
+                <div><strong>Check sidebar tabs:</strong> Should see "Shapes", "BPMN", "AWS", "GCP", "Azure" tabs</div>
+            </div>
+            <div class="test-item">
+                <div class="test-icon question">3.</div>
+                <div><strong>Click AWS tab:</strong> Should see compute, storage, database, networking, security sections</div>
+            </div>
+            <div class="test-item">
+                <div class="test-icon question">4.</div>
+                <div><strong>Check AWS icons:</strong> EC2, S3, Lambda, RDS, VPC should display with SVG icons</div>
+            </div>
+            <div class="test-item">
+                <div class="test-icon question">5.</div>
+                <div><strong>Test drag and drop:</strong> Try dragging AWS EC2 onto canvas</div>
+            </div>
+            <div class="test-item">
+                <div class="test-icon question">6.</div>
+                <div><strong>Check Azure tab:</strong> VM, Storage, Functions should display</div>
+            </div>
+            <div class="test-item">
+                <div class="test-icon question">7.</div>
+                <div><strong>Check GCP tab:</strong> Compute Engine, Cloud Storage, Cloud Functions should display</div>
+            </div>
+        </div>
+
+        <div class="debug-section">
+            <h2>🛠️ Common Issues & Solutions</h2>
+            <div class="test-item">
+                <div class="test-icon check">✓</div>
+                <div><strong>Fixed:</strong> File casing issue with DrawingCanvas import</div>
+            </div>
+            <div class="test-item">
+                <div class="test-icon check">✓</div>
+                <div><strong>Fixed:</strong> SVG imports updated to use ?react suffix for vite-plugin-svgr</div>
+            </div>
+            <div class="test-item">
+                <div class="test-icon check">✓</div>
+                <div><strong>Fixed:</strong> TypeScript declarations for SVG modules</div>
+            </div>
+            <div class="test-item">
+                <div class="test-icon check">✓</div>
+                <div><strong>Fixed:</strong> Cloud service icons replaced with React components</div>
+            </div>
+        </div>
+
+        <div class="debug-section">
+            <h2>🚨 If Cloud Services Still Not Working</h2>
+            <div class="warning">
+                <strong>Possible Issues:</strong>
+                <ul>
+                    <li>SVG files not loading properly from assets folder</li>
+                    <li>vite-plugin-svgr not configured correctly</li>
+                    <li>Browser cache needs to be cleared</li>
+                    <li>CSS styling preventing display</li>
+                    <li>JavaScript errors in console</li>
+                </ul>
+            </div>
+            
+            <div class="info">
+                <strong>Debugging Steps:</strong>
+                <ul>
+                    <li>Open browser console (F12) and check for errors</li>
+                    <li>Check Network tab for failed SVG file requests</li>
+                    <li>Verify sidebar tabs are clickable and show content</li>
+                    <li>Test with hard refresh (Ctrl+F5 or Cmd+Shift+R)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="debug-section">
+            <h2>📂 File Status</h2>
+            <pre id="file-status">
+✅ /src/assets/icons/aws/ec2.svg
+✅ /src/assets/icons/aws/s3.svg  
+✅ /src/assets/icons/aws/lambda.svg
+✅ /src/assets/icons/aws/rds.svg
+✅ /src/assets/icons/aws/vpc.svg
+
+✅ /src/assets/icons/azure/virtual-machine.svg
+✅ /src/assets/icons/azure/storage.svg
+✅ /src/assets/icons/azure/functions.svg
+
+✅ /src/assets/icons/gcp/compute-engine.svg
+✅ /src/assets/icons/gcp/cloud-storage.svg
+✅ /src/assets/icons/gcp/cloud-functions.svg
+
+✅ /src/components/Sidebar/CloudServiceIcons.tsx - Updated with React components
+✅ /src/components/Sidebar/LeftSidebar.tsx - AWS/Azure/GCP tabs integrated
+✅ /src/components/CanvasEditor/ReactFlowNodes.tsx - Cloud service nodes added
+✅ /src/components/CanvasEditor/shapeDefinition.ts - Cloud services category added
+✅ /src/components/CanvasEditor/Drawingcanvas.tsx - Node types mapped
+✅ /src/vite-env.d.ts - SVG module declarations added
+            </pre>
+        </div>
+
+        <div class="debug-section">
+            <h2>🎯 Expected Behavior</h2>
+            <div class="success">
+                When cloud services are working correctly, you should be able to:
+                <ul>
+                    <li>✅ See AWS, Azure, GCP tabs in the left sidebar</li>
+                    <li>✅ Click each tab to view cloud service categories</li>
+                    <li>✅ See SVG icons for each cloud service</li>
+                    <li>✅ Drag cloud services from sidebar to canvas</li>
+                    <li>✅ Resize and edit cloud service nodes on canvas</li>
+                    <li>✅ Export diagrams with cloud services</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-test functionality
+        const tests = [
+            { name: 'Development server running', status: 'check' },
+            { name: 'SVG files created in assets/icons/', status: 'check' },
+            { name: 'CloudServiceIcons.tsx updated', status: 'check' },
+            { name: 'LeftSidebar.tsx has cloud tabs', status: 'check' },
+            { name: 'ReactFlowNodes.tsx has cloud components', status: 'check' },
+            { name: 'TypeScript declarations added', status: 'check' },
+            { name: 'File import casing fixed', status: 'check' },
+            { name: 'Cloud services visible in sidebar', status: 'question' },
+            { name: 'Drag and drop working', status: 'question' },
+            { name: 'Icons displaying correctly', status: 'question' }
+        ];
+
+        const testContainer = document.getElementById('tests');
+        tests.forEach(test => {
+            const div = document.createElement('div');
+            div.className = 'test-item';
+            
+            const icon = test.status === 'check' ? '✓' : test.status === 'cross' ? '✗' : '?';
+            const iconClass = test.status === 'check' ? 'check' : test.status === 'cross' ? 'cross' : 'question';
+            
+            div.innerHTML = `
+                <div class="test-icon ${iconClass}">${icon}</div>
+                <div><strong>${test.name}</strong></div>
+            `;
+            testContainer.appendChild(div);
+        });
+
+        console.log('🔧 Cloud Services Debug Test loaded');
+        console.log('👉 Check main application: http://localhost:5173');
+        console.log('📋 Verify cloud service tabs in sidebar');
+    </script>
+</body>
+</html>

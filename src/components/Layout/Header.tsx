@@ -1,42 +1,30 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useCallback, useContext, useState, useRef } from "react";
+import { useCallback, useContext, useState } from "react";
 import icon from "../../assets/images/logo.jpeg"
 import {
   File,
-  Layers,
   MoreHorizontal,
   ChevronDown,
   Save,
   Download,
-  Share2,
-  Undo,
-  Redo,
-  Copy,
-  Scissors,
-  ClipboardPaste,
-  Search,
-  ZoomIn,
-  ZoomOut,
-  Maximize,
-  Grid3X3,
-  Settings,
   Upload,
 } from "lucide-react";
 import { CanvasContext } from "../../context/CanvasEditorProvider";
 import { createFileInput } from "../../utils/importExportUtils";
 
 const Header = () => {
-  const [fileName, setFileName] = useState("Untitled Diagram");
   const [isEditingName, setIsEditingName] = useState(false);
   const [showExportDropdown, setShowExportDropdown] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const context = useContext(CanvasContext) as any;
-  const {state, setFileNameContext, exportCanvas, importFromFile, saveToDevice, loadFromDevice, checkForAutoSave, checkUnsavedWork, createNewDiagram, openImageFile } = context;
+  const {state, setFileNameContext, exportCanvas, importFromFile, saveToDevice, loadFromDevice, createNewDiagram, openImageFile } = context;
 
   if (!context) {
     return <div>Loading...</div>;
   }
+
+  // Use filename from context state
+  const fileName = state.filename || "Untitled Diagram";
 
   const handleFileNameEdit = () => {
     setIsEditingName(true);
@@ -45,6 +33,10 @@ const Header = () => {
   const handleFileNameSave = (e: any) => {
     if (e.key === "Enter" || e.type === "blur") {
       setIsEditingName(false);
+      // Ensure the filename is saved to context
+      if (e.target && e.target.value) {
+        setFileNameContext(e.target.value);
+      }
     }
   };
 
@@ -61,13 +53,16 @@ const Header = () => {
 
   const handleSaveAs = useCallback(async () => {
     try {
-      const newFileName = prompt('Enter file name:', state.filename || 'Untitled Diagram');
-      if (newFileName) {
-        await saveToDevice(newFileName);
-        setFileNameContext(newFileName);
+      const currentFileName = state.filename || 'Untitled Diagram';
+      const newFileName = prompt('Enter file name:', currentFileName);
+      if (newFileName && newFileName.trim()) {
+        const trimmedName = newFileName.trim();
+        await saveToDevice(trimmedName);
+        setFileNameContext(trimmedName);
         alert('File saved successfully!');
       }
     } catch (error) {
+      console.error('Save As failed:', error);
       alert('Failed to save file: ' + (error instanceof Error ? error.message : String(error)));
     }
   }, [saveToDevice, state.filename, setFileNameContext]);
@@ -101,6 +96,23 @@ const Header = () => {
     try {
       console.log('Starting export for format:', format);
       
+      // Get the ReactFlow instance
+      const reactFlowInstance = (window as any).__REACT_FLOW_INSTANCE__;
+      if (!reactFlowInstance) {
+        console.error('ReactFlow instance not found');
+        alert('Please refresh the page and try again.');
+        return;
+      }
+      
+      // Get current nodes and edges
+      const nodes = reactFlowInstance.getNodes();
+      reactFlowInstance.getEdges(); // Keep edges in sync for export
+      
+      if (!nodes || nodes.length === 0) {
+        alert('No shapes found! Please add some shapes to the canvas first.');
+        return;
+      }
+      
       // Get the canvas element for image exports
       let canvasElement: HTMLElement | null = null;
       
@@ -127,6 +139,7 @@ const Header = () => {
       
       await exportCanvas(format, canvasElement);
       console.log('Export completed successfully');
+      alert(`Successfully exported as ${format.toUpperCase()}`);
     } catch (error) {
       console.error('Export failed:', error);
       alert('Failed to export: ' + (error instanceof Error ? error.message : String(error)));
@@ -185,62 +198,55 @@ const Header = () => {
           <div className="flex items-center gap-1">
             <button
               onClick={createNewDiagram}
-              className="flex items-center gap-1 px-2 py-1 hover:bg-gray-100 rounded text-gray-600"
+              className="flex items-center justify-center p-2 hover:bg-gray-100 rounded text-gray-600"
               title="New (Ctrl+N)"
             >
               <File size={16} />
-              <span className="text-sm">New</span>
             </button>
             <button
               onClick={handleLoad}
-              className="flex items-center gap-1 px-2 py-1 hover:bg-gray-100 rounded text-gray-600"
+              className="flex items-center justify-center p-2 hover:bg-gray-100 rounded text-gray-600"
               title="Open... (Ctrl+O)"
             >
               <Upload size={16} />
-              <span className="text-sm">Open</span>
             </button>
             <button
               onClick={openImageFile}
-              className="flex items-center gap-1 px-2 py-1 hover:bg-gray-100 rounded text-gray-600"
+              className="flex items-center justify-center p-2 hover:bg-gray-100 rounded text-gray-600"
               title="Open Image... (Ctrl+Shift+O)"
             >
               <Upload size={16} />
-              <span className="text-sm">Image</span>
             </button>
             <button
               onClick={handleSave}
-              className="flex items-center gap-1 px-2 py-1 hover:bg-gray-100 rounded text-gray-600"
+              className="flex items-center justify-center p-2 hover:bg-gray-100 rounded text-gray-600"
               title="Save (Ctrl+S)"
             >
               <Save size={16} />
-              <span className="text-sm">Save</span>
             </button>
             <button
               onClick={handleSaveAs}
-              className="flex items-center gap-1 px-2 py-1 hover:bg-gray-100 rounded text-gray-600"
+              className="flex items-center justify-center p-2 hover:bg-gray-100 rounded text-gray-600"
               title="Save as... (Ctrl+Shift+S)"
             >
               <Save size={16} />
-              <span className="text-sm">Save As</span>
             </button>
             <button
               onClick={handleImport}
-              className="flex items-center gap-1 px-2 py-1 hover:bg-gray-100 rounded text-gray-600"
+              className="flex items-center justify-center p-2 hover:bg-gray-100 rounded text-gray-600"
               title="Import from..."
             >
               <Upload size={16} />
-              <span className="text-sm">Import</span>
             </button>
             
             {/* Export Dropdown */}
             <div className="relative">
               <button
                 onClick={() => setShowExportDropdown(!showExportDropdown)}
-                className="flex items-center gap-1 px-2 py-1 hover:bg-gray-100 rounded text-gray-600"
+                className="flex items-center justify-center gap-1 p-2 hover:bg-gray-100 rounded text-gray-600"
                 title="Export as..."
               >
                 <Download size={16} />
-                <span className="text-sm">Export</span>
                 <ChevronDown size={12} />
               </button>
               
