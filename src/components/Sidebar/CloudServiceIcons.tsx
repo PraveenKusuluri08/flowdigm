@@ -1,273 +1,172 @@
 import React from 'react';
 
-// AWS Service Icons - Using proper SVG icons
+// Import AWS SVG icons as React components using ?react suffix for vite-plugin-svgr
+import AWSEC2Icon from '../../assets/icons/aws/ec2.svg?react';
+import AWSS3Icon from '../../assets/icons/aws/s3.svg?react';
+import AWSLambdaIcon from '../../assets/icons/aws/lambda.svg?react';
+import AWSRDSIcon from '../../assets/icons/aws/rds.svg?react';
+import AWSVPCIcon from '../../assets/icons/aws/vpc.svg?react';
+import AWSIAMIcon from '../../assets/icons/aws/iam.svg?react';
+import AWSECSIcon from '../../assets/icons/aws/ecs.svg?react';
+import AWSEKSIcon from '../../assets/icons/aws/eks.svg?react';
+import AWSDynamoDBIcon from '../../assets/icons/aws/dynamodb.svg?react';
+import AWSRedshiftIcon from '../../assets/icons/aws/redshift.svg?react';
+import AWSALBIcon from '../../assets/icons/aws/alb.svg?react';
+import AWSRoute53Icon from '../../assets/icons/aws/route53.svg?react';
+import AWSKMSIcon from '../../assets/icons/aws/kms.svg?react';
+import AWSEBSIcon from '../../assets/icons/aws/ebs.svg?react';
+import AWSEFSIcon from '../../assets/icons/aws/efs.svg?react';
+
+// Import Azure SVG icons as React components
+import AzureVMIcon from '../../assets/icons/azure/virtual-machine.svg?react';
+import AzureStorageIcon from '../../assets/icons/azure/storage.svg?react';
+import AzureFunctionsIcon from '../../assets/icons/azure/functions.svg?react';
+import AzureAKSIcon from '../../assets/icons/azure/aks.svg?react';
+import AzureSQLIcon from '../../assets/icons/azure/sql.svg?react';
+import AzureCosmosDBIcon from '../../assets/icons/azure/cosmosdb.svg?react';
+import AzureVNetIcon from '../../assets/icons/azure/vnet.svg?react';
+import AzureLoadBalancerIcon from '../../assets/icons/azure/load-balancer.svg?react';
+import AzureDiskIcon from '../../assets/icons/azure/disk.svg?react';
+import AzureKeyVaultIcon from '../../assets/icons/azure/key-vault.svg?react';
+import AzureActiveDirectoryIcon from '../../assets/icons/azure/active-directory.svg?react';
+
+// Import GCP SVG icons as React components
+import GCPComputeIcon from '../../assets/icons/gcp/compute-engine.svg?react';
+import GCPStorageIcon from '../../assets/icons/gcp/cloud-storage.svg?react';
+import GCPFunctionsIcon from '../../assets/icons/gcp/cloud-functions.svg?react';
+import GCPGKEIcon from '../../assets/icons/gcp/gke.svg?react';
+import GCPCloudSQLIcon from '../../assets/icons/gcp/cloud-sql.svg?react';
+import GCPFirestoreIcon from '../../assets/icons/gcp/firestore.svg?react';
+import GCPBigQueryIcon from '../../assets/icons/gcp/bigquery.svg?react';
+import GCPVPCIcon from '../../assets/icons/gcp/vpc.svg?react';
+import GCPLoadBalancerIcon from '../../assets/icons/gcp/load-balancer.svg?react';
+import GCPPersistentDiskIcon from '../../assets/icons/gcp/persistent-disk.svg?react';
+import GCPIAMIcon from '../../assets/icons/gcp/iam.svg?react';
+import GCPKMSIcon from '../../assets/icons/gcp/kms.svg?react';
+
+// AWS Service Icons - Using SVG React components from files
 const AWSIcons = {
   'aws-ec2': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/>
-      <path d="M12 6l6 3.5v7L12 18l-6-3.5v-7L12 6z"/>
-      <path d="M12 10l2 1.5v3L12 16l-2-1.5v-3L12 10z"/>
-    </svg>
+    <AWSEC2Icon className="w-6 h-6" />
   ),
   'aws-lambda': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-      <path d="M12 6l6 3.5v7L12 18l-6-3.5v-7L12 6z"/>
-    </svg>
+    <AWSLambdaIcon className="w-6 h-6" />
   ),
   'aws-s3': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/>
-      <path d="M12 6l6 3.5v7L12 18l-6-3.5v-7L12 6z"/>
-      <path d="M8 10h8M8 12h8M8 14h6"/>
-    </svg>
+    <AWSS3Icon className="w-6 h-6" />
   ),
   'aws-rds': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-      <path d="M12 6l-3 3 3 3 3-3-3-3z"/>
-    </svg>
+    <AWSRDSIcon className="w-6 h-6" />
   ),
   'aws-vpc': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/>
-      <path d="M12 6l6 3.5v7L12 18l-6-3.5v-7L12 6z"/>
-      <path d="M8 10h8M8 12h8M8 14h8"/>
-    </svg>
+    <AWSVPCIcon className="w-6 h-6" />
   ),
   'aws-iam': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/>
-      <path d="M12 6l6 3.5v7L12 18l-6-3.5v-7L12 6z"/>
-      <path d="M12 10l2 1.5v3L12 16l-2-1.5v-3L12 10z"/>
-      <path d="M12 12l1 0.5v1L12 14l-1-0.5v-1L12 12z"/>
-    </svg>
+    <AWSIAMIcon className="w-6 h-6" />
   ),
   'aws-ecs': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/>
-      <path d="M12 6l6 3.5v7L12 18l-6-3.5v-7L12 6z"/>
-      <circle cx="12" cy="12" r="2"/>
-      <circle cx="8" cy="10" r="1"/>
-      <circle cx="16" cy="10" r="1"/>
-      <circle cx="8" cy="14" r="1"/>
-      <circle cx="16" cy="14" r="1"/>
-    </svg>
+    <AWSECSIcon className="w-6 h-6" />
   ),
   'aws-eks': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/>
-      <path d="M12 6l6 3.5v7L12 18l-6-3.5v-7L12 6z"/>
-      <circle cx="12" cy="12" r="2"/>
-      <circle cx="8" cy="10" r="1"/>
-      <circle cx="16" cy="10" r="1"/>
-      <circle cx="8" cy="14" r="1"/>
-      <circle cx="16" cy="14" r="1"/>
-    </svg>
+    <AWSEKSIcon className="w-6 h-6" />
   ),
   'aws-dynamodb': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/>
-      <path d="M12 6l6 3.5v7L12 18l-6-3.5v-7L12 6z"/>
-      <path d="M12 10l2 1.5v3L12 16l-2-1.5v-3L12 10z"/>
-      <path d="M12 12l1 0.5v1L12 14l-1-0.5v-1L12 12z"/>
-    </svg>
+    <AWSDynamoDBIcon className="w-6 h-6" />
   ),
   'aws-redshift': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/>
-      <path d="M12 6l6 3.5v7L12 18l-6-3.5v-7L12 6z"/>
-      <path d="M8 10h8M8 12h8M8 14h6"/>
-      <path d="M10 8h4M10 16h4"/>
-    </svg>
+    <AWSRedshiftIcon className="w-6 h-6" />
   ),
   'aws-alb': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/>
-      <path d="M12 6l6 3.5v7L12 18l-6-3.5v-7L12 6z"/>
-      <path d="M8 10h8M8 12h8M8 14h8"/>
-      <path d="M10 8h4M10 16h4"/>
-    </svg>
+    <AWSALBIcon className="w-6 h-6" />
   ),
   'aws-route53': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-      <path d="M12 6l-3 3 3 3 3-3-3-3z"/>
-    </svg>
+    <AWSRoute53Icon className="w-6 h-6" />
   ),
   'aws-kms': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/>
-      <path d="M12 6l6 3.5v7L12 18l-6-3.5v-7L12 6z"/>
-      <path d="M12 10l2 1.5v3L12 16l-2-1.5v-3L12 10z"/>
-      <path d="M12 12l1 0.5v1L12 14l-1-0.5v-1L12 12z"/>
-    </svg>
+    <AWSKMSIcon className="w-6 h-6" />
   ),
   'aws-ebs': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <circle cx="12" cy="12" r="10"/>
-      <circle cx="12" cy="12" r="6"/>
-      <circle cx="12" cy="12" r="3"/>
-    </svg>
+    <AWSEBSIcon className="w-6 h-6" />
   ),
   'aws-efs': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/>
-      <path d="M12 6l6 3.5v7L12 18l-6-3.5v-7L12 6z"/>
-      <path d="M8 10h8M8 12h8M8 14h6"/>
-    </svg>
+    <AWSEFSIcon className="w-6 h-6" />
   )
 };
 
-// Google Cloud Service Icons - Using proper SVG icons
+// Google Cloud Service Icons - Using SVG React components from files
 const GCPIcons = {
   'gcp-compute-engine': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/>
-      <path d="M12 6l6 3.5v7L12 18l-6-3.5v-7L12 6z"/>
-      <circle cx="12" cy="12" r="2"/>
-      <circle cx="8" cy="10" r="1"/>
-      <circle cx="16" cy="10" r="1"/>
-      <circle cx="8" cy="14" r="1"/>
-      <circle cx="16" cy="14" r="1"/>
-    </svg>
+    <GCPComputeIcon className="w-6 h-6" />
   ),
   'gcp-cloud-functions': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-      <path d="M12 6l6 3.5v7L12 18l-6-3.5v-7L12 6z"/>
-    </svg>
+    <GCPFunctionsIcon className="w-6 h-6" />
   ),
   'gcp-gke': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/>
-      <path d="M12 6l6 3.5v7L12 18l-6-3.5v-7L12 6z"/>
-      <circle cx="12" cy="12" r="2"/>
-      <circle cx="8" cy="10" r="1"/>
-      <circle cx="16" cy="10" r="1"/>
-      <circle cx="8" cy="14" r="1"/>
-      <circle cx="16" cy="14" r="1"/>
-    </svg>
+    <GCPGKEIcon className="w-6 h-6" />
   ),
   'gcp-cloud-storage': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/>
-      <path d="M12 6l6 3.5v7L12 18l-6-3.5v-7L12 6z"/>
-      <path d="M8 10h8M8 12h8M8 14h6"/>
-    </svg>
+    <GCPStorageIcon className="w-6 h-6" />
   ),
   'gcp-cloud-sql': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-      <path d="M12 6l-3 3 3 3 3-3-3-3z"/>
-    </svg>
+    <GCPCloudSQLIcon className="w-6 h-6" />
   ),
   'gcp-firestore': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/>
-      <path d="M12 6l6 3.5v7L12 18l-6-3.5v-7L12 6z"/>
-      <path d="M12 10l2 1.5v3L12 16l-2-1.5v-3L12 10z"/>
-      <path d="M12 12l1 0.5v1L12 14l-1-0.5v-1L12 12z"/>
-    </svg>
+    <GCPFirestoreIcon className="w-6 h-6" />
   ),
   'gcp-bigquery': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/>
-      <path d="M12 6l6 3.5v7L12 18l-6-3.5v-7L12 6z"/>
-      <path d="M8 10h8M8 12h8M8 14h6"/>
-      <path d="M10 8h4M10 16h4"/>
-    </svg>
+    <GCPBigQueryIcon className="w-6 h-6" />
   ),
   'gcp-vpc': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/>
-      <path d="M12 6l6 3.5v7L12 18l-6-3.5v-7L12 6z"/>
-      <path d="M8 10h8M8 12h8M8 14h8"/>
-    </svg>
+    <GCPVPCIcon className="w-6 h-6" />
   ),
   'gcp-load-balancer': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/>
-      <path d="M12 6l6 3.5v7L12 18l-6-3.5v-7L12 6z"/>
-      <path d="M8 10h8M8 12h8M8 14h8"/>
-      <path d="M10 8h4M10 16h4"/>
-    </svg>
+    <GCPLoadBalancerIcon className="w-6 h-6" />
   ),
   'gcp-persistent-disk': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <circle cx="12" cy="12" r="10"/>
-      <circle cx="12" cy="12" r="6"/>
-      <circle cx="12" cy="12" r="3"/>
-    </svg>
+    <GCPPersistentDiskIcon className="w-6 h-6" />
+  ),
+  'gcp-iam': (
+    <GCPIAMIcon className="w-6 h-6" />
+  ),
+  'gcp-kms': (
+    <GCPKMSIcon className="w-6 h-6" />
   )
 };
 
-// Azure Service Icons - Custom SVG icons (we can add real Azure icons later)
+// Azure Service Icons - Using SVG React components from files
 const AzureIcons = {
   'azure-vm': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/>
-      <path d="M12 6l6 3.5v7L12 18l-6-3.5v-7L12 6z"/>
-      <path d="M12 10l2 1.5v3L12 16l-2-1.5v-3L12 10z"/>
-    </svg>
+    <AzureVMIcon className="w-6 h-6" />
   ),
   'azure-functions': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-      <path d="M12 6l6 3.5v7L12 18l-6-3.5v-7L12 6z"/>
-    </svg>
+    <AzureFunctionsIcon className="w-6 h-6" />
   ),
   'azure-aks': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/>
-      <path d="M12 6l6 3.5v7L12 18l-6-3.5v-7L12 6z"/>
-      <circle cx="12" cy="12" r="2"/>
-      <circle cx="8" cy="10" r="1"/>
-      <circle cx="16" cy="10" r="1"/>
-      <circle cx="8" cy="14" r="1"/>
-      <circle cx="16" cy="14" r="1"/>
-    </svg>
+    <AzureAKSIcon className="w-6 h-6" />
   ),
   'azure-storage': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M3 3h18v18H3V3zm16 16V5H5v14h14z"/>
-      <path d="M7 7h10v2H7V7zm0 4h10v2H7v-2zm0 4h6v2H7v-2z"/>
-      <path d="M9 9h2v2H9V9zm0 4h2v2H9v-2z"/>
-    </svg>
+    <AzureStorageIcon className="w-6 h-6" />
   ),
   'azure-sql': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-      <path d="M12 6l-3 3 3 3 3-3-3-3z"/>
-    </svg>
+    <AzureSQLIcon className="w-6 h-6" />
   ),
   'azure-cosmosdb': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/>
-      <path d="M12 6l6 3.5v7L12 18l-6-3.5v-7L12 6z"/>
-      <path d="M12 10l2 1.5v3L12 16l-2-1.5v-3L12 10z"/>
-      <path d="M12 12l1 0.5v1L12 14l-1-0.5v-1L12 12z"/>
-    </svg>
+    <AzureCosmosDBIcon className="w-6 h-6" />
   ),
   'azure-vnet': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/>
-      <path d="M12 6l6 3.5v7L12 18l-6-3.5v-7L12 6z"/>
-    </svg>
+    <AzureVNetIcon className="w-6 h-6" />
   ),
   'azure-lb': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/>
-      <path d="M12 6l6 3.5v7L12 18l-6-3.5v-7L12 6z"/>
-      <path d="M8 12h8M8 10h8M8 14h8"/>
-    </svg>
+    <AzureLoadBalancerIcon className="w-6 h-6" />
   ),
   'azure-disk': (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-      <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/>
-      <path d="M12 6l6 3.5v7L12 18l-6-3.5v-7L12 6z"/>
-      <circle cx="12" cy="12" r="3"/>
-    </svg>
+    <AzureDiskIcon className="w-6 h-6" />
+  ),
+  'azure-key-vault': (
+    <AzureKeyVaultIcon className="w-6 h-6" />
+  ),
+  'azure-ad': (
+    <AzureActiveDirectoryIcon className="w-6 h-6" />
   )
 };
 
@@ -475,14 +374,14 @@ export const googleCloudServices = {
       name: 'IAM',
       category: 'Security',
       description: 'Identity & Access Management',
-      icon: GCPIcons['gcp-compute-engine'], // Fallback icon
+      icon: GCPIcons['gcp-iam'],
       color: '#4285F4'
     },
     'gcp-kms': {
       name: 'KMS',
       category: 'Security',
       description: 'Key Management Service',
-      icon: GCPIcons['gcp-compute-engine'], // Fallback icon
+      icon: GCPIcons['gcp-kms'],
       color: '#4285F4'
     }
   }
@@ -566,14 +465,14 @@ export const azureServices = {
       name: 'Key Vault',
       category: 'Security',
       description: 'Key Management',
-      icon: AzureIcons['azure-vm'], // Using VM icon as fallback
+      icon: AzureIcons['azure-key-vault'],
       color: '#0078D4'
     },
     'azure-ad': {
       name: 'Active Directory',
       category: 'Security',
       description: 'Identity Management',
-      icon: AzureIcons['azure-vm'], // Using VM icon as fallback
+      icon: AzureIcons['azure-ad'],
       color: '#0078D4'
     }
   }

@@ -1,7 +1,6 @@
 // components/CanvasEditor/ReactFlowCanvas.tsx - NEW FILE
-import React from 'react';
 import { ReactFlowProvider } from 'reactflow';
-import DrawingCanvas from './DrawingCanvas';
+import DrawingCanvas from './Drawingcanvas';
 
 const ReactFlowCanvas = () => {
   return (
