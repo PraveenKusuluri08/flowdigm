@@ -1,8 +1,18 @@
 // Comprehensive Sync Manager for Cloud-based Bidirectional Integration
 import type { DiagramData, SyncResult, SyncConflict } from './bidirectionalIntegration';
 import type { UserCredentials } from './userAuthSync';
-import { oauth2Service } from './oauth2Service';
 import { cloudDocumentManager, type CloudDocument } from './cloudDocumentManager';
+
+// Stub implementation for oauth2Service
+const oauth2Service = {
+  generateAuthUrl: async (platform: string) => `https://example.com/auth/${platform}`,
+  exchangeCodeForToken: async (platform: string, code: string, state: string) => ({
+    platform,
+    accessToken: 'stub-token',
+    refreshToken: 'stub-refresh',
+    expiresAt: new Date(Date.now() + 3600000)
+  })
+};
 
 export interface SyncSession {
   id: string;

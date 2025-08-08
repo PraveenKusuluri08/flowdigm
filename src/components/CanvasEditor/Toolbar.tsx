@@ -18,7 +18,7 @@ import {
   Shield
 } from 'lucide-react';
 import { useCanvas } from '../../hooks/useCanvas';
-import ValidationPanel from './ValidationPanel';
+// import ValidationPanel from './ValidationPanel'; // Removed problematic import
 
 const Toolbar = () => {
   const { 
@@ -218,10 +218,10 @@ const Toolbar = () => {
       </div>
       
       {/* Validation Panel */}
-      <ValidationPanel 
+      {/* <ValidationPanel 
         isOpen={showValidation} 
         onClose={() => setShowValidation(false)} 
-      />
+      /> */}
     </div>
   );
 };

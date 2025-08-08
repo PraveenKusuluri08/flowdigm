@@ -361,13 +361,13 @@ const CloudServiceNode = ({
   <ResizableNode data={data} selected={selected} minWidth={80} minHeight={60}>
     <div className={`w-full h-full ${bgColor} border-2 ${borderColor} rounded flex flex-col items-center justify-center p-2`}>
       {iconSrc && (
-        <img src={iconSrc} alt={serviceName} className="w-6 h-6 mb-1" />
+        <img src={iconSrc} alt={serviceName} className="w-12 h-12 mb-1" />
       )}
       <EditableText 
         data={data} 
         placeholder={serviceName} 
-        className={`${textColor} font-medium text-center`} 
-        style={{ fontSize: '9px' }} 
+        className={`${textColor} font-medium text-center opacity-60`} 
+        style={{ fontSize: '7px', lineHeight: '1' }} 
       />
     </div>
   </ResizableNode>
@@ -381,6 +381,7 @@ export const AWSEC2Node = ({ data, selected }: { data: any; selected?: boolean }
     bgColor="bg-orange-50" 
     borderColor="border-orange-400" 
     textColor="text-orange-800"
+    iconSrc="/icons/aws/aws-ec2.svg"
     serviceName="EC2"
   />
 );
@@ -392,6 +393,7 @@ export const AWSS3Node = ({ data, selected }: { data: any; selected?: boolean })
     bgColor="bg-orange-50" 
     borderColor="border-orange-400" 
     textColor="text-orange-800"
+    iconSrc="/icons/aws/aws-s3.svg"
     serviceName="S3"
   />
 );
@@ -403,6 +405,7 @@ export const AWSLambdaNode = ({ data, selected }: { data: any; selected?: boolea
     bgColor="bg-orange-50" 
     borderColor="border-orange-400" 
     textColor="text-orange-800"
+    iconSrc="/icons/aws/aws-lambda.svg"
     serviceName="Lambda"
   />
 );
@@ -414,6 +417,7 @@ export const AWSRDSNode = ({ data, selected }: { data: any; selected?: boolean }
     bgColor="bg-orange-50" 
     borderColor="border-orange-400" 
     textColor="text-orange-800"
+    iconSrc="/icons/aws/aws-rds.svg"
     serviceName="RDS"
   />
 );
@@ -425,6 +429,7 @@ export const AWSVPCNode = ({ data, selected }: { data: any; selected?: boolean }
     bgColor="bg-orange-50" 
     borderColor="border-orange-400" 
     textColor="text-orange-800"
+    iconSrc="/icons/aws/aws-vpc.svg"
     serviceName="VPC"
   />
 );
@@ -471,6 +476,7 @@ export const GCPComputeNode = ({ data, selected }: { data: any; selected?: boole
     bgColor="bg-green-50" 
     borderColor="border-green-400" 
     textColor="text-green-800"
+    iconSrc="/icons/gcp/gcp-compute-engine.svg"
     serviceName="Compute"
   />
 );
@@ -482,6 +488,7 @@ export const GCPStorageNode = ({ data, selected }: { data: any; selected?: boole
     bgColor="bg-green-50" 
     borderColor="border-green-400" 
     textColor="text-green-800"
+    iconSrc="/icons/gcp/gcp-cloud-storage.svg"
     serviceName="Storage"
   />
 );
@@ -493,7 +500,45 @@ export const GCPFunctionsNode = ({ data, selected }: { data: any; selected?: boo
     bgColor="bg-green-50" 
     borderColor="border-green-400" 
     textColor="text-green-800"
+    iconSrc="/icons/gcp/gcp-cloud-functions.svg"
     serviceName="Functions"
+  />
+);
+
+// Additional GCP node types for the onDrop function
+export const GCPComputeEngineNode = ({ data, selected }: { data: any; selected?: boolean }) => (
+  <CloudServiceNode 
+    data={data} 
+    selected={selected} 
+    bgColor="bg-green-50" 
+    borderColor="border-green-400" 
+    textColor="text-green-800"
+    iconSrc="/icons/gcp/gcp-compute-engine.svg"
+    serviceName="Compute Engine"
+  />
+);
+
+export const GCPCloudStorageNode = ({ data, selected }: { data: any; selected?: boolean }) => (
+  <CloudServiceNode 
+    data={data} 
+    selected={selected} 
+    bgColor="bg-green-50" 
+    borderColor="border-green-400" 
+    textColor="text-green-800"
+    iconSrc="/icons/gcp/gcp-cloud-storage.svg"
+    serviceName="Cloud Storage"
+  />
+);
+
+export const GCPCloudFunctionsNode = ({ data, selected }: { data: any; selected?: boolean }) => (
+  <CloudServiceNode 
+    data={data} 
+    selected={selected} 
+    bgColor="bg-green-50" 
+    borderColor="border-green-400" 
+    textColor="text-green-800"
+    iconSrc="/icons/gcp/gcp-cloud-functions.svg"
+    serviceName="Cloud Functions"
   />
 );
 

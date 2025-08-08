@@ -17,7 +17,7 @@ const Header = () => {
   const [showExportDropdown, setShowExportDropdown] = useState(false);
 
   const context = useContext(CanvasContext) as any;
-  const {state, setFileNameContext, exportCanvas, importFromFile, saveToDevice, loadFromDevice, createNewDiagram, openImageFile } = context;
+  const {state, setFileNameContext, exportCanvas, importFromFile, importImageFile, saveToDevice, loadFromDevice, createNewDiagram, openImageFile } = context;
 
   if (!context) {
     return <div>Loading...</div>;
@@ -77,13 +77,19 @@ const Header = () => {
   }, [loadFromDevice]);
 
   const handleImport = useCallback(() => {
-    const input = createFileInput('.json', false);
+    // Accept JSON (diagram), plus SVG/PNG/JPEG images
+    const input = createFileInput('.json,.svg,.png,.jpg,.jpeg,.gif,.bmp,.webp', false);
     input.onchange = async (event) => {
       const target = event.target as HTMLInputElement;
       const file = target.files?.[0];
       if (file) {
         try {
-          await importFromFile(file);
+          const ext = file.name.toLowerCase().split('.').pop();
+          if (ext === 'json') {
+            await importFromFile(file);
+          } else {
+            await importImageFile(file);
+          }
         } catch (error) {
           alert('Failed to import file: ' + error);
         }
@@ -195,58 +201,65 @@ const Header = () => {
         {/* Right Section - File Actions and User Actions */}
         <div className="flex items-center gap-2">
           {/* File Action Buttons */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             <button
               onClick={createNewDiagram}
-              className="flex items-center justify-center p-2 hover:bg-gray-100 rounded text-gray-600"
+              className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded text-gray-600"
               title="New (Ctrl+N)"
             >
               <File size={16} />
+              <span className="text-sm">New</span>
             </button>
             <button
               onClick={handleLoad}
-              className="flex items-center justify-center p-2 hover:bg-gray-100 rounded text-gray-600"
+              className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded text-gray-600"
               title="Open... (Ctrl+O)"
             >
               <Upload size={16} />
+              <span className="text-sm">Open</span>
             </button>
             <button
               onClick={openImageFile}
-              className="flex items-center justify-center p-2 hover:bg-gray-100 rounded text-gray-600"
+              className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded text-gray-600"
               title="Open Image... (Ctrl+Shift+O)"
             >
               <Upload size={16} />
+              <span className="text-sm">Open Image</span>
             </button>
             <button
               onClick={handleSave}
-              className="flex items-center justify-center p-2 hover:bg-gray-100 rounded text-gray-600"
+              className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded text-gray-600"
               title="Save (Ctrl+S)"
             >
               <Save size={16} />
+              <span className="text-sm">Save</span>
             </button>
             <button
               onClick={handleSaveAs}
-              className="flex items-center justify-center p-2 hover:bg-gray-100 rounded text-gray-600"
+              className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded text-gray-600"
               title="Save as... (Ctrl+Shift+S)"
             >
               <Save size={16} />
+              <span className="text-sm">Save As</span>
             </button>
             <button
               onClick={handleImport}
-              className="flex items-center justify-center p-2 hover:bg-gray-100 rounded text-gray-600"
+              className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded text-gray-600"
               title="Import from..."
             >
               <Upload size={16} />
+              <span className="text-sm">Import</span>
             </button>
             
             {/* Export Dropdown */}
             <div className="relative">
               <button
                 onClick={() => setShowExportDropdown(!showExportDropdown)}
-                className="flex items-center justify-center gap-1 p-2 hover:bg-gray-100 rounded text-gray-600"
+                className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded text-gray-600"
                 title="Export as..."
               >
                 <Download size={16} />
+                <span className="text-sm">Export</span>
                 <ChevronDown size={12} />
               </button>
               

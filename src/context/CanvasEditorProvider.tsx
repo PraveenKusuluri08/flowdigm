@@ -2,15 +2,15 @@
 // contexts/CanvasContext.js - Fixed for Stable Positioning
 import React, { createContext, useReducer, useCallback, useEffect } from 'react';
 import type { CanvasData } from '../types/importExport';
-import { exportAsPNG, exportAsJPEG, exportAsSVG, exportAsJSON, importFromJSON, exportAsPNGSimple, exportAsPNGCanvas } from '../utils/importExportUtils';
+import { exportAsPNG, exportAsJPEG, exportAsSVG, exportAsJSON, importFromJSON, exportAsPNGSimple, exportAsPNGCanvas, exportAsFlowdigm } from '../utils/importExportUtils';
 import { saveFileToDevice, loadFileFromDevice, setupAutoSave, loadAutoSave, clearAutoSave, hasUnsavedWork } from '../utils/fileSystemUtils';
-import { processImageFileForShapes, createImageFileInput, type ExtractedShape } from '../utils/imageProcessingUtils';
+import { processImageFileForShapes, createImageFileInput } from '../utils/imageProcessingUtils';
 
 // Initial canvas state - STABLE defaults
 const initialCanvasState = {
   filename: "Untitled Diagram",
-  shapes: [],
-  selectedShapeIds: [],
+  shapes: [] as any[],
+  selectedShapeIds: [] as string[],
   stage: {
     scale: 1,
     x: 0,
@@ -25,17 +25,20 @@ const initialCanvasState = {
   },
   tool: 'select',
   history: {
-    past: [],
-    present: [],
-    future: []
+    past: [] as any[],
+    present: [] as any[],
+    future: [] as any[]
   },
-  clipboard: [],
+  clipboard: [] as any[],
   isDragging: false,
   isDrawing: false
 };
 
 // Canvas reducer - STABLE operations
-const canvasReducer = (state, action) => {
+type CanvasState = typeof initialCanvasState;
+type CanvasAction = { type: string; payload?: any };
+
+const canvasReducer = (state: CanvasState, action: CanvasAction) => {
   switch (action.type) {
     case 'SET_FILENAME':
       return {
@@ -76,7 +79,7 @@ const canvasReducer = (state, action) => {
     case 'UPDATE_SHAPE':
       return {
         ...state,
-        shapes: state.shapes.map(shape =>
+        shapes: state.shapes.map((shape: any) =>
           shape.id === action.payload.id
             ? { 
                 ...shape, 
@@ -94,10 +97,10 @@ const canvasReducer = (state, action) => {
 
     case 'DELETE_SHAPES':
       {
-        const idsToDelete = action.payload;
+        const idsToDelete = action.payload as string[];
         return {
           ...state,
-          shapes: state.shapes.filter(shape => !idsToDelete.includes(shape.id)),
+          shapes: state.shapes.filter((shape: any) => !idsToDelete.includes(shape.id)),
           selectedShapeIds: state.selectedShapeIds.filter(id => !idsToDelete.includes(id))
         };
       }
@@ -171,7 +174,7 @@ const canvasReducer = (state, action) => {
 
     case 'COPY_SHAPES':
       {
-        const shapesToCopy = state.shapes.filter((shape) => 
+        const shapesToCopy = state.shapes.filter((shape: any) => 
           state.selectedShapeIds.includes(shape.id)
         );
         return {
@@ -182,7 +185,7 @@ const canvasReducer = (state, action) => {
 
     case 'PASTE_SHAPES':
       {
-        const pastedShapes = state.clipboard.map(shape => ({
+        const pastedShapes = state.clipboard.map((shape: any) => ({
           ...shape,
           id: `shape_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           x: shape.x + 20,
@@ -197,18 +200,38 @@ const canvasReducer = (state, action) => {
       }
 
     case 'IMPORT_CANVAS':
-      return {
-        ...state,
-        shapes: action.payload.shapes || [],
-        filename: action.payload.fileName || state.filename,
-        grid: action.payload.grid || state.grid,
-        stage: action.payload.viewport ? {
-          ...state.stage,
-          x: action.payload.viewport.x || 0,
-          y: action.payload.viewport.y || 0,
-          scale: action.payload.viewport.zoom || 1
-        } : state.stage
-      };
+      {
+        const payload = action.payload || {};
+        const importedNodes = Array.isArray(payload.nodes) ? payload.nodes : [];
+        const mappedShapes = importedNodes.map((node: any) => ({
+          id: node.id,
+          type: node.type === 'rect' ? 'rectangle' : (node.type || 'rectangle'),
+          x: node.position?.x ?? 0,
+          y: node.position?.y ?? 0,
+          width: node.data?.width ?? 100,
+          height: node.data?.height ?? 80,
+          fill: node.data?.fill ?? '#ffffff',
+          stroke: node.data?.stroke ?? '#000000',
+          strokeWidth: node.data?.strokeWidth ?? 2,
+          text: node.data?.label ?? '',
+          serviceType: node.data?.serviceType,
+          serviceName: node.data?.serviceName,
+          icon: node.data?.icon
+        }));
+
+        return {
+          ...state,
+          shapes: payload.shapes && Array.isArray(payload.shapes) && payload.shapes.length > 0 ? payload.shapes : (mappedShapes as any[]),
+          filename: payload.fileName || state.filename,
+          grid: payload.grid || state.grid,
+          stage: payload.viewport ? {
+            ...state.stage,
+            x: payload.viewport.x || 0,
+            y: payload.viewport.y || 0,
+            scale: payload.viewport.zoom || 1
+          } : state.stage
+        };
+      }
 
     case 'CLEAR_CANVAS':
       return {
@@ -251,6 +274,7 @@ interface CanvasContextType {
   clearCanvas: () => void;
   exportCanvas: (format: string, canvasElement?: HTMLElement) => Promise<void>;
   importFromFile: (file: File) => Promise<void>;
+    importImageFile: (file: File) => Promise<void>;
   // Save/Load functions
   saveToDevice: (fileName?: string) => Promise<boolean>;
   loadFromDevice: () => Promise<boolean>;
@@ -266,7 +290,7 @@ interface CanvasContextType {
 const CanvasContext = createContext<CanvasContextType | undefined>(undefined);
 
 // Canvas Provider
-const CanvasProvider = ({ children }) => {
+const CanvasProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, dispatch] = useReducer(canvasReducer, initialCanvasState);
   
   // Store context globally for export access
@@ -275,11 +299,11 @@ const CanvasProvider = ({ children }) => {
   }, [state]);
 
   // Helper functions - STABLE implementations
-  const addShape = useCallback((shapeData) => {
+  const addShape = useCallback((shapeData: any) => {
     dispatch({ type: 'ADD_SHAPE', payload: shapeData });
   }, []);
 
-  const updateShape = useCallback((id, updates) => {
+  const updateShape = useCallback((id: string, updates: any) => {
     if (!id || !updates) return;
     dispatch({ type: 'UPDATE_SHAPE', payload: { id, updates } });
   }, []);
@@ -289,7 +313,7 @@ const CanvasProvider = ({ children }) => {
     dispatch({ type: 'DELETE_SHAPES', payload: state.selectedShapeIds });
   }, [state.selectedShapeIds]);
 
-  const selectShapes = useCallback((shapeIds) => {
+  const selectShapes = useCallback((shapeIds: string[]) => {
     dispatch({ type: 'SELECT_SHAPES', payload: shapeIds });
   }, []);
 
@@ -297,12 +321,12 @@ const CanvasProvider = ({ children }) => {
     dispatch({ type: 'CLEAR_SELECTION' });
   }, []);
 
-  const updateStage = useCallback((updates) => {
+  const updateStage = useCallback((updates: any) => {
     if (!updates) return;
     dispatch({ type: 'UPDATE_STAGE', payload: updates });
   }, []);
 
-  const setTool = useCallback((tool) => {
+  const setTool = useCallback((tool: string) => {
     dispatch({ type: 'SET_TOOL', payload: tool });
   }, []);
 
@@ -315,7 +339,7 @@ const CanvasProvider = ({ children }) => {
   }, []);
 
   // FIXED snap to grid function - more reliable
-  const snapToGrid = useCallback((value) => {
+  const snapToGrid = useCallback((value: number) => {
     if (!state.grid.snap || !state.grid.size) return value;
     
     // Ensure we're working with a number
@@ -327,7 +351,7 @@ const CanvasProvider = ({ children }) => {
   }, [state.grid.snap, state.grid.size]);
 
   // Function to set the filename in the context
-  const setFileNameContext = useCallback((name) => {
+  const setFileNameContext = useCallback((name: string) => {
     if (typeof name === 'string') {
       dispatch({ type: 'SET_FILENAME', payload: name });
     }
@@ -339,8 +363,8 @@ const CanvasProvider = ({ children }) => {
   }, []);
 
   // Set grid size with validation
-  const setGridSize = useCallback((size) => {
-    const validSize = Math.max(5, Math.min(100, parseInt(size) || 20));
+  const setGridSize = useCallback((size: number | string) => {
+    const validSize = Math.max(5, Math.min(100, parseInt(String(size)) || 20));
     dispatch({ type: 'SET_GRID_SIZE', payload: validSize });
   }, []);
 
@@ -358,7 +382,7 @@ const CanvasProvider = ({ children }) => {
       const fileName = state.filename || 'Untitled Diagram';
       
       // Convert shapes to nodes format for export
-      const nodes = state.shapes.map(shape => ({
+      const nodes = state.shapes.map((shape: any) => ({
         id: shape.id,
         type: shape.type,
         position: { x: shape.x, y: shape.y },
@@ -447,7 +471,11 @@ const CanvasProvider = ({ children }) => {
           }
           break;
         case 'json':
+          // Backward compatibility: allow JSON export explicitly if chosen
           exportAsJSON(canvasData, fileName);
+          break;
+        case 'flowdigm':
+          exportAsFlowdigm(canvasData, fileName);
           break;
         default:
           throw new Error(`Unsupported export format: ${format}`);
@@ -468,13 +496,87 @@ const CanvasProvider = ({ children }) => {
     }
   }, [importCanvas]);
 
+  // Import image/SVG file and append extracted shapes to canvas without clearing
+  const importImageFile = useCallback(async (file: File) => {
+    try {
+      const extractedShapes = await processImageFileForShapes(file);
+      if (!extractedShapes.length) {
+        alert('No shapes found in the selected file.');
+        return;
+      }
+
+      const reactFlowInstance = (window as any).__REACT_FLOW_INSTANCE__;
+      extractedShapes.forEach((shape, index) => {
+        const id = shape.id || `imported_shape_${Date.now()}_${index}`;
+        const nodeData: any = {
+          id,
+          type: shape.type === 'rectangle' ? 'rect' : shape.type,
+          position: {
+            x: (shape.x ?? 100) + index * 40,
+            y: (shape.y ?? 100) + index * 40
+          },
+          data: {
+            label: shape.label || `Imported ${shape.type}`,
+            width: shape.width || 120,
+            height: shape.height || 80,
+            fill: shape.fill || '#e3f2fd',
+            stroke: shape.stroke || '#1976d2',
+            strokeWidth: shape.strokeWidth || 2,
+            serviceType: shape.serviceType,
+            serviceName: shape.serviceName,
+            icon: shape.icon
+          },
+          resizable: true,
+          minWidth: 50,
+          minHeight: 30
+        };
+
+        if (reactFlowInstance) {
+          const currentNodes = reactFlowInstance.getNodes();
+          reactFlowInstance.setNodes([...currentNodes, nodeData]);
+        }
+
+        dispatch({
+          type: 'ADD_SHAPE',
+          payload: {
+            id: nodeData.id,
+            type: shape.icon ? 'imported-image' : shape.type,
+            x: nodeData.position.x,
+            y: nodeData.position.y,
+            width: shape.width ?? nodeData.data.width,
+            height: shape.height ?? nodeData.data.height,
+            fill: shape.fill ?? nodeData.data.fill,
+            stroke: shape.stroke ?? nodeData.data.stroke,
+            strokeWidth: shape.strokeWidth ?? nodeData.data.strokeWidth,
+            text: shape.label,
+            serviceName: shape.serviceName,
+            serviceType: shape.serviceType,
+            icon: shape.icon
+          }
+        });
+      });
+
+      setTimeout(() => {
+        if ((window as any).__REACT_FLOW_INSTANCE__) {
+          (window as any).__REACT_FLOW_INSTANCE__.fitView({ padding: 0.1 });
+        }
+      }, 200);
+
+      const baseName = file.name.replace(/\.[^/.]+$/, '') || 'Imported Diagram';
+      dispatch({ type: 'SET_FILENAME', payload: baseName });
+    } catch (error) {
+      console.error('Import image error:', error);
+      throw error;
+    }
+  }, []);
+
   // Save/Load functions
   const saveToDevice = useCallback(async (fileName?: string) => {
     try {
       const currentFileName = fileName || state.filename || 'Untitled Diagram';
       
       // Convert shapes to nodes format for export
-      const nodes = state.shapes.map(shape => ({
+      const nodes = state.shapes.map((shape: any) => ({
         id: shape.id,
         type: shape.type,
         position: { x: shape.x, y: shape.y },
@@ -769,6 +871,7 @@ const CanvasProvider = ({ children }) => {
     clearCanvas,
     exportCanvas,
     importFromFile,
+    importImageFile,
     // Save/Load functions
     saveToDevice,
     loadFromDevice,

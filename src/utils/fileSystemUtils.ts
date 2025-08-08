@@ -12,11 +12,11 @@ export const saveFileToDevice = async (canvasData: CanvasData, defaultName: stri
     if (isFileSystemAccessSupported()) {
       // Use modern File System Access API
       const handle = await window.showSaveFilePicker({
-        suggestedName: `${defaultName}.json`,
+        suggestedName: `${defaultName}.flowdigm`,
         types: [{
           description: 'FlowDigm Diagram',
           accept: {
-            'application/json': ['.json']
+            'application/json': ['.flowdigm', '.json']
           }
         }]
       });
@@ -34,7 +34,7 @@ export const saveFileToDevice = async (canvasData: CanvasData, defaultName: stri
       const url = URL.createObjectURL(blob);
       
       const link = document.createElement('a');
-      link.download = `${defaultName}.json`;
+      link.download = `${defaultName}.flowdigm`;
       link.href = url;
       link.click();
       
@@ -56,7 +56,7 @@ export const loadFileFromDevice = async (): Promise<CanvasData> => {
         types: [{
           description: 'FlowDigm Diagram',
           accept: {
-            'application/json': ['.json']
+            'application/json': ['.flowdigm', '.json']
           }
         }],
         multiple: false
@@ -78,7 +78,7 @@ export const loadFileFromDevice = async (): Promise<CanvasData> => {
       return new Promise((resolve, reject) => {
         const input = document.createElement('input');
         input.type = 'file';
-        input.accept = '.json';
+        input.accept = '.flowdigm,.json';
         input.onchange = async (event) => {
           const target = event.target as HTMLInputElement;
           const file = target.files?.[0];

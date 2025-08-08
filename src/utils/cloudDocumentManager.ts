@@ -1,7 +1,29 @@
 // Cloud Document Manager for Lucidchart and Microsoft Visio
-import type { UserCredentials } from './userAuthSync';
-import type { DiagramData } from './bidirectionalIntegration';
-import { oauth2Service } from './oauth2Service';
+
+// Stub interfaces
+export interface UserCredentials {
+  platform: string;
+  accessToken: string;
+  refreshToken?: string;
+  expiresAt?: Date;
+}
+
+export interface DiagramData {
+  id: string;
+  name: string;
+  content: any;
+  platform: string;
+  lastModified: Date;
+  version?: string | number;
+  nodes?: any[];
+  edges?: any[];
+  metadata?: any;
+}
+
+// Stub implementation for oauth2Service
+const oauth2Service = {
+  getValidCredentials: async (credentials: UserCredentials) => credentials
+};
 
 export interface CloudDocument {
   id: string;

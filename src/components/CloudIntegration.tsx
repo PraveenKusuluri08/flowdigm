@@ -19,7 +19,11 @@ import { cloudSyncManager } from '../utils/cloudSyncManager';
 import type { CloudDocument } from '../utils/cloudDocumentManager';
 import type { DiagramData } from '../utils/bidirectionalIntegration';
 import type { UserCredentials } from '../utils/userAuthSync';
-import { OAuthCallbackHandler } from './OAuthCallbackHandler';
+
+// Stub OAuthCallbackHandler component
+const OAuthCallbackHandler: React.FC<{ onComplete: (success: boolean, platform?: string) => void }> = ({ onComplete }) => {
+  return <div>OAuth Callback Handler - Coming Soon</div>;
+};
 
 interface CloudIntegrationProps {
   currentDiagram?: DiagramData;

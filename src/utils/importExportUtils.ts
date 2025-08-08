@@ -469,40 +469,7 @@ const exportFromReactFlowData = async (nodes: any[], edges: any[], fileName: str
     ctx.stroke();
   }
   
-  // Draw a test line to verify canvas drawing works
-  ctx.strokeStyle = '#00ff00'; // Bright green
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(50, 50);
-  ctx.lineTo(200, 200);
-  ctx.stroke();
-  console.log('Test line drawn from (50,50) to (200,200)');
-  
-  // Draw multiple test connection lines to ensure they appear
-  ctx.strokeStyle = '#ff0000'; // Bright red
-  ctx.lineWidth = 5;
-  ctx.setLineDash([10, 5]);
-  
-  // Test connection 1
-  ctx.beginPath();
-  ctx.moveTo(100, 100);
-  ctx.lineTo(300, 150);
-  ctx.stroke();
-  
-  // Test connection 2
-  ctx.beginPath();
-  ctx.moveTo(150, 200);
-  ctx.lineTo(350, 250);
-  ctx.stroke();
-  
-  // Test connection 3
-  ctx.beginPath();
-  ctx.moveTo(200, 300);
-  ctx.lineTo(400, 350);
-  ctx.stroke();
-  
-  ctx.setLineDash([]);
-  console.log('Test connection lines drawn in red');
+  // (removed debug lines)
   
   // Draw nodes at their actual positions
   nodes.forEach((node: any, index: number) => {
@@ -605,43 +572,7 @@ const exportFromReactFlowData = async (nodes: any[], edges: any[], fileName: str
   });
   
   // Draw edges/connections with better visibility
-  console.log('=== DRAWING CONNECTIONS ===');
-  console.log('Total edges found:', edges.length);
-  console.log('All edges:', edges);
-  
-  // ALWAYS draw test connections between adjacent nodes for debugging
-  console.log('Drawing test connections between adjacent nodes');
-  for (let i = 0; i < nodes.length - 1; i++) {
-    const sourceNode = nodes[i];
-    const targetNode = nodes[i + 1];
-    
-    const sourceX = sourceNode.position.x - minX + padding;
-    const sourceY = sourceNode.position.y - minY + padding;
-    const sourceWidth = sourceNode.data?.width || 100;
-    const sourceHeight = sourceNode.data?.height || 80;
-    
-    const targetX = targetNode.position.x - minX + padding;
-    const targetY = targetNode.position.y - minY + padding;
-    const targetWidth = targetNode.data?.width || 100;
-    const targetHeight = targetNode.data?.height || 80;
-    
-    const sourceCenterX = sourceX + sourceWidth / 2;
-    const sourceCenterY = sourceY + sourceHeight / 2;
-    const targetCenterX = targetX + targetWidth / 2;
-    const targetCenterY = targetY + targetHeight / 2;
-    
-    // Draw test connection
-    ctx.strokeStyle = '#ff0000'; // Red for test connections
-    ctx.lineWidth = 4;
-    ctx.setLineDash([10, 5]);
-    ctx.beginPath();
-    ctx.moveTo(sourceCenterX, sourceCenterY);
-    ctx.lineTo(targetCenterX, targetCenterY);
-    ctx.stroke();
-    ctx.setLineDash([]);
-    
-    console.log('Test connection drawn from', sourceCenterX, sourceCenterY, 'to', targetCenterX, targetCenterY);
-  }
+  // Draw only actual edges if they exist
   
   // Also draw actual edges if they exist
   if (edges.length > 0) {
@@ -1185,6 +1116,25 @@ export const exportAsJSON = (canvasData: CanvasData, fileName: string): void => 
   } catch (error) {
     console.error('Error exporting as JSON:', error);
     throw new Error('Failed to export as JSON');
+  }
+};
+
+// Save as FlowDigm native file (.flowdigm)
+export const exportAsFlowdigm = (canvasData: CanvasData, fileName: string): void => {
+  try {
+    const jsonContent = JSON.stringify(canvasData, null, 2);
+    const blob = new Blob([jsonContent], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.download = `${fileName}.flowdigm`;
+    link.href = url;
+    link.click();
+    
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('Error exporting as FlowDigm:', error);
+    throw new Error('Failed to export as FlowDigm');
   }
 };
 
