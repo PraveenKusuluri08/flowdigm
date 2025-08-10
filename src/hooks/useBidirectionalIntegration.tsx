@@ -221,6 +221,10 @@ export function useIntegrationPanel() {
     ...state,
     ...actions,
     isConnected: state.platforms.some(p => p.enabled),
-    activePlatforms: state.platforms.filter(p => p.enabled)
+    activePlatforms: state.platforms.filter(p => p.enabled),
+    // Stubs for UI expectations in App.tsx
+    openPanel: () => {},
+    closePanel: () => {},
+    isVisible: false
   };
 }

@@ -73,7 +73,7 @@ const BPMNNode = ({ data, selected }: { data: any; selected?: boolean }) => {
         boxSizing: 'border-box',
       }}
       onDoubleClick={handleDoubleClick}
-      onMouseDown={(e) => {
+      onMouseDown={(_e) => {
         console.log('🖱️ Node mouse down detected');
         // Don't stop propagation here to allow ReactFlow to handle selection
       }}

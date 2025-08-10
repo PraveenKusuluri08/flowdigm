@@ -1,4 +1,4 @@
-// components/CanvasEditor/ReactFlowNodes.tsx
+// components/CanvasEditor/ReactFlowNodes.tsx - ENHANCED VERSION
 import { useState, useRef, useEffect } from 'react';
 import { Handle, Position, NodeResizer } from 'reactflow';
 
@@ -10,19 +10,19 @@ const ConnectionHandles = ({ selected }: { selected: boolean }) => {
     height: 12,
     border: '2px solid white',
     borderRadius: '50%',
-    opacity: 0.8,
+    opacity: selected ? 1 : 0.8,
   };
 
   return (
     <>
       <Handle type="target" position={Position.Top} style={handleStyle} 
-        className="opacity-0 hover:opacity-100 group-hover:opacity-100 transition-opacity" />
+        className={`transition-opacity ${selected ? 'opacity-100' : 'opacity-0 hover:opacity-100 group-hover:opacity-100'}`} />
       <Handle type="source" position={Position.Bottom} style={handleStyle}
-        className="opacity-0 hover:opacity-100 group-hover:opacity-100 transition-opacity" />
+        className={`transition-opacity ${selected ? 'opacity-100' : 'opacity-0 hover:opacity-100 group-hover:opacity-100'}`} />
       <Handle type="target" position={Position.Right} style={handleStyle}
-        className="opacity-0 hover:opacity-100 group-hover:opacity-100 transition-opacity" />
-      <Handle type="target" position={Position.Left} style={handleStyle}
-        className="opacity-0 hover:opacity-100 group-hover:opacity-100 transition-opacity" />
+        className={`transition-opacity ${selected ? 'opacity-100' : 'opacity-0 hover:opacity-100 group-hover:opacity-100'}`} />
+      <Handle type="source" position={Position.Left} style={handleStyle}
+        className={`transition-opacity ${selected ? 'opacity-100' : 'opacity-0 hover:opacity-100 group-hover:opacity-100'}`} />
     </>
   );
 };
@@ -60,8 +60,8 @@ const ResizableNode = ({
         height: currentSize.height,
         minWidth: minWidth,
         minHeight: minHeight,
-        transition: 'none', // Disable transitions during resize to prevent shape distortion
-        overflow: 'visible', // Ensure content isn't clipped during resize
+        transition: 'none',
+        overflow: 'visible',
       }}
     >
       <NodeResizer
@@ -77,7 +77,6 @@ const ResizableNode = ({
           border: '1px solid white'
         }}
         onResize={(_event, params) => {
-          // Ensure size changes are applied smoothly without shape distortion
           const newWidth = Math.max(params.width, minWidth);
           const newHeight = Math.max(params.height, minHeight);
           
@@ -358,18 +357,45 @@ const CloudServiceNode = ({
   iconSrc?: string;
   serviceName: string;
 }) => (
-  <ResizableNode data={data} selected={selected} minWidth={80} minHeight={60}>
-    <div className={`w-full h-full ${bgColor} border-2 ${borderColor} rounded flex flex-col items-center justify-center p-2`}>
-      {iconSrc && (
-        <img src={iconSrc} alt={serviceName} className="w-12 h-12 mb-1" />
-      )}
-      <EditableText 
-        data={data} 
-        placeholder={serviceName} 
-        className={`${textColor} font-medium text-center opacity-60`} 
-        style={{ fontSize: '7px', lineHeight: '1' }} 
-      />
-    </div>
+  <ResizableNode data={data} selected={selected} minWidth={32} minHeight={32}>
+    {data.iconOnly ? (
+      <div className="w-full h-full flex items-center justify-center">
+        {(() => {
+          // Render priority: ReactNode icon → iconSrc on data → iconSrc prop
+          if (data.icon && typeof data.icon !== 'string') {
+            return <div className="w-full h-full flex items-center justify-center">{data.icon}</div>;
+          }
+          const src = (typeof data.icon === 'string' ? data.icon : undefined) || data.iconSrc || iconSrc;
+          if (src) {
+            return <img src={src} alt={serviceName} className="w-full h-full object-contain" />;
+          }
+          if (data.iconRaw) {
+            return (
+              <div
+                className="w-full h-full"
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                dangerouslySetInnerHTML={{ __html: data.iconRaw }}
+              />
+            );
+          }
+          return null;
+        })()}
+      </div>
+    ) : (
+      <div className={`w-full h-full ${bgColor} border-2 ${borderColor} rounded flex flex-col items-center justify-center p-2`}>
+        {data.icon ? (
+          <div className="mb-1 flex items-center justify-center">{typeof data.icon === 'string' ? <img src={data.icon} alt={serviceName} className="w-12 h-12" /> : data.icon}</div>
+        ) : (
+          iconSrc ? <img src={iconSrc} alt={serviceName} className="w-12 h-12 mb-1" /> : null
+        )}
+        <EditableText 
+          data={data} 
+          placeholder={serviceName} 
+          className={`${textColor} font-medium text-center opacity-60`} 
+          style={{ fontSize: '7px', lineHeight: '1' }} 
+        />
+      </div>
+    )}
   </ResizableNode>
 );
 
@@ -544,17 +570,137 @@ export const GCPCloudFunctionsNode = ({ data, selected }: { data: any; selected?
 
 // Keep the original generic cloud service nodes for backward compatibility
 export const AWSServiceNode = ({ data, selected }: { data: any; selected?: boolean }) => (
-  <IconNode data={data} selected={selected} bgColor="bg-orange-100" borderColor="border-orange-500" textColor="text-orange-800" placeholder="AWS" />
+  <CloudServiceNode 
+    data={{ ...data, iconOnly: true }} 
+    selected={selected} 
+    bgColor="bg-transparent" 
+    borderColor="border-transparent" 
+    textColor="text-transparent" 
+    serviceName="AWS"
+  />
 );
 
 export const AzureServiceNode = ({ data, selected }: { data: any; selected?: boolean }) => (
-  <IconNode data={data} selected={selected} bgColor="bg-blue-100" borderColor="border-blue-500" textColor="text-blue-800" placeholder="Azure" />
+  <CloudServiceNode 
+    data={{ ...data, iconOnly: true }} 
+    selected={selected} 
+    bgColor="bg-transparent" 
+    borderColor="border-transparent" 
+    textColor="text-transparent" 
+    serviceName="Azure"
+  />
 );
 
 export const GCPServiceNode = ({ data, selected }: { data: any; selected?: boolean }) => (
-  <IconNode data={data} selected={selected} bgColor="bg-green-100" borderColor="border-green-500" textColor="text-green-800" placeholder="GCP" />
+  <CloudServiceNode 
+    data={{ ...data, iconOnly: true }} 
+    selected={selected} 
+    bgColor="bg-transparent" 
+    borderColor="border-transparent" 
+    textColor="text-transparent" 
+    serviceName="GCP"
+  />
 );
 
 export const ImportedImageNode = ({ data, selected }: { data: any; selected?: boolean }) => (
   <IconNode data={data} selected={selected} bgColor="bg-gray-100" borderColor="border-gray-400" textColor="text-gray-800" placeholder="Image" />
 );
+
+// COMPLETELY REBUILT RawIconNode - Simple and robust
+export const RawIconNode = ({ data, selected }: { data: any; selected?: boolean }) => {
+  const [imageError, setImageError] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  
+  const getIconSource = () => {
+    const sources = [data.iconUrl, data.iconSrc, typeof data.icon === 'string' ? data.icon : null].filter(Boolean);
+    return (sources[0] as string) || null;
+  };
+
+  const iconSource = getIconSource();
+  
+  const renderIcon = () => {
+    // First priority: Raw SVG content
+    if (data.iconRaw && typeof data.iconRaw === 'string') {
+      return (
+        <div
+          className="w-full h-full flex items-center justify-center"
+          dangerouslySetInnerHTML={{ __html: data.iconRaw }}
+        />
+      );
+    }
+
+    // Second priority: Image URL
+    if (iconSource && !imageError) {
+      return (
+        <img
+          src={iconSource}
+          alt={data.serviceName || data.label || 'Icon'}
+          className="w-full h-full object-contain"
+          style={{
+            maxWidth: '100%',
+            maxHeight: '100%',
+            display: 'block',
+            objectFit: 'contain',
+            minWidth: '32px',
+            minHeight: '32px'
+          }}
+          onLoad={() => {
+            setImageError(false);
+            setImageLoaded(true);
+          }}
+          onError={() => {
+            setImageError(true);
+            setImageLoaded(false);
+          }}
+        />
+      );
+    }
+
+    // Fallback: Show text with debugging info
+    const fallbackText = data.serviceName || data.label || data.shapeId || 'Icon';
+    
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center text-[10px] text-gray-600 font-semibold p-1">
+        <div className="text-center break-words">
+          {fallbackText}
+        </div>
+        {data.shapeId && (
+          <div className="text-[8px] text-gray-400 mt-1 text-center">
+            {data.shapeId}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div
+      className={`relative bg-white border-2 rounded-lg shadow-md transition-all duration-200 group ${
+        selected ? 'border-blue-500 shadow-lg' : 'border-gray-300 hover:border-gray-400'
+      }`}
+      style={{
+        width: '80px',
+        height: '80px',
+        minWidth: '80px',
+        minHeight: '80px',
+      }}
+    >
+      <div className="w-full h-full p-1 flex items-center justify-center overflow-hidden">
+        {renderIcon()}
+      </div>
+      
+      {/* Connection Handles */}
+      <ConnectionHandles selected={selected || false} />
+      
+      {data.serviceType && (
+        <div
+          className={`absolute top-1 right-1 w-2 h-2 rounded-full ${
+            data.serviceType === 'AWS' ? 'bg-orange-500' :
+            data.serviceType === 'AZURE' ? 'bg-blue-600' :
+            data.serviceType === 'GCP' ? 'bg-blue-500' : 'bg-gray-500'
+          }`}
+        />
+      )}
+    </div>
+  );
+};

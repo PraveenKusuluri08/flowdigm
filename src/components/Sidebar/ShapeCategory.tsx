@@ -1,5 +1,5 @@
 // components/Sidebar/ShapeCategory.tsx - Fixed import
-import React, { useState, type JSX } from 'react';
+import React, { useMemo, useState, type JSX } from 'react';
 import { ChevronRight, ChevronDown } from 'lucide-react';
 import {ShapeItem} from './ShapeItem'; // This should now work
 
@@ -26,36 +26,34 @@ interface ShapeCategoryProps {
   };
 }
 
-const ShapeCategory: React.FC<ShapeCategoryProps> = ({ categoryKey, category }) => {
-  const [isExpanded, setIsExpanded] = useState(true); // Default to expanded
-  
-  // Convert shapes to array format if it's an object
-  const shapesArray = Array.isArray(category.shapes) 
-    ? category.shapes 
-    : Object.entries(category.shapes || {}).map(([id, shape]) => ({
-        id,
-        name: shape.name || shape.tooltip || id,
-        tooltip: shape.tooltip,
-        icon: shape.icon,
-        type: shape.type
-      }));
-  
-  // For now, show all shapes since we don't have search functionality
-  const filteredShapes = shapesArray;
-  
-  const handleToggleCategory = () => {
-    setIsExpanded(!isExpanded);
-  };
+const ShapeCategory: React.FC<ShapeCategoryProps> = ({ categoryKey: _categoryKey, category }) => {
+  const [isExpanded, setIsExpanded] = useState(true);
 
-  // Handle icon rendering for both string and component types
+  const shapesArray = useMemo(() => {
+    const arr = Array.isArray(category.shapes)
+      ? category.shapes
+      : Object.entries(category.shapes || {}).map(([id, shape]) => ({
+          id,
+          name: shape.name || shape.tooltip || id,
+          tooltip: shape.tooltip,
+          icon: shape.icon,
+          type: shape.type
+        }));
+    return arr;
+  }, [category.shapes]);
+
+  const filteredShapes = shapesArray;
+
+  const handleToggleCategory = () => setIsExpanded(!isExpanded);
+
   const renderIcon = () => {
-    if (typeof category.icon === 'string') {
-      return <span className="text-lg">{category.icon}</span>;
-    }
+    if (typeof category.icon === 'string') return <span className="text-lg">{category.icon}</span>;
     const IconComponent = category.icon;
     return <IconComponent size={16} className="text-gray-600" />;
   };
-  
+
+  const useGrid = (category as any).layout === 'grid';
+
   return (
     <div className="group">
       <button
@@ -69,23 +67,22 @@ const ShapeCategory: React.FC<ShapeCategoryProps> = ({ categoryKey, category }) 
         )}
         {renderIcon()}
         <span className="text-sm font-medium text-gray-700">{category.name}</span>
-        <span className="text-xs text-gray-500 ml-auto">
-          ({filteredShapes.length})
-        </span>
+        <span className="text-xs text-gray-500 ml-auto">({filteredShapes.length})</span>
       </button>
-      
+
       {isExpanded && (
-        <div className="ml-4 space-y-1 border-l border-gray-200 pl-2">
+        <div className={useGrid ? 'grid grid-cols-3 gap-2 px-2' : 'ml-4 space-y-1 border-l border-gray-200 pl-2'}>
           {filteredShapes.length > 0 ? (
             filteredShapes.map(shape => (
-              <ShapeItem 
-                key={shape.id} 
+              <ShapeItem
+                key={shape.id}
+                variant={useGrid ? 'grid' : 'list'}
                 shape={{
                   id: shape.id,
                   name: shape.name || shape.tooltip || shape.id,
                   icon: shape.icon,
                   tooltip: shape.tooltip
-                }} 
+                }}
               />
             ))
           ) : (

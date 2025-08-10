@@ -1,5 +1,4 @@
 // components/Sidebar/QuickAccess.jsx
-import React from 'react';
 
 const QuickAccess = () => {
   // For now, we'll show a simple placeholder since we don't have the context

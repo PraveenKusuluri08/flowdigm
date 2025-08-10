@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 // BPMN Font Loader Component
 export const BPMNFontLoader: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [fontLoaded, setFontLoaded] = useState(false);
+  const [, setFontLoaded] = useState(false);
 
   useEffect(() => {
     const loadBPMNFont = async () => {

@@ -1,4 +1,3 @@
-import React from 'react';
 
 // BPMN Event Icons as React Components
 const BPMNEventIcons = {

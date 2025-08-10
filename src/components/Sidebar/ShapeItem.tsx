@@ -9,9 +9,10 @@ interface ShapeItemProps {
     icon: React.ComponentType<any> | (() => React.ReactElement);
     tooltip?: string;
   };
+  variant?: 'grid' | 'list';
 }
 
-export const ShapeItem: React.FC<ShapeItemProps> = ({ shape }) => {
+export const ShapeItem: React.FC<ShapeItemProps> = ({ shape, variant = 'grid' }) => {
   const handleDragStart = (e: React.DragEvent) => {
     console.log('Dragging shape:', shape.id, 'with data:', shape);
     
@@ -54,18 +55,26 @@ export const ShapeItem: React.FC<ShapeItemProps> = ({ shape }) => {
     }
   };
 
+  const isGrid = variant === 'grid';
+
   return (
     <div
       draggable
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      className="flex items-center gap-2 p-2 hover:bg-gray-100 cursor-move select-none rounded"
+      className={
+        isGrid
+          ? 'flex flex-col items-center justify-center gap-1 p-2 rounded border border-transparent hover:border-gray-300 hover:bg-gray-50 cursor-move select-none min-h-[64px]'
+          : 'flex items-center gap-2 p-2 hover:bg-gray-100 cursor-move select-none rounded'
+      }
       title={shape.tooltip || shape.name}
     >
-      <div className="flex-shrink-0">
+      <div className={isGrid ? 'flex-shrink-0 text-gray-700' : 'flex-shrink-0'}>
         {renderIcon()}
       </div>
-      <span className="text-sm truncate">{shape.tooltip}</span>
+      <span className={isGrid ? 'text-xs text-gray-700 text-center truncate w-full' : 'text-sm truncate'}>
+        {shape.tooltip}
+      </span>
     </div>
   );
 };

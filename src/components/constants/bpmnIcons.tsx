@@ -1,4 +1,3 @@
-import React from 'react';
 
 // Simple BPMN Icon Components using SVG shapes
 export const StartEvent = () => (

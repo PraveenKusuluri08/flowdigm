@@ -73,16 +73,20 @@ const BPMNEditor: React.FC<BPMNEditorProps> = ({ onSave, onExport }) => {
     setModeler(bpmnModeler);
 
     // Load sample BPMN
-    bpmnModeler.importXML(sampleBpmn).then(() => {
-      bpmnModeler.get('canvas').zoom('fit-viewport');
-    }).catch((err: any) => {
-      console.error('Error loading BPMN:', err);
-    });
+    bpmnModeler
+      .importXML(sampleBpmn)
+      .then(() => {
+        const canvas = bpmnModeler.get('canvas') as any;
+        canvas?.zoom?.('fit-viewport');
+      })
+      .catch((err: unknown) => {
+        console.error('Error loading BPMN:', err);
+      });
 
     // Listen for changes
     bpmnModeler.on('commandStack.changed', () => {
-      bpmnModeler.saveXML({ format: true }).then((result: { xml: string }) => {
-        setXml(result.xml);
+      bpmnModeler.saveXML({ format: true }).then((result: any) => {
+        setXml(result?.xml ?? '');
       });
     });
 
@@ -95,10 +99,11 @@ const BPMNEditor: React.FC<BPMNEditorProps> = ({ onSave, onExport }) => {
     if (!modeler) return;
     
     try {
-      const result = await modeler.saveXML({ format: true }) as { xml: string };
-      onSave?.(result.xml);
-      console.log('BPMN saved:', result.xml);
-    } catch (err: any) {
+      const result = (await modeler.saveXML({ format: true })) as any;
+      const xmlOut: string = result?.xml ?? '';
+      onSave?.(xmlOut);
+      console.log('BPMN saved:', xmlOut);
+    } catch (err: unknown) {
       console.error('Error saving BPMN:', err);
     }
   };
@@ -107,10 +112,11 @@ const BPMNEditor: React.FC<BPMNEditorProps> = ({ onSave, onExport }) => {
     if (!modeler) return;
     
     try {
-      const result = await modeler.saveSVG() as { svg: string };
-      onExport?.(result.svg);
+      const result = (await modeler.saveSVG()) as any;
+      const svgOut: string = result?.svg ?? '';
+      onExport?.(svgOut);
       console.log('BPMN exported as SVG');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error exporting BPMN:', err);
     }
   };
@@ -118,11 +124,15 @@ const BPMNEditor: React.FC<BPMNEditorProps> = ({ onSave, onExport }) => {
   const handleNew = () => {
     if (!modeler) return;
     
-    modeler.createDiagram().then(() => {
-      modeler.get('canvas').zoom('fit-viewport');
-    }).catch((err: any) => {
-      console.error('Error creating new diagram:', err);
-    });
+    modeler
+      .createDiagram()
+      .then(() => {
+        const canvas = modeler.get('canvas') as any;
+        canvas?.zoom?.('fit-viewport');
+      })
+      .catch((err: unknown) => {
+        console.error('Error creating new diagram:', err);
+      });
   };
 
   const handleOpen = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -133,11 +143,15 @@ const BPMNEditor: React.FC<BPMNEditorProps> = ({ onSave, onExport }) => {
     reader.onload = (e) => {
       const xml = e.target?.result as string;
       if (xml) {
-        modeler.importXML(xml).then(() => {
-          modeler.get('canvas').zoom('fit-viewport');
-        }).catch((err: any) => {
-          console.error('Error loading file:', err);
-        });
+        modeler
+          .importXML(xml)
+          .then(() => {
+            const canvas = modeler.get('canvas') as any;
+            canvas?.zoom?.('fit-viewport');
+          })
+          .catch((err: unknown) => {
+            console.error('Error loading file:', err);
+          });
       }
     };
     reader.readAsText(file);

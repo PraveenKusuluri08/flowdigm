@@ -10,19 +10,19 @@ import {
   awsServices, 
   googleCloudServices, 
   azureServices,
+  awsAllServices,
   ServiceCategory 
 } from './CloudServiceIcons';
 
 const LeftSidebar = () => {
-  const { state } = useSidebar();
-  const [activeTab, setActiveTab] = useState('shapes');
-  
-  const handleDragStart = (e: React.DragEvent, serviceId: string) => {
-    console.log('📤 Setting drag data for service:', serviceId);
-    const dragData = { shapeId: serviceId };
-    console.log('📦 Drag data:', dragData);
-    e.dataTransfer.setData('application/json', JSON.stringify(dragData));
-  };
+  const { state: _state } = useSidebar();
+  const [expanded, setExpanded] = useState({
+    general: true,
+    bpmn: false,
+    aws: false,
+    gcp: false,
+    azure: false,
+  });
   
   return (
     <div className="w-64 bg-white border-r border-gray-200 flex flex-col h-full flex-shrink-0">
@@ -31,59 +31,7 @@ const LeftSidebar = () => {
         <h2 className="text-sm font-medium text-gray-700">Archplot</h2>
       </div>
       
-      {/* Tabs */}
-      <div className="flex border-b border-gray-200 flex-shrink-0">
-        <button
-          onClick={() => setActiveTab('shapes')}
-          className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${
-            activeTab === 'shapes' 
-              ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50' 
-              : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
-          }`}
-        >
-          Shapes
-        </button>
-        <button
-          onClick={() => setActiveTab('bpmn')}
-          className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${
-            activeTab === 'bpmn' 
-              ? 'text-green-600 border-b-2 border-green-600 bg-green-50' 
-              : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
-          }`}
-        >
-          BPMN
-        </button>
-        <button
-          onClick={() => setActiveTab('aws')}
-          className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${
-            activeTab === 'aws' 
-              ? 'text-orange-600 border-b-2 border-orange-600 bg-orange-50' 
-              : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
-          }`}
-        >
-          AWS
-        </button>
-        <button
-          onClick={() => setActiveTab('gcp')}
-          className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${
-            activeTab === 'gcp' 
-              ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50' 
-              : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
-          }`}
-        >
-          GCP
-        </button>
-        <button
-          onClick={() => setActiveTab('azure')}
-          className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${
-            activeTab === 'azure' 
-              ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50' 
-              : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
-          }`}
-        >
-          Azure
-        </button>
-      </div>
+      {/* Removed tabs; using accordion sections below */}
       
       {/* Search */}
       <div className="flex-shrink-0">
@@ -95,50 +43,86 @@ const LeftSidebar = () => {
         <QuickAccess />
       </div>
       
-      <div className="flex-1 overflow-y-auto p-3">
-        {activeTab === 'shapes' && (
-          <>
+      <div className="flex-1 overflow-y-auto p-3 space-y-3">
+        {/* General & Basic */}
+        <button
+          className="w-full text-left text-xs font-semibold text-gray-700 bg-gray-50 hover:bg-gray-100 px-2 py-2 rounded"
+          onClick={() => setExpanded((e) => ({ ...e, general: !e.general }))}
+        >
+          {expanded.general ? '▼' : '▶'} General & Basic
+        </button>
+        {expanded.general && (
+          <div className="space-y-2">
             {Object.entries(shapeCategories).map(([key, category]) => (
               <ShapeCategory key={key} categoryKey={key} category={category} />
             ))}
-          </>
+          </div>
         )}
-        
-        {activeTab === 'bpmn' && (
-          <>
+
+        {/* BPMN */}
+        <button
+          className="w-full text-left text-xs font-semibold text-gray-700 bg-gray-50 hover:bg-gray-100 px-2 py-2 rounded"
+          onClick={() => setExpanded((e) => ({ ...e, bpmn: !e.bpmn }))}
+        >
+          {expanded.bpmn ? '▼' : '▶'} BPMN
+        </button>
+        {expanded.bpmn && (
+          <div className="space-y-2">
             {Object.entries(bpmnShapes).map(([key, category]) => (
               <ShapeCategory key={key} categoryKey={key} category={category} />
             ))}
-          </>
-        )}
-        
-        {activeTab === 'aws' && (
-          <div className="space-y-4">
-            <ServiceCategory title="Compute" services={awsServices.compute} onDragStart={handleDragStart} />
-            <ServiceCategory title="Storage" services={awsServices.storage} onDragStart={handleDragStart} />
-            <ServiceCategory title="Database" services={awsServices.database} onDragStart={handleDragStart} />
-            <ServiceCategory title="Networking" services={awsServices.networking} onDragStart={handleDragStart} />
-            <ServiceCategory title="Security" services={awsServices.security} onDragStart={handleDragStart} />
           </div>
         )}
-        
-        {activeTab === 'gcp' && (
+
+        {/* AWS */}
+        <button
+          className="w-full text-left text-xs font-semibold text-gray-700 bg-gray-50 hover:bg-gray-100 px-2 py-2 rounded"
+          onClick={() => setExpanded((e) => ({ ...e, aws: !e.aws }))}
+        >
+          {expanded.aws ? '▼' : '▶'} AWS
+        </button>
+        {expanded.aws && (
           <div className="space-y-4">
-            <ServiceCategory title="Compute" services={googleCloudServices.compute} onDragStart={handleDragStart} />
-            <ServiceCategory title="Storage" services={googleCloudServices.storage} onDragStart={handleDragStart} />
-            <ServiceCategory title="Database" services={googleCloudServices.database} onDragStart={handleDragStart} />
-            <ServiceCategory title="Networking" services={googleCloudServices.networking} onDragStart={handleDragStart} />
-            <ServiceCategory title="Security" services={googleCloudServices.security} onDragStart={handleDragStart} />
+            <ServiceCategory title="All" services={awsAllServices} />
+            <ServiceCategory title="Compute" services={awsServices.compute} />
+            <ServiceCategory title="Storage" services={awsServices.storage} />
+            <ServiceCategory title="Database" services={awsServices.database} />
+            <ServiceCategory title="Networking" services={awsServices.networking} />
+            <ServiceCategory title="Security" services={awsServices.security} />
           </div>
         )}
-        
-        {activeTab === 'azure' && (
+
+        {/* GCP */}
+        <button
+          className="w-full text-left text-xs font-semibold text-gray-700 bg-gray-50 hover:bg-gray-100 px-2 py-2 rounded"
+          onClick={() => setExpanded((e) => ({ ...e, gcp: !e.gcp }))}
+        >
+          {expanded.gcp ? '▼' : '▶'} GCP
+        </button>
+        {expanded.gcp && (
           <div className="space-y-4">
-            <ServiceCategory title="Compute" services={azureServices.compute} onDragStart={handleDragStart} />
-            <ServiceCategory title="Storage" services={azureServices.storage} onDragStart={handleDragStart} />
-            <ServiceCategory title="Database" services={azureServices.database} onDragStart={handleDragStart} />
-            <ServiceCategory title="Networking" services={azureServices.networking} onDragStart={handleDragStart} />
-            <ServiceCategory title="Security" services={azureServices.security} onDragStart={handleDragStart} />
+            <ServiceCategory title="Compute" services={googleCloudServices.compute} />
+            <ServiceCategory title="Storage" services={googleCloudServices.storage} />
+            <ServiceCategory title="Database" services={googleCloudServices.database} />
+            <ServiceCategory title="Networking" services={googleCloudServices.networking} />
+            <ServiceCategory title="Security" services={googleCloudServices.security} />
+          </div>
+        )}
+
+        {/* Azure */}
+        <button
+          className="w-full text-left text-xs font-semibold text-gray-700 bg-gray-50 hover:bg-gray-100 px-2 py-2 rounded"
+          onClick={() => setExpanded((e) => ({ ...e, azure: !e.azure }))}
+        >
+          {expanded.azure ? '▼' : '▶'} Azure
+        </button>
+        {expanded.azure && (
+          <div className="space-y-4">
+            <ServiceCategory title="Compute" services={azureServices.compute} />
+            <ServiceCategory title="Storage" services={azureServices.storage} />
+            <ServiceCategory title="Database" services={azureServices.database} />
+            <ServiceCategory title="Networking" services={azureServices.networking} />
+            <ServiceCategory title="Security" services={azureServices.security} />
           </div>
         )}
       </div>

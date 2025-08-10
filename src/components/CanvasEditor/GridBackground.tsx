@@ -1,5 +1,4 @@
 // components/Canvas/GridBackground.jsx
-import React from 'react';
 import { Line } from 'react-konva';
 import { useCanvas } from '../../hooks/useCanvas';
 

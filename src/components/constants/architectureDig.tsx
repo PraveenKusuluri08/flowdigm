@@ -23,8 +23,7 @@ import {
   Wifi, 
   HardDrive, 
   Cpu, 
-  Router, 
-  Zap
+  Router
 } from 'lucide-react';
 
 // Basic shape categories
