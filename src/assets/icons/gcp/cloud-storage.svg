@@ -1,15 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
-  <defs>
-    <linearGradient id="gcsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#34A853;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#0F9D58;stop-opacity:1" />
-    </linearGradient>
-  </defs>
-  <rect x="6" y="10" width="36" height="28" rx="4" fill="url(#gcsGradient)" stroke="#0D7B47" stroke-width="1"/>
-  <circle cx="16" cy="18" r="3" fill="#FFF" opacity="0.9"/>
-  <circle cx="32" cy="18" r="3" fill="#FFF" opacity="0.9"/>
-  <circle cx="24" cy="26" r="4" fill="#FFF" opacity="0.8"/>
-  <circle cx="16" cy="30" r="2" fill="#FFF" opacity="0.7"/>
-  <circle cx="32" cy="30" r="2" fill="#FFF" opacity="0.7"/>
-  <text x="24" y="44" text-anchor="middle" font-family="Arial, sans-serif" font-size="6" fill="#34A853">Cloud Storage</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24"><defs><style>.cls-1{fill:#aecbfa;}.cls-2{fill:#669df6;}.cls-3{fill:#4285f4;}.cls-4{fill:#fff;}</style></defs><title>Icon_24px_CloudStorage_Color</title><g data-name="Product Icons"><rect class="cls-1" x="2" y="4" width="20" height="7"/><rect class="cls-2" x="20" y="4" width="2" height="7"/><polygon class="cls-3" points="22 4 20 4 20 11 22 4"/><rect class="cls-2" x="2" y="4" width="2" height="7"/><rect class="cls-4" x="6" y="7" width="6" height="1"/><rect class="cls-4" x="15" y="6" width="3" height="3" rx="1.5"/><rect class="cls-1" x="2" y="13" width="20" height="7"/><rect class="cls-2" x="20" y="13" width="2" height="7"/><polygon class="cls-3" points="22 13 20 13 20 20 22 13"/><rect class="cls-2" x="2" y="13" width="2" height="7"/><rect class="cls-4" x="6" y="16" width="6" height="1"/><rect class="cls-4" x="15" y="15" width="3" height="3" rx="1.5"/></g></svg>
