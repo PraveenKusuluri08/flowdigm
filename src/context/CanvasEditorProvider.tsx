@@ -6,7 +6,7 @@ import { exportAsJSON, importFromJSON, exportAsFlowdigm, exportFile } from '../u
 import { saveFileToDevice, loadFileFromDevice, setupAutoSave, loadAutoSave, clearAutoSave, hasUnsavedWork } from '../utils/fileSystemUtils';
 import { processImageFileForShapes, createImageFileInput } from '../utils/imageProcessingUtils';
 
-// Initial canvas state - STABLE defaults
+// Initial canvas state
 const initialCanvasState = {
   filename: "Untitled Diagram",
   shapes: [] as any[],
@@ -15,13 +15,13 @@ const initialCanvasState = {
     scale: 1,
     x: 0,
     y: 0,
-    width: window.innerWidth - 256, // Account for sidebar
-    height: window.innerHeight - 120 // Account for toolbar
+    width: window.innerWidth - 256,
+    height: window.innerHeight - 120
   },
   grid: {
     visible: true,
     size: 20,
-    snap: false // Start with snap disabled to prevent initial issues
+    snap: false
   },
   tool: 'select',
   history: {
@@ -34,7 +34,7 @@ const initialCanvasState = {
   isDrawing: false
 };
 
-// Canvas reducer - STABLE operations
+// Canvas reducer
 type CanvasState = typeof initialCanvasState;
 type CanvasAction = { type: string; payload?: any };
 
@@ -48,7 +48,6 @@ const canvasReducer = (state: CanvasState, action: CanvasAction) => {
 
     case 'ADD_SHAPE':
       {
-        console.log('ADD_SHAPE reducer called with payload:', action.payload);
         const newShape = {
           id: action.payload.id || `shape_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           type: action.payload.type,
@@ -63,16 +62,12 @@ const canvasReducer = (state: CanvasState, action: CanvasAction) => {
           ...action.payload
         };
         
-        console.log('Created new shape:', newShape);
-        console.log('Previous shapes count:', state.shapes.length);
-        
         const newState = {
           ...state,
           shapes: [...state.shapes, newShape],
           selectedShapeIds: [newShape.id]
         };
         
-        console.log('New shapes count:', newState.shapes.length);
         return newState;
       }
 
@@ -84,7 +79,6 @@ const canvasReducer = (state: CanvasState, action: CanvasAction) => {
             ? { 
                 ...shape, 
                 ...action.payload.updates,
-                // Ensure numeric values are actually numbers
                 x: typeof action.payload.updates.x === 'number' ? action.payload.updates.x : shape.x,
                 y: typeof action.payload.updates.y === 'number' ? action.payload.updates.y : shape.y,
                 width: typeof action.payload.updates.width === 'number' ? action.payload.updates.width : shape.width,
@@ -123,7 +117,6 @@ const canvasReducer = (state: CanvasState, action: CanvasAction) => {
         stage: { 
           ...state.stage, 
           ...action.payload,
-          // Ensure stage values are numbers and reasonable
           scale: typeof action.payload.scale === 'number' ? 
             Math.max(0.1, Math.min(10, action.payload.scale)) : state.stage.scale,
           x: typeof action.payload.x === 'number' ? action.payload.x : state.stage.x,
@@ -135,7 +128,6 @@ const canvasReducer = (state: CanvasState, action: CanvasAction) => {
       return {
         ...state,
         tool: action.payload,
-        // Clear selection when switching to drawing tools
         selectedShapeIds: action.payload === 'select' ? state.selectedShapeIds : []
       };
 
@@ -150,7 +142,7 @@ const canvasReducer = (state: CanvasState, action: CanvasAction) => {
         ...state,
         grid: { 
           ...state.grid, 
-          size: Math.max(5, Math.min(100, action.payload)) // Reasonable grid size limits
+          size: Math.max(5, Math.min(100, action.payload))
         }
       };
 
@@ -298,7 +290,7 @@ const CanvasProvider = ({ children }: { children: React.ReactNode }) => {
     (window as any).__CANVAS_CONTEXT__ = { state, dispatch };
   }, [state]);
 
-  // Helper functions - STABLE implementations
+  // Helper functions
   const addShape = useCallback((shapeData: any) => {
     dispatch({ type: 'ADD_SHAPE', payload: shapeData });
   }, []);
@@ -338,15 +330,12 @@ const CanvasProvider = ({ children }: { children: React.ReactNode }) => {
     dispatch({ type: 'PASTE_SHAPES' });
   }, []);
 
-  // FIXED snap to grid function - more reliable
   const snapToGrid = useCallback((value: number) => {
     if (!state.grid.snap || !state.grid.size) return value;
     
-    // Ensure we're working with a number
     const numValue = typeof value === 'number' ? value : parseFloat(value) || 0;
     const gridSize = state.grid.size;
     
-    // Round to nearest grid point
     return Math.round(numValue / gridSize) * gridSize;
   }, [state.grid.snap, state.grid.size]);
 
@@ -379,15 +368,10 @@ const CanvasProvider = ({ children }: { children: React.ReactNode }) => {
 
   const exportCanvas = useCallback(async (format: string, canvasElement?: HTMLElement, options: any = {}) => {
     try {
-      console.log('🚀 ExportCanvas called with format:', format);
-      console.log('📊 Canvas element provided:', !!canvasElement);
-      
       const fileName = state.filename || 'Untitled Diagram';
-      console.log('📝 Using filename:', fileName);
       
       // Get ReactFlow instance first
       const reactFlowInstance = (window as any).__REACT_FLOW_INSTANCE__;
-      console.log('🔗 ReactFlow instance available:', !!reactFlowInstance);
       
       let reactFlowNodes: any[] = [];
       let reactFlowEdges: any[] = [];
@@ -395,12 +379,10 @@ const CanvasProvider = ({ children }: { children: React.ReactNode }) => {
       if (reactFlowInstance) {
         reactFlowNodes = reactFlowInstance.getNodes() || [];
         reactFlowEdges = reactFlowInstance.getEdges() || [];
-        console.log('📈 ReactFlow data - Nodes:', reactFlowNodes.length, 'Edges:', reactFlowEdges.length);
       }
       
       // Also get shapes from context as fallback
       const contextShapes = state.shapes || [];
-      console.log('🎨 Context shapes:', contextShapes.length);
       
       // Find the ReactFlow canvas element with multiple fallback methods
       let targetCanvasElement = canvasElement;
@@ -417,7 +399,6 @@ const CanvasProvider = ({ children }: { children: React.ReactNode }) => {
         // Use the main canvas container as fallback
         targetCanvasElement = document.querySelector('#canvas-container') as HTMLElement;
       }
-      console.log('🎯 Found ReactFlow element:', !!targetCanvasElement, targetCanvasElement?.className);
       
       // Convert shapes to nodes format for export
       const nodes = contextShapes.map((shape: any) => ({
@@ -449,51 +430,69 @@ const CanvasProvider = ({ children }: { children: React.ReactNode }) => {
         version: '1.0'
       };
 
-      console.log('📋 Final canvas data:', canvasData);
-
-      // Use the new comprehensive export function for all supported formats
-      const supportedFormats = ['png', 'jpeg', 'jpg', 'webp', 'svg', 'pdf', 'pptx', 'docx', 'html', 'xml', 'url'];
-      const normalizedFormat = format.toLowerCase();
-      
-      if (supportedFormats.includes(normalizedFormat)) {
-        console.log(`🎯 Using comprehensive exportFile for format: ${normalizedFormat}`);
-        
-        // Map format names
-        const mappedFormat = normalizedFormat === 'jpg' ? 'jpeg' : normalizedFormat;
-        
-        // Merge default options with provided options
-        const exportOptions = {
-          quality: 1.0,
-          scale: 2,
-          backgroundColor: '#ffffff',
-          includeMetadata: true,
-          ...options
-        };
-        
-        await exportFile(
-          mappedFormat as 'png' | 'jpeg' | 'webp' | 'svg' | 'pdf' | 'pptx' | 'docx' | 'html' | 'xml' | 'url',
-          fileName,
-          exportOptions
-        );
-      } else {
-        // Fallback to legacy export methods for other formats
-        switch (normalizedFormat) {
-          case 'json':
-            console.log('📄 Starting JSON export...');
-            await exportAsJSON(canvasData, fileName);
-            break;
-            
-          case 'flowdigm':
-            console.log('📄 Starting FlowDigm export...');
-            exportAsFlowdigm(canvasData, fileName);
-            break;
-            
-          default:
-            throw new Error(`Unsupported export format: ${format}`);
-        }
+      switch (format.toLowerCase()) {
+        case 'png':
+          // Try enhanced export method first
+          try {
+            await exportAsPNGSimple(fileName);
+          } catch (error) {
+            console.error('Enhanced export failed, trying canvas-based fallback:', error);
+            try {
+              const reactFlowInstance = (window as any).__REACT_FLOW_INSTANCE__;
+              if (reactFlowInstance) {
+                const nodes = reactFlowInstance.getNodes();
+                const edges = reactFlowInstance.getEdges();
+                if (nodes.length > 0) {
+                  await exportAsPNGCanvas(nodes, edges, fileName);
+                } else {
+                  // If no nodes, try basic html2canvas
+                  if (canvasElement) {
+                    await exportAsPNG(canvasElement, fileName);
+                  }
+                }
+              } else {
+                // Fallback to basic html2canvas
+                if (canvasElement) {
+                  await exportAsPNG(canvasElement, fileName);
+                }
+              }
+            } catch (fallbackError) {
+              console.error('All export methods failed:', fallbackError);
+              throw new Error('Failed to export PNG: All methods failed');
+            }
+          }
+          break;
+        case 'jpeg':
+        case 'jpg':
+          if (canvasElement) {
+            await exportAsJPEG(canvasElement, fileName);
+          }
+          break;
+        case 'svg':
+          // Get actual ReactFlow data for SVG export
+          try {
+            const reactFlowInstance = (window as any).__REACT_FLOW_INSTANCE__;
+            if (reactFlowInstance) {
+              const reactFlowNodes = reactFlowInstance.getNodes();
+              const reactFlowEdges = reactFlowInstance.getEdges();
+              console.log('SVG Export - ReactFlow nodes:', reactFlowNodes.length, 'edges:', reactFlowEdges.length);
+              exportAsSVG(reactFlowNodes, reactFlowEdges, fileName);
+            } else {
+              // Fallback to context data
+              exportAsSVG(nodes, edges, fileName);
+            }
+          } catch (error) {
+            console.error('SVG export failed:', error);
+            // Fallback to context data
+            exportAsSVG(nodes, edges, fileName);
+          }
+          break;
+        case 'json':
+          exportAsJSON(canvasData, fileName);
+          break;
+        default:
+          throw new Error(`Unsupported export format: ${format}`);
       }
-      
-      console.log('✅ Export completed successfully for format:', format);
     } catch (error) {
       console.error('❌ Export error in CanvasEditorProvider:', error);
       throw error;
@@ -635,9 +634,7 @@ const CanvasProvider = ({ children }: { children: React.ReactNode }) => {
 
   const loadFromDevice = useCallback(async () => {
     try {
-      console.log('Attempting to load file from device...');
       const canvasData = await loadFileFromDevice();
-      console.log('File loaded successfully:', canvasData);
       
       importCanvas(canvasData);
       
@@ -688,13 +685,10 @@ const CanvasProvider = ({ children }: { children: React.ReactNode }) => {
 
   // New diagram functionality
   const createNewDiagram = useCallback(() => {
-    console.log('Creating new diagram...');
-    
     // Check for unsaved work
     if (hasUnsavedWork()) {
       const shouldProceed = window.confirm('You have unsaved changes. Do you want to create a new diagram anyway?');
       if (!shouldProceed) {
-        console.log('User cancelled new diagram creation');
         return;
       }
     }
@@ -705,8 +699,6 @@ const CanvasProvider = ({ children }: { children: React.ReactNode }) => {
     
     // Clear auto-save data
     clearAutoSave();
-    
-    console.log('New diagram created successfully');
     
     // Provide user feedback
     setTimeout(() => {
@@ -725,11 +717,8 @@ const CanvasProvider = ({ children }: { children: React.ReactNode }) => {
         
         if (file) {
           try {
-            console.log('Processing file:', file.name, file.type, file.size);
-            
             // Process the image file and extract shapes
             const extractedShapes = await processImageFileForShapes(file);
-            console.log('Extracted shapes:', extractedShapes);
             
             if (extractedShapes.length > 0) {
               // Check for unsaved work
@@ -750,7 +739,6 @@ const CanvasProvider = ({ children }: { children: React.ReactNode }) => {
               const reactFlowInstance = (window as any).__REACT_FLOW_INSTANCE__;
               
               // Add extracted shapes to canvas
-              console.log('Adding extracted shapes to canvas:', extractedShapes.length);
               extractedShapes.forEach((shape, index) => {
                 // Convert shape to ReactFlow node format
                 const nodeData = {
@@ -799,7 +787,6 @@ const CanvasProvider = ({ children }: { children: React.ReactNode }) => {
                   icon: shape.icon
                 };
                 
-                console.log(`Adding shape ${index + 1}:`, shapeData);
                 dispatch({ 
                   type: 'ADD_SHAPE', 
                   payload: shapeData
@@ -809,7 +796,6 @@ const CanvasProvider = ({ children }: { children: React.ReactNode }) => {
               // Force ReactFlow to update with new shapes
               setTimeout(() => {
                 if (reactFlowInstance) {
-                  console.log('Forcing ReactFlow to update with imported shapes');
                   reactFlowInstance.fitView({ padding: 0.1 });
                 }
               }, 300);
