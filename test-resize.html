@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Resize Functionality</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .test-info {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .step {
+            margin: 10px 0;
+            padding: 10px;
+            border-left: 4px solid #3b82f6;
+            background: #f8fafc;
+        }
+    </style>
+</head>
+<body>
+    <h1>✅ Shape Resizing Functionality Test</h1>
+    
+    <div class="test-info">
+        <h2>🎯 Testing Instructions</h2>
+        <p>Open the main application at <a href="http://localhost:5173" target="_blank">http://localhost:5173</a> and follow these steps:</p>
+    </div>
+
+    <div class="step">
+        <h3>Step 1: Add a Shape</h3>
+        <p>• Click on a shape tool in the sidebar (Rectangle, Circle, etc.)</p>
+        <p>• Click on the canvas to add the shape</p>
+    </div>
+
+    <div class="step">
+        <h3>Step 2: Select the Shape</h3>
+        <p>• Click on the shape to select it</p>
+        <p>• You should see a blue border around the shape</p>
+        <p>• <strong>Resize handles should appear:</strong> 8 small blue squares around the shape edges</p>
+    </div>
+
+    <div class="step">
+        <h3>Step 3: Test Resizing</h3>
+        <p>• <strong>Corner handles:</strong> Click and drag corner handles to resize diagonally</p>
+        <p>• <strong>Edge handles:</strong> Click and drag edge handles to resize in one direction</p>
+        <p>• The shape should resize smoothly as you drag</p>
+        <p>• The resize should be saved to the shape data</p>
+    </div>
+
+    <div class="step">
+        <h3>Step 4: Test Different Shapes</h3>
+        <p>• Try resizing Rectangle, Circle, Triangle nodes</p>
+        <p>• All shapes should have the same resize functionality</p>
+    </div>
+
+    <div class="step">
+        <h3>✅ Expected Results</h3>
+        <p>• Resize handles appear when shape is selected</p>
+        <p>• Handles are 12x12px blue squares with white border and shadow</p>
+        <p>• Mouse cursor changes to appropriate resize cursor (↘, ↔, ↕, etc.)</p>
+        <p>• Shape resizes smoothly during drag</p>
+        <p>• Minimum size constraints are respected (50x30px)</p>
+        <p>• Resize changes are persisted in the shape data</p>
+    </div>
+
+    <p style="margin-top: 30px; font-weight: bold; color: #059669;">
+        🚀 The shape resizing functionality has been successfully implemented!
+    </p>
+
+    <div style="background: #ecfdf5; border: 2px solid #10b981; padding: 15px; border-radius: 8px; margin-top: 20px;">
+        <h3 style="color: #065f46; margin-top: 0;">Implementation Summary:</h3>
+        <ul style="color: #065f46;">
+            <li>✅ Custom ResizableNode component with 8 resize handles</li>
+            <li>✅ Corner handles (4): nw, ne, sw, se resize</li>
+            <li>✅ Edge handles (4): n, e, s, w resize</li>
+            <li>✅ Mouse event handling for smooth resizing</li>
+            <li>✅ Integration with ReactFlow node system</li>
+            <li>✅ Callback system to persist resize changes</li>
+            <li>✅ Minimum size constraints</li>
+            <li>✅ Visual feedback with proper cursors</li>
+        </ul>
+    </div>
+</body>
+</html>

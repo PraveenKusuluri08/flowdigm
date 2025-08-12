@@ -1,0 +1,465 @@
+// User Authentication and Cross-Platform Sync Service
+import type { DiagramData } from './bidirectionalIntegration';
+
+export interface UserCredentials {
+  platform: string;
+  accessToken: string;
+  refreshToken?: string;
+  expiresAt: Date;
+  userId: string;
+  email: string;
+  displayName: string;
+}
+
+export interface PlatformConnection {
+  platform: string;
+  isConnected: boolean;
+  credentials?: UserCredentials;
+  lastSync?: Date;
+  syncEnabled: boolean;
+  permissions: {
+    read: boolean;
+    write: boolean;
+    share: boolean;
+    collaborate: boolean;
+  };
+}
+
+export interface UserSyncProfile {
+  userId: string;
+  email: string;
+  displayName: string;
+  connections: Record<string, PlatformConnection>;
+  preferences: {
+    autoSync: boolean;
+    syncInterval: number; // minutes
+    defaultEditPlatform?: string;
+    collaborationMode: 'private' | 'team' | 'public';
+  };
+  subscription: {
+    plan: 'free' | 'pro' | 'enterprise';
+    features: string[];
+    limits: {
+      diagrams: number;
+      collaborators: number;
+      storage: number; // MB
+    };
+  };
+}
+
+export interface CrossPlatformProject {
+  id: string;
+  name: string;
+  description: string;
+  owner: {
+    userId: string;
+    displayName: string;
+    email: string;
+  };
+  collaborators: Array<{
+    userId: string;
+    displayName: string;
+    email: string;
+    role: 'viewer' | 'editor' | 'admin';
+    joinedAt: Date;
+  }>;
+  platforms: {
+    visio?: { fileId: string; shareUrl: string; lastSync: Date };
+    lucidchart?: { documentId: string; shareUrl: string; lastSync: Date };
+    drawio?: { fileId: string; shareUrl: string; lastSync: Date };
+    website: { diagramId: string; lastModified: Date };
+  };
+  syncStatus: 'synced' | 'pending' | 'conflict' | 'error';
+  lastActivity: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export class UserAuthSyncService {
+  private userProfile: UserSyncProfile | null = null;
+  private platformConnections = new Map<string, PlatformConnection>();
+  private activeProjects = new Map<string, CrossPlatformProject>();
+  private syncInProgress = new Set<string>();
+
+  constructor() {
+    this.loadUserProfile();
+  }
+
+  // User Authentication Methods
+  async authenticateUser(email: string, password: string): Promise<UserSyncProfile> {
+    try {
+      // Simulate user authentication
+      const userProfile: UserSyncProfile = {
+        userId: `user_${Date.now()}`,
+        email,
+        displayName: email.split('@')[0],
+        connections: {},
+        preferences: {
+          autoSync: true,
+          syncInterval: 5,
+          collaborationMode: 'private'
+        },
+        subscription: {
+          plan: 'pro',
+          features: ['real_time_sync', 'cross_platform_editing', 'collaboration'],
+          limits: {
+            diagrams: 100,
+            collaborators: 10,
+            storage: 1000
+          }
+        }
+      };
+
+      this.userProfile = userProfile;
+      this.saveUserProfile();
+      console.log('✅ User authenticated successfully:', userProfile.email);
+      return userProfile;
+    } catch (error) {
+      console.error('❌ Authentication failed:', error);
+      throw new Error('Authentication failed');
+    }
+  }
+
+  // Platform Connection Methods
+  async connectToPlatform(platform: 'visio' | 'lucidchart' | 'drawio'): Promise<PlatformConnection> {
+    if (!this.userProfile) {
+      throw new Error('User must be authenticated first');
+    }
+
+    console.log(`🔗 Connecting to ${platform}...`);
+
+    try {
+      const credentials = await this.performOAuthFlow(platform);
+      const connection: PlatformConnection = {
+        platform,
+        isConnected: true,
+        credentials,
+        lastSync: new Date(),
+        syncEnabled: true,
+        permissions: {
+          read: true,
+          write: true,
+          share: true,
+          collaborate: platform !== 'drawio' // Draw.io has limited collaboration
+        }
+      };
+
+      this.platformConnections.set(platform, connection);
+      this.userProfile.connections[platform] = connection;
+      this.saveUserProfile();
+
+      console.log(`✅ Successfully connected to ${platform}`);
+      return connection;
+    } catch (error) {
+      console.error(`❌ Failed to connect to ${platform}:`, error);
+      throw new Error(`Failed to connect to ${platform}`);
+    }
+  }
+
+  async disconnectFromPlatform(platform: string): Promise<void> {
+    if (!this.userProfile) return;
+
+    try {
+      // Revoke access token
+      const connection = this.platformConnections.get(platform);
+      if (connection?.credentials?.accessToken) {
+        await this.revokeAccessToken(platform, connection.credentials.accessToken);
+      }
+
+      this.platformConnections.delete(platform);
+      delete this.userProfile.connections[platform];
+      this.saveUserProfile();
+
+      console.log(`✅ Disconnected from ${platform}`);
+    } catch (error) {
+      console.error(`❌ Failed to disconnect from ${platform}:`, error);
+    }
+  }
+
+  // Cross-Platform Project Management
+  async createCrossPlatformProject(
+    diagram: DiagramData,
+    platforms: string[] = ['visio', 'lucidchart', 'drawio']
+  ): Promise<CrossPlatformProject> {
+    if (!this.userProfile) {
+      throw new Error('User must be authenticated');
+    }
+
+    const project: CrossPlatformProject = {
+      id: `project_${Date.now()}`,
+      name: diagram.name,
+      description: `Cross-platform project for ${diagram.name}`,
+      owner: {
+        userId: this.userProfile.userId,
+        displayName: this.userProfile.displayName,
+        email: this.userProfile.email
+      },
+      collaborators: [],
+      platforms: {
+        website: {
+          diagramId: diagram.id,
+          lastModified: diagram.lastModified
+        }
+      },
+      syncStatus: 'pending',
+      lastActivity: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    // Create copies in connected platforms
+    for (const platform of platforms) {
+      const connection = this.platformConnections.get(platform);
+      if (connection?.isConnected) {
+        try {
+          const platformData = await this.uploadDiagramToPlatform(diagram, platform, connection);
+          
+          switch (platform) {
+            case 'visio':
+              project.platforms.visio = {
+                fileId: platformData.fileId,
+                shareUrl: platformData.shareUrl,
+                lastSync: new Date()
+              };
+              break;
+            case 'lucidchart':
+              project.platforms.lucidchart = {
+                documentId: platformData.fileId,
+                shareUrl: platformData.shareUrl,
+                lastSync: new Date()
+              };
+              break;
+            case 'drawio':
+              project.platforms.drawio = {
+                fileId: platformData.fileId,
+                shareUrl: platformData.shareUrl,
+                lastSync: new Date()
+              };
+              break;
+          }
+        } catch (error) {
+          console.error(`Failed to upload to ${platform}:`, error);
+        }
+      }
+    }
+
+    project.syncStatus = 'synced';
+    this.activeProjects.set(project.id, project);
+    console.log(`✅ Created cross-platform project: ${project.name}`);
+    return project;
+  }
+
+  // Real-time Sync Methods
+  async startAutoSync(projectId: string): Promise<void> {
+    const project = this.activeProjects.get(projectId);
+    if (!project || this.syncInProgress.has(projectId)) return;
+
+    this.syncInProgress.add(projectId);
+    
+    try {
+      console.log(`🔄 Starting auto-sync for project: ${project.name}`);
+      
+      // Sync with all connected platforms
+      const syncPromises = Object.keys(project.platforms)
+        .filter(platform => platform !== 'website')
+        .map(platform => this.syncWithPlatform(project, platform));
+
+      await Promise.allSettled(syncPromises);
+      
+      project.syncStatus = 'synced';
+      project.updatedAt = new Date();
+      
+      console.log(`✅ Auto-sync completed for project: ${project.name}`);
+    } catch (error) {
+      console.error(`❌ Auto-sync failed for project: ${project.name}`, error);
+      project.syncStatus = 'error';
+    } finally {
+      this.syncInProgress.delete(projectId);
+    }
+  }
+
+  // Collaboration Methods
+  async inviteCollaborator(
+    projectId: string, 
+    email: string, 
+    role: 'viewer' | 'editor' | 'admin' = 'editor'
+  ): Promise<void> {
+    const project = this.activeProjects.get(projectId);
+    if (!project) {
+      throw new Error('Project not found');
+    }
+
+    if (project.owner.userId !== this.userProfile?.userId) {
+      throw new Error('Only project owner can invite collaborators');
+    }
+
+    // Check subscription limits
+    if (project.collaborators.length >= this.userProfile.subscription.limits.collaborators) {
+      throw new Error('Collaborator limit reached for current subscription');
+    }
+
+    const collaborator = {
+      userId: `user_${email.replace('@', '_')}`,
+      displayName: email.split('@')[0],
+      email,
+      role,
+      joinedAt: new Date()
+    };
+
+    project.collaborators.push(collaborator);
+    
+    // Send invitations to all connected platforms
+    await this.sendPlatformInvitations(project, collaborator);
+    
+    console.log(`✅ Invited ${email} to project: ${project.name}`);
+  }
+
+  // Platform-specific OAuth flows
+  private async performOAuthFlow(platform: string): Promise<UserCredentials> {
+    // Simulate OAuth flow - in real implementation, this would open OAuth popup
+    console.log(`🔐 Performing OAuth flow for ${platform}...`);
+    
+    const mockCredentials: UserCredentials = {
+      platform,
+      accessToken: `token_${platform}_${Date.now()}`,
+      refreshToken: `refresh_${platform}_${Date.now()}`,
+      expiresAt: new Date(Date.now() + 3600000), // 1 hour
+      userId: `${platform}_user_${this.userProfile?.userId}`,
+      email: this.userProfile?.email || '',
+      displayName: this.userProfile?.displayName || ''
+    };
+
+    // Simulate API validation
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    return mockCredentials;
+  }
+
+  // Platform-specific upload methods
+  private async uploadDiagramToPlatform(
+    diagram: DiagramData, 
+    platform: string, 
+    connection: PlatformConnection
+  ): Promise<{ fileId: string; shareUrl: string }> {
+    console.log(`📤 Uploading diagram to ${platform}:`, diagram.name);
+    
+    // Convert diagram to platform format and upload
+    // This would use the enhanced conversion functions we created earlier
+    
+    const fileId = `${platform}_${diagram.id}_${Date.now()}`;
+    const shareUrl = this.generateShareUrl(platform, fileId);
+    
+    return { fileId, shareUrl };
+  }
+
+  // Platform sync methods
+  private async syncWithPlatform(project: CrossPlatformProject, platform: string): Promise<void> {
+    const connection = this.platformConnections.get(platform);
+    if (!connection?.isConnected) return;
+
+    try {
+      // Check for changes in platform
+      const platformData = await this.fetchFromPlatform(platform, project);
+      
+      if (platformData.lastModified > project.platforms.website.lastModified) {
+        // Platform version is newer - update website
+        await this.updateWebsiteDiagram(project, platformData);
+      } else if (project.platforms.website.lastModified > platformData.lastModified) {
+        // Website version is newer - update platform
+        await this.updatePlatformDiagram(project, platform);
+      }
+      
+      // Update sync timestamp
+      const platformInfo = project.platforms[platform as keyof typeof project.platforms];
+      if (platformInfo) {
+        (platformInfo as any).lastSync = new Date();
+      }
+      
+    } catch (error) {
+      console.error(`❌ Sync failed for ${platform}:`, error);
+      project.syncStatus = 'error';
+    }
+  }
+
+  // Helper methods
+  private generateShareUrl(platform: string, fileId: string): string {
+    const baseUrls = {
+      visio: 'https://office.live.com/start/Visio.aspx',
+      lucidchart: 'https://lucidchart.com/documents/view',
+      drawio: 'https://app.diagrams.net'
+    };
+    
+    return `${baseUrls[platform as keyof typeof baseUrls]}?file=${fileId}&share=1`;
+  }
+
+  private async revokeAccessToken(platform: string, token: string): Promise<void> {
+    // Platform-specific token revocation
+    console.log(`🔓 Revoking access token for ${platform}`);
+  }
+
+  private async sendPlatformInvitations(project: CrossPlatformProject, collaborator: any): Promise<void> {
+    // Send invitations across all platforms where project exists
+    console.log(`📧 Sending invitations to ${collaborator.email} for all platforms`);
+  }
+
+  private async fetchFromPlatform(platform: string, project: CrossPlatformProject): Promise<any> {
+    // Fetch latest version from platform
+    return { lastModified: new Date(), data: {} };
+  }
+
+  private async updateWebsiteDiagram(project: CrossPlatformProject, platformData: any): Promise<void> {
+    // Update website diagram with platform changes
+    console.log(`📥 Updating website diagram from ${platformData.platform}`);
+  }
+
+  private async updatePlatformDiagram(project: CrossPlatformProject, platform: string): Promise<void> {
+    // Update platform diagram with website changes
+    console.log(`📤 Updating ${platform} diagram from website`);
+  }
+
+  // Storage methods
+  private loadUserProfile(): void {
+    try {
+      const stored = localStorage.getItem('userSyncProfile');
+      if (stored) {
+        this.userProfile = JSON.parse(stored);
+        // Restore platform connections
+        Object.entries(this.userProfile.connections).forEach(([platform, connection]) => {
+          this.platformConnections.set(platform, connection);
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load user profile:', error);
+    }
+  }
+
+  private saveUserProfile(): void {
+    if (this.userProfile) {
+      localStorage.setItem('userSyncProfile', JSON.stringify(this.userProfile));
+    }
+  }
+
+  // Public getters
+  getUserProfile(): UserSyncProfile | null {
+    return this.userProfile;
+  }
+
+  getPlatformConnections(): Map<string, PlatformConnection> {
+    return this.platformConnections;
+  }
+
+  getActiveProjects(): Map<string, CrossPlatformProject> {
+    return this.activeProjects;
+  }
+
+  isUserAuthenticated(): boolean {
+    return this.userProfile !== null;
+  }
+
+  isPlatformConnected(platform: string): boolean {
+    return this.platformConnections.get(platform)?.isConnected || false;
+  }
+}
+
+// Singleton instance
+export const userAuthSync = new UserAuthSyncService();

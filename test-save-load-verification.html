@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowDigm Save/Load Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .step {
+            background: #e3f2fd;
+            padding: 15px;
+            border-left: 4px solid #1976d2;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background: #e8f5e8;
+            border-left-color: #4caf50;
+        }
+        .error {
+            background: #ffebee;
+            border-left-color: #f44336;
+        }
+        .code {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+        }
+        .button {
+            background: #1976d2;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #1565c0;
+        }
+        .iframe-container {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            height: 600px;
+            margin: 20px 0;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 FlowDigm Save/Load/Import Test Suite</h1>
+    <p><strong>All functions have been fixed!</strong> Follow these steps to test the complete functionality:</p>
+
+    <div class="test-container">
+        <h2>🚀 Step 1: Open FlowDigm Application</h2>
+        <div class="step">
+            <strong>Action:</strong> Open FlowDigm in a new tab: 
+            <a href="http://localhost:5174" target="_blank" style="color: #1976d2;">http://localhost:5174</a>
+        </div>
+        <div class="iframe-container">
+            <iframe src="http://localhost:5174" title="FlowDigm Application"></iframe>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <h2>📝 Step 2: Test SAVE Functionality</h2>
+        <div class="step">
+            <strong>Action:</strong> 
+            <ol>
+                <li>Add some shapes to the canvas (drag from sidebar or use toolbar)</li>
+                <li>Click "File" → "Save" or press Ctrl+S</li>
+                <li>Choose a location and save the file</li>
+            </ol>
+        </div>
+        <div class="step success">
+            <strong>Expected Result:</strong> 
+            <ul>
+                <li>✅ No "No shapes found" error</li>
+                <li>✅ File downloads successfully</li>
+                <li>✅ Console shows: "📊 Current nodes count: X" (where X > 0)</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <h2>📂 Step 3: Test LOAD Functionality</h2>
+        <div class="step">
+            <strong>Action:</strong>
+            <ol>
+                <li>Clear the canvas or refresh the page</li>
+                <li>Click "File" → "Open"</li>
+                <li>Select the file you just saved</li>
+            </ol>
+        </div>
+        <div class="step success">
+            <strong>Expected Result:</strong>
+            <ul>
+                <li>✅ All shapes appear exactly as they were saved</li>
+                <li>✅ Console shows: "🔄 Setting nodes in ReactFlow: [array]"</li>
+                <li>✅ Canvas automatically fits to show all shapes</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <h2>📥 Step 4: Test IMPORT Functionality</h2>
+        <div class="step">
+            <strong>Action:</strong>
+            <ol>
+                <li>Click "File" → "Import"</li>
+                <li>Select one of these test files:</li>
+                <ul>
+                    <li><code>test-simple-diagram.json</code> (2 shapes)</li>
+                    <li><code>test-diagram-sample.json</code> (basic format)</li>
+                    <li><code>test-new-format-sample.json</code> (enhanced format)</li>
+                </ul>
+            </ol>
+        </div>
+        <div class="step success">
+            <strong>Expected Result:</strong>
+            <ul>
+                <li>✅ Shapes from the file appear on canvas</li>
+                <li>✅ Console shows import process logs</li>
+                <li>✅ Existing shapes remain (import adds to canvas)</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <h2>🔧 Debug Information</h2>
+        <div class="step">
+            <strong>Fixed Issues:</strong>
+            <ul>
+                <li>✅ <strong>Save Error:</strong> Function now gets nodes from ReactFlow instead of empty context state</li>
+                <li>✅ <strong>Load Error:</strong> Import function now updates both context state and ReactFlow</li>
+                <li>✅ <strong>File Format:</strong> Enhanced validation handles both old and new formats</li>
+                <li>✅ <strong>Data Conversion:</strong> Proper conversion between shapes ↔ nodes format</li>
+            </ul>
+        </div>
+        
+        <div class="step">
+            <strong>Console Commands for Testing:</strong>
+            <div class="code">
+// Check current ReactFlow state<br>
+const instance = window.__REACT_FLOW_INSTANCE__;<br>
+console.log('Nodes:', instance?.getNodes());<br>
+console.log('Edges:', instance?.getEdges());<br><br>
+
+// Add test shapes programmatically<br>
+if (window.addTestShapes) window.addTestShapes();
+            </div>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <h2>🎯 Success Criteria</h2>
+        <div class="step success">
+            <strong>All Functions Working When:</strong>
+            <ul>
+                <li>✅ <strong>Save:</strong> Downloads file without "No shapes" error</li>
+                <li>✅ <strong>Load:</strong> Opens saved files and displays all shapes correctly</li>
+                <li>✅ <strong>Import:</strong> Adds shapes from external files to current canvas</li>
+                <li>✅ <strong>No Console Errors:</strong> No red errors in browser console</li>
+                <li>✅ <strong>File Compatibility:</strong> Files work across save/load cycles</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <h2>🚨 If Issues Persist</h2>
+        <div class="step error">
+            <strong>Check These:</strong>
+            <ol>
+                <li><strong>Browser Console:</strong> Look for error messages</li>
+                <li><strong>File Permissions:</strong> Ensure browser can download/upload files</li>
+                <li><strong>ReactFlow Instance:</strong> Check if <code>window.__REACT_FLOW_INSTANCE__</code> exists</li>
+                <li><strong>File Format:</strong> Ensure JSON files are valid</li>
+            </ol>
+        </div>
+        
+        <div class="step">
+            <strong>Common Fixes:</strong>
+            <ul>
+                <li>Refresh the page and try again</li>
+                <li>Clear browser cache</li>
+                <li>Try in incognito mode</li>
+                <li>Check if popup blockers are interfering</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Auto-refresh iframe every 30 seconds to keep it active
+        setInterval(() => {
+            const iframe = document.querySelector('iframe');
+            if (iframe) {
+                iframe.src = iframe.src;
+            }
+        }, 30000);
+    </script>
+</body>
+</html>

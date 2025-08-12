@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowDigm Export Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2563eb;
+            text-align: center;
+        }
+        .instruction {
+            background-color: #f0fdf4;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #10b981;
+        }
+        .instruction h3 {
+            color: #166534;
+            margin-top: 0;
+        }
+        .test-button {
+            display: inline-block;
+            margin: 10px;
+            padding: 12px 20px;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+        }
+        .test-button:hover {
+            background-color: #2563eb;
+        }
+        .test-button.large {
+            font-size: 18px;
+            padding: 15px 30px;
+        }
+        .status-box {
+            background-color: #1f2937;
+            color: #f3f4f6;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .warning {
+            background-color: #fef3c7;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            border-left: 4px solid #f59e0b;
+        }
+        .warning h4 {
+            color: #92400e;
+            margin: 0 0 10px 0;
+        }
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+        .checklist li {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+        }
+        .checklist li::before {
+            content: "📋";
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔧 FlowDigm Export Functionality Test</h1>
+        
+        <div class="instruction">
+            <h3>📝 Testing Instructions</h3>
+            <p><strong>Follow these steps to test export functionality:</strong></p>
+            <ol>
+                <li><strong>Open FlowDigm:</strong> Click the button below to open the main application</li>
+                <li><strong>Create Content:</strong> Add at least 2-3 nodes and connect them</li>
+                <li><strong>Test Exports:</strong> Try each export format from the Export dropdown</li>
+                <li><strong>Check Downloads:</strong> Verify files are downloaded and contain visible content</li>
+                <li><strong>Report Results:</strong> Use the browser console (F12) to see detailed logs</li>
+            </ol>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="http://localhost:5173" target="_blank" class="test-button large">
+                🚀 Open FlowDigm Application
+            </a>
+        </div>
+
+        <div class="warning">
+            <h4>⚠️ Common Issues & Solutions</h4>
+            <ul>
+                <li><strong>Empty/Blank Downloads:</strong> Make sure there are shapes on the canvas before exporting</li>
+                <li><strong>PNG/JPEG Not Visible:</strong> Check browser console for html2canvas errors</li>
+                <li><strong>PDF/DOCX/PPTX Not Downloading:</strong> Check for JavaScript errors in console</li>
+                <li><strong>JSON Export Issues:</strong> Verify there's data in the ReactFlow instance</li>
+            </ul>
+        </div>
+
+        <h3>🧪 Export Format Testing Checklist</h3>
+        <ul class="checklist">
+            <li><strong>PNG Export:</strong> Should download a PNG image with visible diagram content</li>
+            <li><strong>JPEG Export:</strong> Should download a JPEG image with visible diagram content</li>
+            <li><strong>SVG Export:</strong> Should download an SVG file that opens in browsers</li>
+            <li><strong>PDF Export:</strong> Should download a PDF with the diagram properly scaled</li>
+            <li><strong>DOCX Export:</strong> Should download a Word document with diagram and details</li>
+            <li><strong>PPTX Export:</strong> Should download a PowerPoint presentation with slides</li>
+            <li><strong>JSON Export:</strong> Should download a JSON file with diagram data</li>
+        </ul>
+
+        <h3>🔍 Debugging Information</h3>
+        <p>If exports are not working, check the browser console (press F12) for error messages. Common issues include:</p>
+        
+        <div id="debugInfo" class="status-box">
+Debugging information will appear here when you click the buttons below...
+        </div>
+
+        <div style="text-align: center; margin: 20px 0;">
+            <button class="test-button" onclick="checkExportFunctions()">🔍 Check Export Functions</button>
+            <button class="test-button" onclick="testCanvasDetection()">🎯 Test Canvas Detection</button>
+            <button class="test-button" onclick="checkLibraries()">📚 Check Libraries</button>
+            <button class="test-button" onclick="clearDebug()">🗑️ Clear Debug</button>
+        </div>
+
+        <div class="instruction">
+            <h3>📞 Quick Fix Steps</h3>
+            <p><strong>If exports still don't work, try these steps:</strong></p>
+            <ol>
+                <li><strong>Refresh Page:</strong> Press Ctrl+F5 to hard refresh the application</li>
+                <li><strong>Check Console:</strong> Look for red error messages in browser console</li>
+                <li><strong>Try Different Browser:</strong> Test in Chrome, Firefox, or Edge</li>
+                <li><strong>Disable Extensions:</strong> Turn off ad blockers or other browser extensions</li>
+                <li><strong>Check Network:</strong> Ensure all libraries are loading correctly</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const debugInfo = document.getElementById('debugInfo');
+        
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            debugInfo.textContent += `[${timestamp}] ${message}\\n`;
+            debugInfo.scrollTop = debugInfo.scrollHeight;
+            console.log(message);
+        }
+        
+        function clearDebug() {
+            debugInfo.textContent = 'Debug log cleared.\\n';
+        }
+        
+        function checkExportFunctions() {
+            log('🔍 Checking export functions...');
+            
+            // Check if running on localhost:5173
+            if (window.location.hostname !== 'localhost' || window.location.port !== '5173') {
+                log('⚠️ Not running on main FlowDigm application');
+                log('📍 Current URL: ' + window.location.href);
+                log('📍 Expected URL: http://localhost:5173');
+                return;
+            }
+            
+            // Check for global ReactFlow instance
+            if (window.__REACT_FLOW_INSTANCE__) {
+                log('✅ ReactFlow instance found');
+                const nodes = window.__REACT_FLOW_INSTANCE__.getNodes();
+                const edges = window.__REACT_FLOW_INSTANCE__.getEdges();
+                log(`📊 Current data: ${nodes.length} nodes, ${edges.length} edges`);
+            } else {
+                log('❌ ReactFlow instance not found');
+                log('💡 Make sure the main application is loaded first');
+            }
+            
+            // Check for required functions in window
+            const exportFunctions = [
+                'exportAsPNG', 'exportAsJPEG', 'exportAsSVG', 
+                'exportAsPDF', 'exportAsDOCX', 'exportAsPPTX', 'exportAsJSON'
+            ];
+            
+            log('\\n🔧 Checking export function availability...');
+            exportFunctions.forEach(funcName => {
+                if (typeof window[funcName] === 'function') {
+                    log(`✅ ${funcName} is available`);
+                } else {
+                    log(`❌ ${funcName} is not available`);
+                }
+            });
+        }
+        
+        function testCanvasDetection() {
+            log('🎯 Testing canvas element detection...');
+            
+            const reactFlow = document.querySelector('.react-flow');
+            const reactFlowViewport = document.querySelector('.react-flow__viewport');
+            const reactFlowWrapper = document.querySelector('[data-testid="rf__wrapper"]');
+            
+            log(`🔍 .react-flow element: ${reactFlow ? 'Found' : 'Not found'}`);
+            log(`🔍 .react-flow__viewport element: ${reactFlowViewport ? 'Found' : 'Not found'}`);
+            log(`🔍 [data-testid="rf__wrapper"] element: ${reactFlowWrapper ? 'Found' : 'Not found'}`);
+            
+            if (!reactFlow && !reactFlowViewport && !reactFlowWrapper) {
+                log('❌ No ReactFlow canvas elements detected');
+                log('💡 Make sure you\\'re on the main FlowDigm application page');
+            } else {
+                log('✅ ReactFlow canvas elements detected');
+            }
+        }
+        
+        function checkLibraries() {
+            log('📚 Checking required libraries...');
+            
+            const libraries = [
+                { name: 'html2canvas', check: () => typeof window.html2canvas !== 'undefined' },
+                { name: 'jsPDF', check: () => typeof window.jspdf !== 'undefined' },
+                { name: 'file-saver', check: () => typeof window.saveAs !== 'undefined' },
+                { name: 'React', check: () => typeof window.React !== 'undefined' }
+            ];
+            
+            libraries.forEach(lib => {
+                try {
+                    if (lib.check()) {
+                        log(`✅ ${lib.name} is loaded`);
+                    } else {
+                        log(`❌ ${lib.name} is not loaded`);
+                    }
+                } catch (e) {
+                    log(`❌ Error checking ${lib.name}: ${e.message}`);
+                }
+            });
+            
+            log('\\n💡 Note: Some libraries may not be globally available but still work via imports');
+        }
+        
+        // Auto-run initial check if on the main app
+        window.addEventListener('load', () => {
+            if (window.location.port === '5173') {
+                setTimeout(() => {
+                    log('🚀 Auto-running initial checks...');
+                    checkExportFunctions();
+                }, 1000);
+            } else {
+                log('📍 This is the test page. Click "Open FlowDigm Application" to test exports.');
+            }
+        });
+    </script>
+</body>
+</html>

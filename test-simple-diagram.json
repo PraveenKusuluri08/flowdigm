@@ -1,0 +1,40 @@
+{
+  "fileType": "FlowDigm Diagram",
+  "version": "1.0", 
+  "createdAt": "2025-08-09T22:00:00.000Z",
+  "data": {
+    "nodes": [
+      {
+        "id": "1",
+        "type": "default", 
+        "position": { "x": 100, "y": 100 },
+        "data": {
+          "label": "Test Rectangle",
+          "width": 150,
+          "height": 80,
+          "fill": "#e3f2fd",
+          "stroke": "#1976d2",
+          "strokeWidth": 2
+        }
+      },
+      {
+        "id": "2", 
+        "type": "default",
+        "position": { "x": 300, "y": 200 },
+        "data": {
+          "label": "Test Circle", 
+          "width": 120,
+          "height": 120,
+          "fill": "#fff3e0",
+          "stroke": "#f57c00",
+          "strokeWidth": 2
+        }
+      }
+    ],
+    "edges": [],
+    "viewport": { "x": 0, "y": 0, "zoom": 1 },
+    "grid": { "visible": true, "size": 20, "snap": false },
+    "fileName": "Test Simple Diagram",
+    "version": "1.0"
+  }
+}

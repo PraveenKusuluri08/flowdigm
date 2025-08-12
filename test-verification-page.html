@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowDigm Functions Test Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .test-section {
+            border-left: 4px solid #007bff;
+            padding-left: 20px;
+            margin: 20px 0;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 FlowDigm Functions Test Verification</h1>
+    
+    <div class="instructions">
+        <h3>📋 Instructions:</h3>
+        <ol>
+            <li><strong>Open FlowDigm</strong>: <a href="http://localhost:5173" target="_blank">http://localhost:5173</a></li>
+            <li><strong>Open Browser Console</strong> (F12 → Console)</li>
+            <li><strong>Follow the tests below</strong> in order</li>
+            <li><strong>Check this page</strong> for expected results</li>
+        </ol>
+    </div>
+
+    <div class="test-container">
+        <div class="test-section">
+            <h2>🎯 Test 1: Save Functionality</h2>
+            <div class="info">
+                <strong>Steps:</strong>
+                <ol>
+                    <li>Add some shapes to the canvas (use toolbar or run: <code>window.addTestShapes()</code>)</li>
+                    <li>Click "File" → "Save"</li>
+                    <li>Choose location and save the file</li>
+                </ol>
+            </div>
+            
+            <h4>Expected Console Output:</h4>
+            <pre>🔄 Starting save process...
+📊 Current shapes count: X
+💾 Canvas data to save: [object Object]
+✅ Save completed successfully</pre>
+            
+            <h4>Expected Behavior:</h4>
+            <ul>
+                <li>✅ File downloads without errors</li>
+                <li>✅ Success message appears</li>
+                <li>✅ File can be saved to chosen location</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <div class="test-section">
+            <h2>📂 Test 2: Load Functionality</h2>
+            <div class="info">
+                <strong>Steps:</strong>
+                <ol>
+                    <li>Clear canvas (refresh page)</li>
+                    <li>Click "File" → "Open"</li>
+                    <li>Select the file you just saved</li>
+                </ol>
+            </div>
+            
+            <h4>Expected Console Output:</h4>
+            <pre>🔄 Starting file load process...
+📁 File loaded successfully: [object Object]
+🔄 Importing canvas data: [object Object]
+✅ Canvas import completed</pre>
+            
+            <h4>Expected Behavior:</h4>
+            <ul>
+                <li>✅ All shapes appear exactly as they were saved</li>
+                <li>✅ Shape positions, sizes, and colors preserved</li>
+                <li>✅ Success message appears</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <div class="test-section">
+            <h2>📥 Test 3: Import Functionality</h2>
+            <div class="info">
+                <strong>Steps:</strong>
+                <ol>
+                    <li>Click "File" → "Import"</li>
+                    <li>Select <code>test-diagram-sample.json</code></li>
+                    <li>Repeat with <code>test-new-format-sample.json</code></li>
+                </ol>
+            </div>
+            
+            <h4>Expected Console Output:</h4>
+            <pre>🔄 Starting import process...
+📁 Importing file: test-diagram-sample.json
+📁 Raw file content: [JSON content]
+📊 Parsed JSON: [object Object]
+✅ Import completed successfully</pre>
+            
+            <h4>Expected Behavior:</h4>
+            <ul>
+                <li>✅ Shapes from file appear on canvas</li>
+                <li>✅ Both old and new format files work</li>
+                <li>✅ Success message appears</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <div class="test-section">
+            <h2>🔧 Quick Test Commands</h2>
+            <p>Copy and paste these commands in the browser console:</p>
+            
+            <h4>Add Test Shapes:</h4>
+            <pre>window.addTestShapes && window.addTestShapes();</pre>
+            
+            <h4>Check Canvas State:</h4>
+            <pre>window.checkCanvasState && window.checkCanvasState();</pre>
+            
+            <h4>Test All Functions:</h4>
+            <pre>// Test save
+window.testSave && window.testSave();
+
+// Test load  
+window.testLoad && window.testLoad();
+
+// Test import
+window.testImport && window.testImport();</pre>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <div class="test-section">
+            <h2>✅ Success Criteria</h2>
+            <div class="success">
+                <h4>All functions should:</h4>
+                <ul>
+                    <li>✅ Execute without console errors</li>
+                    <li>✅ Show appropriate success/error messages</li>
+                    <li>✅ Handle user cancellation gracefully</li>
+                    <li>✅ Preserve shape properties (position, size, color, text)</li>
+                    <li>✅ Work with both old and new file formats</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <div class="test-section">
+            <h2>📊 Implementation Status</h2>
+            <div class="success">
+                <h4>✅ COMPLETED FIXES:</h4>
+                <ul>
+                    <li>✅ <strong>Import function</strong> - Now handles both old and new file formats with comprehensive validation</li>
+                    <li>✅ <strong>Save function</strong> - Enhanced with debugging and proper data structure</li>
+                    <li>✅ <strong>Load function</strong> - Improved error handling and data conversion</li>
+                    <li>✅ <strong>File validation</strong> - Comprehensive validation for all operations</li>
+                    <li>✅ <strong>Error handling</strong> - Clear user feedback for all scenarios</li>
+                    <li>✅ <strong>Data conversion</strong> - Proper shapes ↔ nodes conversion</li>
+                </ul>
+            </div>
+            
+            <div class="info">
+                <h4>🔧 Recent Enhancements:</h4>
+                <ul>
+                    <li>Enhanced <code>importFromJSON</code> with dual format support</li>
+                    <li>Added extensive debugging throughout all operations</li>
+                    <li>Improved file validation with <code>fileValidation.ts</code></li>
+                    <li>Better user feedback in Header.tsx</li>
+                    <li>Comprehensive testing utilities</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <div class="test-section">
+            <h2>🚨 If Issues Occur</h2>
+            <div class="error">
+                <h4>Troubleshooting Steps:</h4>
+                <ol>
+                    <li><strong>Check browser console</strong> for error messages</li>
+                    <li><strong>Verify file permissions</strong> (some browsers block file operations)</li>
+                    <li><strong>Test in different browsers</strong> (Chrome, Firefox, Edge)</li>
+                    <li><strong>Check file format</strong> - ensure JSON is valid</li>
+                    <li><strong>Clear browser cache</strong> and try again</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log("🧪 FlowDigm Test Verification Page Loaded");
+        console.log("📋 Follow the instructions above to test all functions");
+        console.log("🔗 Main App: http://localhost:5173");
+    </script>
+</body>
+</html>

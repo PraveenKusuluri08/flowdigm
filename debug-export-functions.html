@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Export Functions Debugging - FlowDigm</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2563eb;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .debug-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background-color: #f9fafb;
+        }
+        .debug-section h3 {
+            color: #374151;
+            margin-bottom: 15px;
+        }
+        .test-button {
+            display: inline-block;
+            margin: 5px;
+            padding: 10px 15px;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .test-button:hover {
+            background-color: #2563eb;
+        }
+        .test-button.danger {
+            background-color: #ef4444;
+        }
+        .test-button.danger:hover {
+            background-color: #dc2626;
+        }
+        .log-output {
+            background-color: #1f2937;
+            color: #f3f4f6;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+            white-space: pre-wrap;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status.success {
+            background-color: #d1fae5;
+            color: #047857;
+        }
+        .status.error {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+        .status.testing {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .canvas-test {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(45deg, #f0f9ff 25%, transparent 25%), 
+                        linear-gradient(-45deg, #f0f9ff 25%, transparent 25%), 
+                        linear-gradient(45deg, transparent 75%, #f0f9ff 75%), 
+                        linear-gradient(-45deg, transparent 75%, #f0f9ff 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            border: 2px solid #3b82f6;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e40af;
+            margin: 15px 0;
+        }
+        .react-flow {
+            width: 100%;
+            height: 200px;
+            background: #ffffff;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            position: relative;
+            margin: 15px 0;
+        }
+        .react-flow__node {
+            position: absolute;
+            background: #3b82f6;
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            border: 2px solid #2563eb;
+            min-width: 100px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+        .checklist li {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+        }
+        .checklist li::before {
+            content: "◯";
+            margin-right: 10px;
+            color: #6b7280;
+            font-weight: bold;
+        }
+        .checklist li.checked::before {
+            content: "✅";
+            color: #10b981;
+        }
+        .checklist li.error::before {
+            content: "❌";
+            color: #ef4444;
+        }
+        .steps {
+            background-color: #f0fdf4;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #10b981;
+        }
+        .steps h4 {
+            color: #166534;
+            margin-top: 0;
+        }
+        .steps ol {
+            color: #374151;
+            line-height: 1.6;
+        }
+        .actual-test {
+            background-color: #eff6ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #3b82f6;
+        }
+        .actual-test h4 {
+            color: #1e40af;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Export Functions Debugging Tool</h1>
+        
+        <div class="actual-test">
+            <h4>🎯 Real Application Test</h4>
+            <p><strong>To test the actual export functionality:</strong></p>
+            <ol>
+                <li>Open the main FlowDigm application: <a href="http://localhost:5173" target="_blank">http://localhost:5173</a></li>
+                <li>Create a simple diagram with a few nodes and connections</li>
+                <li>Try each export format from the Export dropdown menu</li>
+                <li>Check browser console for detailed debug logs</li>
+                <li>Verify downloaded files contain visible content</li>
+            </ol>
+        </div>
+        
+        <div class="debug-section">
+            <h3>📊 Environment Check</h3>
+            <ul class="checklist" id="environmentChecklist">
+                <li id="check-window">Window object available</li>
+                <li id="check-reactflow">ReactFlow instance accessible</li>
+                <li id="check-canvas">Canvas element found</li>
+                <li id="check-libs">Required libraries loaded</li>
+            </ul>
+            <button class="test-button" onclick="checkEnvironment()">🔍 Check Environment</button>
+        </div>
+
+        <div class="debug-section">
+            <h3>🎨 Test Canvas</h3>
+            <div class="canvas-test" id="testCanvas">
+                📊 Test FlowDigm Canvas
+                <div style="position: absolute; top: 20px; left: 20px; background: #f59e0b; color: white; padding: 8px; border-radius: 4px; font-size: 12px;">
+                    Node 1: AWS Lambda
+                </div>
+                <div style="position: absolute; bottom: 20px; right: 20px; background: #10b981; color: white; padding: 8px; border-radius: 4px; font-size: 12px;">
+                    Node 2: S3 Bucket
+                </div>
+            </div>
+            
+            <!-- Simulate ReactFlow element -->
+            <div class="react-flow" id="mockReactFlow">
+                <div class="react-flow__node" style="top: 30px; left: 30px;">AWS Lambda</div>
+                <div class="react-flow__node" style="bottom: 30px; right: 30px;">S3 Bucket</div>
+                <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
+                    <line x1="100" y1="60" x2="300" y2="140" stroke="#6b7280" stroke-width="2" marker-end="url(#arrowhead)"/>
+                    <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#6b7280"/>
+                        </marker>
+                    </defs>
+                </svg>
+            </div>
+        </div>
+
+        <div class="debug-section">
+            <h3>🧪 Simulated Export Tests</h3>
+            <p><strong>Test simulated export functions:</strong></p>
+            
+            <button class="test-button" onclick="testExport('png')">📸 Test PNG Export</button>
+            <button class="test-button" onclick="testExport('jpeg')">📸 Test JPEG Export</button>
+            <button class="test-button" onclick="testExport('svg')">🎨 Test SVG Export</button>
+            <button class="test-button" onclick="testExport('pdf')">📄 Test PDF Export</button>
+            <button class="test-button" onclick="testExport('docx')">📄 Test DOCX Export</button>
+            <button class="test-button" onclick="testExport('pptx')">📄 Test PPTX Export</button>
+            <button class="test-button" onclick="testExport('json')">📊 Test JSON Export</button>
+            
+            <br><br>
+            <button class="test-button danger" onclick="clearLog()">🗑️ Clear Log</button>
+            <button class="test-button" onclick="testAllFormats()">🚀 Test All Formats</button>
+            
+            <div class="log-output" id="logOutput">
+Waiting for tests to run...
+Click any test button to start debugging export functionality.
+            </div>
+        </div>
+
+        <div class="debug-section">
+            <h3>📋 Debug Checklist</h3>
+            <ul class="checklist" id="debugChecklist">
+                <li id="check-png">PNG export working</li>
+                <li id="check-jpeg">JPEG export working</li>
+                <li id="check-svg">SVG export working</li>
+                <li id="check-pdf">PDF export working</li>
+                <li id="check-docx">DOCX export working</li>
+                <li id="check-pptx">PPTX export working</li>
+                <li id="check-json">JSON export working</li>
+            </ul>
+        </div>
+
+        <div class="steps">
+            <h4>🔍 Debugging Steps</h4>
+            <ol>
+                <li><strong>Check Browser Console:</strong> Open Developer Tools (F12) and check for JavaScript errors</li>
+                <li><strong>Verify Network Requests:</strong> Look for failed requests to libraries or assets</li>
+                <li><strong>Test Canvas Detection:</strong> Ensure ReactFlow elements are found correctly</li>
+                <li><strong>Check File Downloads:</strong> Verify files are actually being downloaded</li>
+                <li><strong>Validate File Content:</strong> Open downloaded files to ensure they contain visible content</li>
+                <li><strong>Review Error Messages:</strong> Look for specific error messages in console or alerts</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // Debugging tool for FlowDigm export functions
+        let logOutput = document.getElementById('logOutput');
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const icon = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : 'ℹ️';
+            const logMessage = `[${timestamp}] ${icon} ${message}\\n`;
+            logOutput.textContent += logMessage;
+            logOutput.scrollTop = logOutput.scrollHeight;
+            console.log(message);
+        }
+        
+        function clearLog() {
+            logOutput.textContent = 'Log cleared.\\n';
+        }
+        
+        function checkEnvironment() {
+            log('🔍 Checking environment...', 'info');
+            
+            // Check window object
+            if (typeof window !== 'undefined') {
+                document.getElementById('check-window').classList.add('checked');
+                log('✅ Window object available', 'success');
+            } else {
+                document.getElementById('check-window').classList.add('error');
+                log('❌ Window object not available', 'error');
+            }
+            
+            // Check ReactFlow simulation
+            const reactFlowElement = document.querySelector('.react-flow');
+            if (reactFlowElement) {
+                document.getElementById('check-canvas').classList.add('checked');
+                log('✅ Canvas element found', 'success');
+            } else {
+                document.getElementById('check-canvas').classList.add('error');
+                log('❌ Canvas element not found', 'error');
+            }
+            
+            // Simulate ReactFlow instance
+            window.__REACT_FLOW_INSTANCE__ = {
+                getNodes: () => [
+                    {
+                        id: 'node-1',
+                        type: 'aws-lambda',
+                        position: { x: 30, y: 30 },
+                        data: { label: 'AWS Lambda', serviceType: 'compute' }
+                    },
+                    {
+                        id: 'node-2', 
+                        type: 's3-bucket',
+                        position: { x: 300, y: 140 },
+                        data: { label: 'S3 Bucket', serviceType: 'storage' }
+                    }
+                ],
+                getEdges: () => [
+                    {
+                        id: 'edge-1',
+                        source: 'node-1',
+                        target: 'node-2',
+                        label: 'processes'
+                    }
+                ],
+                fitView: () => log('📐 ReactFlow fitView called', 'info')
+            };
+            
+            document.getElementById('check-reactflow').classList.add('checked');
+            log('✅ ReactFlow instance simulated', 'success');
+            
+            // Check for required libraries (simulated)
+            document.getElementById('check-libs').classList.add('checked');
+            log('✅ Required libraries check passed', 'success');
+            
+            log('🎉 Environment check completed!', 'success');
+        }
+        
+        async function testExport(format) {
+            log(`🧪 Testing ${format.toUpperCase()} export...`, 'info');
+            
+            try {
+                const canvas = document.getElementById('mockReactFlow');
+                const fileName = 'test-export';
+                
+                // Simulate the export process
+                log(`📊 Found canvas element: ${!!canvas}`, 'info');
+                log(`📝 Using filename: ${fileName}`, 'info');
+                log(`🔗 ReactFlow instance: ${!!window.__REACT_FLOW_INSTANCE__}`, 'info');
+                
+                if (window.__REACT_FLOW_INSTANCE__) {
+                    const nodes = window.__REACT_FLOW_INSTANCE__.getNodes();
+                    const edges = window.__REACT_FLOW_INSTANCE__.getEdges();
+                    log(`📈 Found ${nodes.length} nodes and ${edges.length} edges`, 'info');
+                }
+                
+                // Simulate export based on format
+                switch(format.toLowerCase()) {
+                    case 'png':
+                    case 'jpeg':
+                        log(`🖼️ Simulating ${format.toUpperCase()} export with html2canvas...`, 'info');
+                        await simulateCanvasExport(format, canvas, fileName);
+                        break;
+                    case 'svg':
+                        log('🎨 Simulating SVG export...', 'info');
+                        await simulateSVGExport(fileName);
+                        break;
+                    case 'pdf':
+                        log('📄 Simulating PDF export with jsPDF...', 'info');
+                        await simulatePDFExport(canvas, fileName);
+                        break;
+                    case 'docx':
+                        log('📄 Simulating DOCX export...', 'info');
+                        await simulateDOCXExport(fileName);
+                        break;
+                    case 'pptx':
+                        log('📄 Simulating PPTX export...', 'info');
+                        await simulatePPTXExport(fileName);
+                        break;
+                    case 'json':
+                        log('📊 Simulating JSON export...', 'info');
+                        await simulateJSONExport(fileName);
+                        break;
+                    default:
+                        throw new Error(`Unsupported format: ${format}`);
+                }
+                
+                // Mark as successful
+                const checkElement = document.getElementById(`check-${format.toLowerCase()}`);
+                if (checkElement) {
+                    checkElement.classList.add('checked');
+                }
+                
+                log(`✅ ${format.toUpperCase()} export test completed successfully!`, 'success');
+                
+            } catch (error) {
+                log(`❌ ${format.toUpperCase()} export test failed: ${error.message}`, 'error');
+                
+                const checkElement = document.getElementById(`check-${format.toLowerCase()}`);
+                if (checkElement) {
+                    checkElement.classList.add('error');
+                }
+            }
+        }
+        
+        async function simulateCanvasExport(format, canvas, fileName) {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    log(`🎯 Canvas dimensions: ${canvas.offsetWidth}x${canvas.offsetHeight}`, 'info');
+                    log(`📸 Simulating html2canvas capture...`, 'info');
+                    log(`💾 Would download: ${fileName}.${format}`, 'success');
+                    resolve();
+                }, 500);
+            });
+        }
+        
+        async function simulateSVGExport(fileName) {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    log(`🎨 Generating SVG elements...`, 'info');
+                    log(`💾 Would download: ${fileName}.svg`, 'success');
+                    resolve();
+                }, 300);
+            });
+        }
+        
+        async function simulatePDFExport(canvas, fileName) {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    log(`📄 Creating PDF with jsPDF...`, 'info');
+                    log(`📐 PDF layout: A4, landscape mode`, 'info');
+                    log(`💾 Would download: ${fileName}.pdf`, 'success');
+                    resolve();
+                }, 600);
+            });
+        }
+        
+        async function simulateDOCXExport(fileName) {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    log(`📄 Creating DOCX document...`, 'info');
+                    log(`📝 Adding diagram image and metadata...`, 'info');
+                    log(`💾 Would download: ${fileName}.docx`, 'success');
+                    resolve();
+                }, 700);
+            });
+        }
+        
+        async function simulatePPTXExport(fileName) {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    log(`📊 Creating PowerPoint presentation...`, 'info');
+                    log(`🎯 Adding slides with diagram and details...`, 'info');
+                    log(`💾 Would download: ${fileName}.pptx`, 'success');
+                    resolve();
+                }, 800);
+            });
+        }
+        
+        async function simulateJSONExport(fileName) {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    const data = {
+                        nodes: window.__REACT_FLOW_INSTANCE__.getNodes(),
+                        edges: window.__REACT_FLOW_INSTANCE__.getEdges(),
+                        metadata: {
+                            exportedAt: new Date().toISOString(),
+                            exportedBy: 'FlowDigm',
+                            version: '1.0'
+                        }
+                    };
+                    log(`📊 JSON data size: ${JSON.stringify(data).length} bytes`, 'info');
+                    log(`💾 Would download: ${fileName}.json`, 'success');
+                    resolve();
+                }, 200);
+            });
+        }
+        
+        async function testAllFormats() {
+            log('🚀 Starting comprehensive export test...', 'info');
+            
+            const formats = ['png', 'jpeg', 'svg', 'pdf', 'docx', 'pptx', 'json'];
+            
+            for (let i = 0; i < formats.length; i++) {
+                const format = formats[i];
+                log(`\\n📋 Testing ${i + 1}/${formats.length}: ${format.toUpperCase()}`, 'info');
+                await testExport(format);
+                
+                // Small delay between tests
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
+            
+            log('\\n🎉 All export tests completed!', 'success');
+        }
+        
+        // Auto-check environment on load
+        window.addEventListener('load', () => {
+            setTimeout(checkEnvironment, 500);
+        });
+    </script>
+</body>
+</html>

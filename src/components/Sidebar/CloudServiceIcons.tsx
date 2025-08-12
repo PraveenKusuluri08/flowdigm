@@ -13,19 +13,71 @@ import AzureDiskIcon from '../../assets/icons/azure/disk.svg?react';
 import AzureKeyVaultIcon from '../../assets/icons/azure/key-vault.svg?react';
 import AzureActiveDirectoryIcon from '../../assets/icons/azure/active-directory.svg?react';
 
-// Import GCP SVG icons as React components
+// Import GCP SVG icons as React components (basic set that exists)
 import GCPComputeIcon from '../../assets/icons/gcp/compute-engine.svg?react';
 import GCPStorageIcon from '../../assets/icons/gcp/cloud-storage.svg?react';
 import GCPFunctionsIcon from '../../assets/icons/gcp/cloud-functions.svg?react';
-import GCPGKEIcon from '../../assets/icons/gcp/gke.svg?react';
+import GCPGKEIcon from '../../assets/icons/gcp/Google-Kubernetes-Engine.svg?react';
 import GCPCloudSQLIcon from '../../assets/icons/gcp/cloud-sql.svg?react';
 import GCPFirestoreIcon from '../../assets/icons/gcp/firestore.svg?react';
 import GCPBigQueryIcon from '../../assets/icons/gcp/bigquery.svg?react';
-import GCPVPCIcon from '../../assets/icons/gcp/vpc.svg?react';
-import GCPLoadBalancerIcon from '../../assets/icons/gcp/load-balancer.svg?react';
+import GCPVPCIcon from '../../assets/icons/gcp/Virtual-Private-Cloud.svg?react';
+import GCPLoadBalancerIcon from '../../assets/icons/gcp/Cloud-Load-Balancing.svg?react';
 import GCPPersistentDiskIcon from '../../assets/icons/gcp/persistent-disk.svg?react';
-import GCPIAMIcon from '../../assets/icons/gcp/iam.svg?react';
-import GCPKMSIcon from '../../assets/icons/gcp/kms.svg?react';
+import GCPIAMIcon from '../../assets/icons/gcp/Identity-And-Access-Management.svg?react';
+import GCPKMSIcon from '../../assets/icons/gcp/Key-Management-Service.svg?react';
+import GCPAppEngineIcon from '../../assets/icons/gcp/App-Engine.svg?react';
+import GCPBigtableIcon from '../../assets/icons/gcp/Bigtable.svg?react';
+import GCPPubSubIcon from '../../assets/icons/gcp/PubSub.svg?react';
+
+// TODO: Add more GCP icons once files are verified to exist
+/* 
+// Commented out until file existence is verified
+import GCPCloudBuildIcon from '../../assets/icons/gcp/Cloud-Build.svg?react';
+import GCPCloudDNSIcon from '../../assets/icons/gcp/Cloud-DNS.svg?react';
+import GCPCloudCDNIcon from '../../assets/icons/gcp/Cloud-CDN.svg?react';
+import GCPCloudArmorIcon from '../../assets/icons/gcp/Cloud-Armor.svg?react';
+import GCPSecretManagerIcon from '../../assets/icons/gcp/Secret-Manager.svg?react';
+import GCPVertexAIIcon from '../../assets/icons/gcp/Vertex-AI.svg?react';
+import GCPAutoMLIcon from '../../assets/icons/gcp/AutoML.svg?react';
+import GCPDialogflowIcon from '../../assets/icons/gcp/Dialogflow.svg?react';
+import GCPCloudRunIcon from '../../assets/icons/gcp/Kuberun.svg?react';
+import GCPAnthosIcon from '../../assets/icons/gcp/Anthos.svg?react';
+import GCPArtifactRegistryIcon from '../../assets/icons/gcp/Artifact-Registry.svg?react';
+import GCPCloudComposerIcon from '../../assets/icons/gcp/Cloud-Composer.svg?react';
+import GCPDataFusionIcon from '../../assets/icons/gcp/Cloud-Data-Fusion.svg?react';
+import GCPDatastreamIcon from '../../assets/icons/gcp/Datastream.svg?react';
+import GCPLookerIcon from '../../assets/icons/gcp/Looker.svg?react';
+import GCPMemorystoreIcon from '../../assets/icons/gcp/Memorystore.svg?react';
+import GCPFilestoreIcon from '../../assets/icons/gcp/Filestore.svg?react';
+import GCPCloudDeployIcon from '../../assets/icons/gcp/Cloud-Deploy.svg?react';
+import GCPCloudAPIGatewayIcon from '../../assets/icons/gcp/Cloud-API-Gateway.svg?react';
+import GCPCloudAuditLogsIcon from '../../assets/icons/gcp/Cloud-Audit-Logs.svg?react';
+import GCPCloudAssetInventoryIcon from '../../assets/icons/gcp/Cloud-Asset-Inventory.svg?react';
+import GCPBinaryAuthorizationIcon from '../../assets/icons/gcp/Binary-Authorization.svg?react';
+import GCPCertificateManagerIcon from '../../assets/icons/gcp/Certificate-Manager.svg?react';
+import GCPBillingIcon from '../../assets/icons/gcp/Billing.svg?react';
+import GCPProjectIcon from '../../assets/icons/gcp/Project.svg?react';
+import GCPStackdriverIcon from '../../assets/icons/gcp/Stackdriver.svg?react';
+import GCPErrorReportingIcon from '../../assets/icons/gcp/Error-Reporting.svg?react';
+*/
+import GCPDebuggerIcon from '../../assets/icons/gcp/Debugger.svg?react';
+import GCPProfilerIcon from '../../assets/icons/gcp/Profiler.svg?react';
+import GCPTraceIcon from '../../assets/icons/gcp/Trace.svg?react';
+import GCPCloudCodeIcon from '../../assets/icons/gcp/Cloud-Code.svg?react';
+import GCPCloudAPIsIcon from '../../assets/icons/gcp/Cloud-APIs.svg?react';
+import GCPAPIIcon from '../../assets/icons/gcp/API.svg?react';
+import GCPApigeeIcon from '../../assets/icons/gcp/Apigee-API-Platform.svg?react';
+import GCPEventarcIcon from '../../assets/icons/gcp/Eventarc.svg?react';
+import GCPWorkflowsIcon from '../../assets/icons/gcp/Workflows.svg?react';
+import GCPCloudSchedulerIcon from '../../assets/icons/gcp/Cloud-Scheduler.svg?react';
+import GCPCloudTasksIcon from '../../assets/icons/gcp/Cloud-Tasks.svg?react';
+import GCPCloudLoggingIcon from '../../assets/icons/gcp/Cloud-Logging.svg?react';
+import GCPCloudMonitoringIcon from '../../assets/icons/gcp/Cloud-Monitoring.svg?react';
+import GCPCloudTraceIcon from '../../assets/icons/gcp/Trace.svg?react';
+import GCPCloudDebuggerIcon from '../../assets/icons/gcp/Debugger.svg?react';
+import GCPCloudProfilerIcon from '../../assets/icons/gcp/Profiler.svg?react';
+import GCPCloudErrorReportingIcon from '../../assets/icons/gcp/Error-Reporting.svg?react';
 
 // Import commonly used AWS SVG icons as React components
 import AWSEC2Icon from '../../assets/icons/aws/Arch_Amazon-EC2_64.svg?react';
@@ -119,42 +171,68 @@ const AWSIcons = {
 
 // Google Cloud Service Icons - Using SVG React components from files
 const GCPIcons = {
-  'gcp-compute-engine': (
-    <GCPComputeIcon className="w-6 h-6" />
-  ),
-  'gcp-cloud-functions': (
-    <GCPFunctionsIcon className="w-6 h-6" />
-  ),
-  'gcp-gke': (
-    <GCPGKEIcon className="w-6 h-6" />
-  ),
-  'gcp-cloud-storage': (
-    <GCPStorageIcon className="w-6 h-6" />
-  ),
-  'gcp-cloud-sql': (
-    <GCPCloudSQLIcon className="w-6 h-6" />
-  ),
-  'gcp-firestore': (
-    <GCPFirestoreIcon className="w-6 h-6" />
-  ),
-  'gcp-bigquery': (
-    <GCPBigQueryIcon className="w-6 h-6" />
-  ),
-  'gcp-vpc': (
-    <GCPVPCIcon className="w-6 h-6" />
-  ),
-  'gcp-load-balancer': (
-    <GCPLoadBalancerIcon className="w-6 h-6" />
-  ),
-  'gcp-persistent-disk': (
-    <GCPPersistentDiskIcon className="w-6 h-6" />
-  ),
-  'gcp-iam': (
-    <GCPIAMIcon className="w-6 h-6" />
-  ),
-  'gcp-kms': (
-    <GCPKMSIcon className="w-6 h-6" />
-  )
+  'gcp-compute-engine': <GCPComputeIcon className="w-6 h-6" />,
+  'gcp-cloud-functions': <GCPFunctionsIcon className="w-6 h-6" />,
+  'gcp-gke': <GCPGKEIcon className="w-6 h-6" />,
+  'gcp-cloud-storage': <GCPStorageIcon className="w-6 h-6" />,
+  'gcp-cloud-sql': <GCPCloudSQLIcon className="w-6 h-6" />,
+  'gcp-firestore': <GCPFirestoreIcon className="w-6 h-6" />,
+  'gcp-bigquery': <GCPBigQueryIcon className="w-6 h-6" />,
+  'gcp-vpc': <GCPVPCIcon className="w-6 h-6" />,
+  'gcp-load-balancer': <GCPLoadBalancerIcon className="w-6 h-6" />,
+  'gcp-persistent-disk': <GCPPersistentDiskIcon className="w-6 h-6" />,
+  'gcp-iam': <GCPIAMIcon className="w-6 h-6" />,
+  'gcp-kms': <GCPKMSIcon className="w-6 h-6" />,
+  'gcp-app-engine': <GCPAppEngineIcon className="w-6 h-6" />,
+  'gcp-bigtable': <GCPBigtableIcon className="w-6 h-6" />,
+  'gcp-pubsub': <GCPPubSubIcon className="w-6 h-6" />,
+
+  /* Commented out until file existence is verified
+  'gcp-cloud-build': <GCPCloudBuildIcon className="w-6 h-6" />,
+  'gcp-cloud-dns': <GCPCloudDNSIcon className="w-6 h-6" />,
+  'gcp-cloud-cdn': <GCPCloudCDNIcon className="w-6 h-6" />,
+  'gcp-cloud-armor': <GCPCloudArmorIcon className="w-6 h-6" />,
+  'gcp-secret-manager': <GCPSecretManagerIcon className="w-6 h-6" />,
+  'gcp-vertex-ai': <GCPVertexAIIcon className="w-6 h-6" />,
+  'gcp-automl': <GCPAutoMLIcon className="w-6 h-6" />,
+  'gcp-dialogflow': <GCPDialogflowIcon className="w-6 h-6" />,
+  'gcp-cloud-run': <GCPCloudRunIcon className="w-6 h-6" />,
+  'gcp-anthos': <GCPAnthosIcon className="w-6 h-6" />,
+  'gcp-artifact-registry': <GCPArtifactRegistryIcon className="w-6 h-6" />,
+  'gcp-cloud-composer': <GCPCloudComposerIcon className="w-6 h-6" />,
+  'gcp-data-fusion': <GCPDataFusionIcon className="w-6 h-6" />,
+  'gcp-datastream': <GCPDatastreamIcon className="w-6 h-6" />,
+  'gcp-looker': <GCPLookerIcon className="w-6 h-6" />,
+  'gcp-memorystore': <GCPMemorystoreIcon className="w-6 h-6" />,
+  'gcp-filestore': <GCPFilestoreIcon className="w-6 h-6" />,
+  'gcp-cloud-deploy': <GCPCloudDeployIcon className="w-6 h-6" />,
+  'gcp-cloud-api-gateway': <GCPCloudAPIGatewayIcon className="w-6 h-6" />,
+  'gcp-cloud-audit-logs': <GCPCloudAuditLogsIcon className="w-6 h-6" />,
+  'gcp-cloud-asset-inventory': <GCPCloudAssetInventoryIcon className="w-6 h-6" />,
+  'gcp-binary-authorization': <GCPBinaryAuthorizationIcon className="w-6 h-6" />,
+  'gcp-certificate-manager': <GCPCertificateManagerIcon className="w-6 h-6" />,
+  'gcp-billing': <GCPBillingIcon className="w-6 h-6" />,
+  'gcp-project': <GCPProjectIcon className="w-6 h-6" />,
+  'gcp-stackdriver': <GCPStackdriverIcon className="w-6 h-6" />,
+  'gcp-error-reporting': <GCPErrorReportingIcon className="w-6 h-6" />,
+  */
+  'gcp-debugger': <GCPDebuggerIcon className="w-6 h-6" />,
+  'gcp-profiler': <GCPProfilerIcon className="w-6 h-6" />,
+  'gcp-trace': <GCPTraceIcon className="w-6 h-6" />,
+  'gcp-cloud-code': <GCPCloudCodeIcon className="w-6 h-6" />,
+  'gcp-cloud-apis': <GCPCloudAPIsIcon className="w-6 h-6" />,
+  'gcp-api': <GCPAPIIcon className="w-6 h-6" />,
+  'gcp-apigee': <GCPApigeeIcon className="w-6 h-6" />,
+  'gcp-eventarc': <GCPEventarcIcon className="w-6 h-6" />,
+  'gcp-workflows': <GCPWorkflowsIcon className="w-6 h-6" />,
+  'gcp-cloud-scheduler': <GCPCloudSchedulerIcon className="w-6 h-6" />,
+  'gcp-cloud-tasks': <GCPCloudTasksIcon className="w-6 h-6" />,
+  'gcp-cloud-logging': <GCPCloudLoggingIcon className="w-6 h-6" />,
+  'gcp-cloud-monitoring': <GCPCloudMonitoringIcon className="w-6 h-6" />,
+  'gcp-cloud-trace': <GCPCloudTraceIcon className="w-6 h-6" />,
+  'gcp-cloud-debugger': <GCPCloudDebuggerIcon className="w-6 h-6" />,
+  'gcp-cloud-profiler': <GCPCloudProfilerIcon className="w-6 h-6" />,
+  'gcp-cloud-error-reporting': <GCPCloudErrorReportingIcon className="w-6 h-6" />,
 };
 
 // Azure Service Icons - Using SVG React components from files
@@ -641,84 +719,84 @@ export const awsAllServices: Record<string, ServiceEntry> = {
 //     name: 'Google Compute Engine',
 //     category: 'Compute',
 //     description: 'Virtual Machine Service',
-//     icon: GCPIcons['gcp-compute-engine'],
+//     icon: <div></div>, // Temporary fallback for 
 //     color: '#4285F4',
 //   },
 //   'gcp-cloud-functions': {
 //     name: 'Google Cloud Functions',
 //     category: 'Compute',
 //     description: 'Serverless Computing',
-//     icon: GCPIcons['gcp-cloud-functions'],
+//     icon: <div></div>, // Temporary fallback for 
 //     color: '#4285F4',
 //   },
 //   'gcp-gke': {
 //     name: 'Google Kubernetes Engine',
 //     category: 'Containers',
 //     description: 'Managed Kubernetes',
-//     icon: GCPIcons['gcp-gke'],
+//     icon: <div></div>, // Temporary fallback for 
 //     color: '#4285F4',
 //   },
 //   'gcp-cloud-storage': {
 //     name: 'Google Cloud Storage',
 //     category: 'Storage',
 //     description: 'Object Storage',
-//     icon: GCPIcons['gcp-cloud-storage'],
+//     icon: <div></div>, // Temporary fallback for 
 //     color: '#4285F4',
 //   },
 //   'gcp-cloud-sql': {
 //     name: 'Google Cloud SQL',
 //     category: 'Database',
 //     description: 'Managed SQL Database',
-//     icon: GCPIcons['gcp-cloud-sql'],
+//     icon: <div></div>, // Temporary fallback for 
 //     color: '#4285F4',
 //   },
 //   'gcp-firestore': {
 //     name: 'Google Cloud Firestore',
 //     category: 'Database',
 //     description: 'NoSQL Database',
-//     icon: GCPIcons['gcp-firestore'],
+//     icon: <div></div>, // Temporary fallback for 
 //     color: '#4285F4',
 //   },
 //   'gcp-bigquery': {
 //     name: 'Google BigQuery',
 //     category: 'Analytics',
 //     description: 'Data Warehouse',
-//     icon: GCPIcons['gcp-bigquery'],
+//     icon: <div></div>, // Temporary fallback for 
 //     color: '#4285F4',
 //   },
 //   'gcp-vpc': {
 //     name: 'Google Cloud VPC',
 //     category: 'Networking',
 //     description: 'Virtual Private Cloud',
-//     icon: GCPIcons['gcp-vpc'],
+//     icon: <div></div>, // Temporary fallback for 
 //     color: '#4285F4',
 //   },
 //   'gcp-load-balancer': {
 //     name: 'Google Cloud Load Balancer',
 //     category: 'Networking',
 //     description: 'Load Balancing',
-//     icon: GCPIcons['gcp-load-balancer'],
+//     icon: <div></div>, // Temporary fallback for 
 //     color: '#4285F4',
 //   },
 //   'gcp-persistent-disk': {
 //     name: 'Google Cloud Persistent Disk',
 //     category: 'Storage',
 //     description: 'Block Storage',
-//     icon: GCPIcons['gcp-persistent-disk'],
+//     icon: <div></div>, // Temporary fallback for 
 //     color: '#4285F4',
 //   },
 //   'gcp-iam': {
 //     name: 'Google Cloud IAM',
 //     category: 'Security',
 //     description: 'Identity and Access Management',
-//     icon: GCPIcons['gcp-iam'],
+//     icon: <div></div>, // Temporary fallback for 
 //     color: '#4285F4',
 //   },
 //   'gcp-kms': {
 //     name: 'Google Cloud KMS',
 //     category: 'Security',
 //     description: 'Key Management Service',
-//     icon: GCPIcons['gcp-kms'],
+//     icon: <div></div>, // Temporary fallback for 
 //     color: '#4285F4',
 //   },
 // };
@@ -948,85 +1026,487 @@ const gcpAllServices: Record<string, ServiceEntry> = {
     name: 'Google Compute Engine',
     category: 'Compute',
     description: 'Virtual Machine Service',
-    icon: GCPIcons['gcp-compute-engine'],
+    icon: <div></div>, // Temporary fallback for 
     color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Compute-Engine.svg',
+    iconRaw: 'gcp-compute-engine',
   },
   'gcp-cloud-functions': {
     name: 'Google Cloud Functions',
     category: 'Compute',
     description: 'Serverless Computing',
-    icon: GCPIcons['gcp-cloud-functions'],
+    icon: <div></div>, // Temporary fallback for 
     color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Cloud-Functions.svg',
+    iconRaw: 'gcp-cloud-functions',
+  },
+  'gcp-app-engine': {
+    name: 'Google App Engine',
+    category: 'Compute',
+    description: 'Platform as a Service',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/App-Engine.svg',
+    iconRaw: 'gcp-app-engine',
+  },
+  'gcp-cloud-run': {
+    name: 'Google Cloud Run',
+    category: 'Compute',
+    description: 'Serverless Containers',
+    icon: <div>🔗</div>, // Temporary fallback icon
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Kuberun.svg',
+    iconRaw: 'gcp-cloud-run',
   },
   'gcp-gke': {
     name: 'Google Kubernetes Engine',
     category: 'Containers',
     description: 'Managed Kubernetes',
-    icon: GCPIcons['gcp-gke'],
+    icon: <div></div>, // Temporary fallback for 
     color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Google-Kubernetes-Engine.svg',
+    iconRaw: 'gcp-gke',
+  },
+  'gcp-anthos': {
+    name: 'Google Anthos',
+    category: 'Containers',
+    description: 'Hybrid Cloud Platform',
+    icon: <div>🔗</div>, // Temporary fallback icon
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Anthos.svg',
+    iconRaw: 'gcp-anthos',
   },
   'gcp-cloud-storage': {
     name: 'Google Cloud Storage',
     category: 'Storage',
     description: 'Object Storage',
-    icon: GCPIcons['gcp-cloud-storage'],
+    icon: <div></div>, // Temporary fallback for 
     color: '#4285F4',
-  },
-  'gcp-cloud-sql': {
-    name: 'Google Cloud SQL',
-    category: 'Database',
-    description: 'Managed SQL Database',
-    icon: GCPIcons['gcp-cloud-sql'],
-    color: '#4285F4',
-  },
-  'gcp-firestore': {
-    name: 'Google Cloud Firestore',
-    category: 'Database',
-    description: 'NoSQL Database',
-    icon: GCPIcons['gcp-firestore'],
-    color: '#4285F4',
-  },
-  'gcp-bigquery': {
-    name: 'Google BigQuery',
-    category: 'Analytics',
-    description: 'Data Warehouse',
-    icon: GCPIcons['gcp-bigquery'],
-    color: '#4285F4',
-  },
-  'gcp-vpc': {
-    name: 'Google Cloud VPC',
-    category: 'Networking',
-    description: 'Virtual Private Cloud',
-    icon: GCPIcons['gcp-vpc'],
-    color: '#4285F4',
-  },
-  'gcp-load-balancer': {
-    name: 'Google Cloud Load Balancer',
-    category: 'Networking',
-    description: 'Load Balancing',
-    icon: GCPIcons['gcp-load-balancer'],
-    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Cloud-Storage.svg',
+    iconRaw: 'gcp-cloud-storage',
   },
   'gcp-persistent-disk': {
     name: 'Google Cloud Persistent Disk',
     category: 'Storage',
     description: 'Block Storage',
-    icon: GCPIcons['gcp-persistent-disk'],
+    icon: <div></div>, // Temporary fallback for 
     color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Persistent-Disk.svg',
+    iconRaw: 'gcp-persistent-disk',
+  },
+  'gcp-filestore': {
+    name: 'Google Cloud Filestore',
+    category: 'Storage',
+    description: 'Managed File Storage',
+    icon: <div></div>, // Temporary fallback for  // Using firestore icon as fallback
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Filestore.svg',
+    iconRaw: 'gcp-filestore',
+  },
+  'gcp-artifact-registry': {
+    name: 'Google Artifact Registry',
+    category: 'Storage',
+    description: 'Container Registry',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Artifact-Registry.svg',
+    iconRaw: 'gcp-artifact-registry',
+  },
+  'gcp-cloud-sql': {
+    name: 'Google Cloud SQL',
+    category: 'Database',
+    description: 'Managed SQL Database',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Cloud-SQL.svg',
+    iconRaw: 'gcp-cloud-sql',
+  },
+  'gcp-firestore': {
+    name: 'Google Cloud Firestore',
+    category: 'Database',
+    description: 'NoSQL Database',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Firestore.svg',
+    iconRaw: 'gcp-firestore',
+  },
+  'gcp-bigtable': {
+    name: 'Google Cloud Bigtable',
+    category: 'Database',
+    description: 'NoSQL Database',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Bigtable.svg',
+    iconRaw: 'gcp-bigtable',
+  },
+  'gcp-memorystore': {
+    name: 'Google Cloud Memorystore',
+    category: 'Database',
+    description: 'Managed Redis',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Memorystore.svg',
+    iconRaw: 'gcp-memorystore',
+  },
+  'gcp-bigquery': {
+    name: 'Google BigQuery',
+    category: 'Analytics',
+    description: 'Data Warehouse',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/BigQuery.svg',
+    iconRaw: 'gcp-bigquery',
+  },
+  'gcp-looker': {
+    name: 'Google Looker',
+    category: 'Analytics',
+    description: 'Business Intelligence',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Looker.svg',
+    iconRaw: 'gcp-looker',
+  },
+  'gcp-data-fusion': {
+    name: 'Google Cloud Data Fusion',
+    category: 'Analytics',
+    description: 'Data Integration',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Cloud-Data-Fusion.svg',
+    iconRaw: 'gcp-data-fusion',
+  },
+  'gcp-datastream': {
+    name: 'Google Cloud Datastream',
+    category: 'Analytics',
+    description: 'Data Replication',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Datastream.svg',
+    iconRaw: 'gcp-datastream',
+  },
+  'gcp-vpc': {
+    name: 'Google Cloud VPC',
+    category: 'Networking',
+    description: 'Virtual Private Cloud',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Virtual-Private-Cloud.svg',
+    iconRaw: 'gcp-vpc',
+  },
+  'gcp-load-balancer': {
+    name: 'Google Cloud Load Balancer',
+    category: 'Networking',
+    description: 'Load Balancing',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Load-Balancing.svg',
+    iconRaw: 'gcp-load-balancer',
+  },
+  'gcp-cloud-dns': {
+    name: 'Google Cloud DNS',
+    category: 'Networking',
+    description: 'Domain Name System',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Cloud-DNS.svg',
+    iconRaw: 'gcp-cloud-dns',
+  },
+  'gcp-cloud-cdn': {
+    name: 'Google Cloud CDN',
+    category: 'Networking',
+    description: 'Content Delivery Network',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Cloud-CDN.svg',
+    iconRaw: 'gcp-cloud-cdn',
+  },
+  'gcp-cloud-armor': {
+    name: 'Google Cloud Armor',
+    category: 'Security',
+    description: 'DDoS Protection',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Cloud-Armor.svg',
+    iconRaw: 'gcp-cloud-armor',
   },
   'gcp-iam': {
     name: 'Google Cloud IAM',
     category: 'Security',
     description: 'Identity and Access Management',
-    icon: GCPIcons['gcp-iam'],
+    icon: <div></div>, // Temporary fallback for 
     color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Identity-And-Access-Management.svg',
+    iconRaw: 'gcp-iam',
   },
   'gcp-kms': {
     name: 'Google Cloud KMS',
     category: 'Security',
     description: 'Key Management Service',
-    icon: GCPIcons['gcp-kms'],
+    icon: <div></div>, // Temporary fallback for 
     color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Key-Management-Service.svg',
+    iconRaw: 'gcp-kms',
+  },
+  'gcp-secret-manager': {
+    name: 'Google Secret Manager',
+    category: 'Security',
+    description: 'Secret Management',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Secret-Manager.svg',
+    iconRaw: 'gcp-secret-manager',
+  },
+  'gcp-binary-authorization': {
+    name: 'Google Binary Authorization',
+    category: 'Security',
+    description: 'Container Security',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Binary-Authorization.svg',
+    iconRaw: 'gcp-binary-authorization',
+  },
+  'gcp-certificate-manager': {
+    name: 'Google Certificate Manager',
+    category: 'Security',
+    description: 'SSL Certificate Management',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Certificate-Manager.svg',
+    iconRaw: 'gcp-certificate-manager',
+  },
+  'gcp-vertex-ai': {
+    name: 'Google Vertex AI',
+    category: 'Machine Learning',
+    description: 'AI Platform',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Vertex-AI.svg',
+    iconRaw: 'gcp-vertex-ai',
+  },
+  'gcp-automl': {
+    name: 'Google AutoML',
+    category: 'Machine Learning',
+    description: 'Automated Machine Learning',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/AutoML.svg',
+    iconRaw: 'gcp-automl',
+  },
+  'gcp-dialogflow': {
+    name: 'Google Dialogflow',
+    category: 'Machine Learning',
+    description: 'Conversational AI',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Dialogflow.svg',
+    iconRaw: 'gcp-dialogflow',
+  },
+  'gcp-pubsub': {
+    name: 'Google Cloud Pub/Sub',
+    category: 'Integration',
+    description: 'Messaging Service',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/PubSub.svg',
+    iconRaw: 'gcp-pubsub',
+  },
+  'gcp-cloud-build': {
+    name: 'Google Cloud Build',
+    category: 'Integration',
+    description: 'CI/CD Platform',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Cloud-Build.svg',
+    iconRaw: 'gcp-cloud-build',
+  },
+  'gcp-cloud-deploy': {
+    name: 'Google Cloud Deploy',
+    category: 'Integration',
+    description: 'Continuous Delivery',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Cloud-Deploy.svg',
+    iconRaw: 'gcp-cloud-deploy',
+  },
+  'gcp-cloud-api-gateway': {
+    name: 'Google Cloud API Gateway',
+    category: 'Integration',
+    description: 'API Management',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Cloud-API-Gateway.svg',
+    iconRaw: 'gcp-cloud-api-gateway',
+  },
+  'gcp-eventarc': {
+    name: 'Google Eventarc',
+    category: 'Integration',
+    description: 'Event Management',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Eventarc.svg',
+    iconRaw: 'gcp-eventarc',
+  },
+  'gcp-workflows': {
+    name: 'Google Cloud Workflows',
+    category: 'Integration',
+    description: 'Workflow Orchestration',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Workflows.svg',
+    iconRaw: 'gcp-workflows',
+  },
+  'gcp-cloud-scheduler': {
+    name: 'Google Cloud Scheduler',
+    category: 'Integration',
+    description: 'Job Scheduling',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Cloud-Scheduler.svg',
+    iconRaw: 'gcp-cloud-scheduler',
+  },
+  'gcp-cloud-tasks': {
+    name: 'Google Cloud Tasks',
+    category: 'Integration',
+    description: 'Task Queue',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Cloud-Tasks.svg',
+    iconRaw: 'gcp-cloud-tasks',
+  },
+  'gcp-cloud-logging': {
+    name: 'Google Cloud Logging',
+    category: 'Operations',
+    description: 'Log Management',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Cloud-Logging.svg',
+    iconRaw: 'gcp-cloud-logging',
+  },
+  'gcp-cloud-monitoring': {
+    name: 'Google Cloud Monitoring',
+    category: 'Operations',
+    description: 'Infrastructure Monitoring',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Cloud-Monitoring.svg',
+    iconRaw: 'gcp-cloud-monitoring',
+  },
+  'gcp-stackdriver': {
+    name: 'Google Stackdriver',
+    category: 'Operations',
+    description: 'Monitoring & Logging',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Stackdriver.svg',
+    iconRaw: 'gcp-stackdriver',
+  },
+  'gcp-error-reporting': {
+    name: 'Google Error Reporting',
+    category: 'Operations',
+    description: 'Error Tracking',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Error-Reporting.svg',
+    iconRaw: 'gcp-error-reporting',
+  },
+  'gcp-debugger': {
+    name: 'Google Cloud Debugger',
+    category: 'Operations',
+    description: 'Application Debugging',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Debugger.svg',
+    iconRaw: 'gcp-debugger',
+  },
+  'gcp-profiler': {
+    name: 'Google Cloud Profiler',
+    category: 'Operations',
+    description: 'Performance Profiling',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Profiler.svg',
+    iconRaw: 'gcp-profiler',
+  },
+  'gcp-trace': {
+    name: 'Google Cloud Trace',
+    category: 'Operations',
+    description: 'Distributed Tracing',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Trace.svg',
+    iconRaw: 'gcp-trace',
+  },
+  'gcp-cloud-audit-logs': {
+    name: 'Google Cloud Audit Logs',
+    category: 'Operations',
+    description: 'Audit Trail',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Cloud-Audit-Logs.svg',
+    iconRaw: 'gcp-cloud-audit-logs',
+  },
+  'gcp-cloud-asset-inventory': {
+    name: 'Google Cloud Asset Inventory',
+    category: 'Operations',
+    description: 'Resource Discovery',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Cloud-Asset-Inventory.svg',
+    iconRaw: 'gcp-cloud-asset-inventory',
+  },
+  'gcp-billing': {
+    name: 'Google Cloud Billing',
+    category: 'Management',
+    description: 'Cost Management',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Billing.svg',
+    iconRaw: 'gcp-billing',
+  },
+  'gcp-project': {
+    name: 'Google Cloud Project',
+    category: 'Management',
+    description: 'Project Management',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Project.svg',
+    iconRaw: 'gcp-project',
+  },
+  'gcp-cloud-code': {
+    name: 'Google Cloud Code',
+    category: 'Development',
+    description: 'IDE Extensions',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Cloud-Code.svg',
+    iconRaw: 'gcp-cloud-code',
+  },
+  'gcp-cloud-apis': {
+    name: 'Google Cloud APIs',
+    category: 'Development',
+    description: 'API Library',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Cloud-APIs.svg',
+    iconRaw: 'gcp-cloud-apis',
+  },
+  'gcp-api': {
+    name: 'Google Cloud API',
+    category: 'Development',
+    description: 'API Management',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/API.svg',
+    iconRaw: 'gcp-api',
+  },
+  'gcp-apigee': {
+    name: 'Google Apigee',
+    category: 'Development',
+    description: 'API Platform',
+    icon: <div></div>, // Temporary fallback for 
+    color: '#4285F4',
+    iconUrl: '/src/assets/icons/gcp/Apigee-API-Platform.svg',
+    iconRaw: 'gcp-apigee',
   },
 };
 

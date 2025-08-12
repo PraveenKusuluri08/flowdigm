@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowDigm - Enhanced Import/Export Testing</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            margin-bottom: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+        .header h1 {
+            color: #2d3748;
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        .success-banner {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        .feature-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .feature-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .feature-content {
+            padding: 25px;
+        }
+        .format-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            margin: 10px 0;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        .format-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .format-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .status-supported {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .enhancement-box {
+            background: #eff6ff;
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        .enhancement-box h3 {
+            color: #1e40af;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .tech-details {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+        }
+        .implementation-status {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .status-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            border-left: 4px solid #10b981;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .dependency-list {
+            background: #f3f4f6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .dependency-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .dependency-item:last-child {
+            border-bottom: none;
+        }
+        .version-badge {
+            background: #3b82f6;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="header">
+            <h1>🚀 Enhanced Import/Export Implementation</h1>
+            <p>Comprehensive file format support has been successfully implemented</p>
+        </div>
+
+        <div class="success-banner">
+            ✅ All requested file formats (PNG, JPEG, SVG, PDF, DOCX, PPTX) are now fully supported!
+        </div>
+
+        <div class="feature-grid">
+            <!-- Export Capabilities -->
+            <div class="feature-card">
+                <div class="feature-header">
+                    📤 Enhanced Export Capabilities
+                </div>
+                <div class="feature-content">
+                    <div class="format-item">
+                        <div class="format-info">
+                            <div class="format-icon" style="background: #059669;">PNG</div>
+                            <div>
+                                <strong>PNG Export</strong>
+                                <div style="font-size: 0.9rem; color: #6b7280;">High-quality raster with html2canvas</div>
+                            </div>
+                        </div>
+                        <span class="status-supported">✅ Enhanced</span>
+                    </div>
+
+                    <div class="format-item">
+                        <div class="format-info">
+                            <div class="format-icon" style="background: #dc2626;">JPEG</div>
+                            <div>
+                                <strong>JPEG Export</strong>
+                                <div style="font-size: 0.9rem; color: #6b7280;">Compressed raster with quality control</div>
+                            </div>
+                        </div>
+                        <span class="status-supported">✅ Enhanced</span>
+                    </div>
+
+                    <div class="format-item">
+                        <div class="format-info">
+                            <div class="format-icon" style="background: #7c3aed;">SVG</div>
+                            <div>
+                                <strong>SVG Export</strong>
+                                <div style="font-size: 0.9rem; color: #6b7280;">Vector graphics with full scalability</div>
+                            </div>
+                        </div>
+                        <span class="status-supported">✅ Enhanced</span>
+                    </div>
+
+                    <div class="format-item">
+                        <div class="format-info">
+                            <div class="format-icon" style="background: #dc2626;">PDF</div>
+                            <div>
+                                <strong>PDF Export</strong>
+                                <div style="font-size: 0.9rem; color: #6b7280;">Professional documents with jsPDF</div>
+                            </div>
+                        </div>
+                        <span class="status-supported">✅ NEW</span>
+                    </div>
+
+                    <div class="format-item">
+                        <div class="format-info">
+                            <div class="format-icon" style="background: #2563eb;">DOCX</div>
+                            <div>
+                                <strong>DOCX Export</strong>
+                                <div style="font-size: 0.9rem; color: #6b7280;">Word documents with docx library</div>
+                            </div>
+                        </div>
+                        <span class="status-supported">✅ NEW</span>
+                    </div>
+
+                    <div class="format-item">
+                        <div class="format-info">
+                            <div class="format-icon" style="background: #ea580c;">PPTX</div>
+                            <div>
+                                <strong>PPTX Export</strong>
+                                <div style="font-size: 0.9rem; color: #6b7280;">PowerPoint with PptxGenJS</div>
+                            </div>
+                        </div>
+                        <span class="status-supported">✅ NEW</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Import Capabilities -->
+            <div class="feature-card">
+                <div class="feature-header">
+                    📥 Enhanced Import Capabilities
+                </div>
+                <div class="feature-content">
+                    <div class="format-item">
+                        <div class="format-info">
+                            <div class="format-icon" style="background: #059669;">IMG</div>
+                            <div>
+                                <strong>Image Import</strong>
+                                <div style="font-size: 0.9rem; color: #6b7280;">PNG, JPEG, SVG, GIF, BMP, WebP</div>
+                            </div>
+                        </div>
+                        <span class="status-supported">✅ Enhanced</span>
+                    </div>
+
+                    <div class="format-item">
+                        <div class="format-info">
+                            <div class="format-icon" style="background: #3b82f6;">JSON</div>
+                            <div>
+                                <strong>Diagram Import</strong>
+                                <div style="font-size: 0.9rem; color: #6b7280;">Full diagram restoration</div>
+                            </div>
+                        </div>
+                        <span class="status-supported">✅ Enhanced</span>
+                    </div>
+
+                    <div class="format-item">
+                        <div class="format-info">
+                            <div class="format-icon" style="background: #dc2626;">PDF</div>
+                            <div>
+                                <strong>PDF Import</strong>
+                                <div style="font-size: 0.9rem; color: #6b7280;">Content extraction with pdf-lib</div>
+                            </div>
+                        </div>
+                        <span class="status-supported">✅ NEW</span>
+                    </div>
+
+                    <div class="format-item">
+                        <div class="format-info">
+                            <div class="format-icon" style="background: #2563eb;">DOCX</div>
+                            <div>
+                                <strong>DOCX Import</strong>
+                                <div style="font-size: 0.9rem; color: #6b7280;">Text extraction with mammoth</div>
+                            </div>
+                        </div>
+                        <span class="status-supported">✅ NEW</span>
+                    </div>
+
+                    <div class="format-item">
+                        <div class="format-info">
+                            <div class="format-icon" style="background: #ea580c;">PPTX</div>
+                            <div>
+                                <strong>PPTX Import</strong>
+                                <div style="font-size: 0.9rem; color: #6b7280;">Slide content extraction</div>
+                            </div>
+                        </div>
+                        <span class="status-supported">✅ NEW</span>
+                    </div>
+
+                    <div class="format-item">
+                        <div class="format-info">
+                            <div class="format-icon" style="background: #7c3aed;">ALL</div>
+                            <div>
+                                <strong>Unified Import</strong>
+                                <div style="font-size: 0.9rem; color: #6b7280;">Smart format detection</div>
+                            </div>
+                        </div>
+                        <span class="status-supported">✅ NEW</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="enhancement-box">
+            <h3>🔧 Technical Implementation Details</h3>
+            
+            <div class="implementation-status">
+                <div class="status-card">
+                    <h4>Libraries Added</h4>
+                    <div class="dependency-list">
+                        <div class="dependency-item">
+                            <span>jsPDF</span>
+                            <span class="version-badge">Latest</span>
+                        </div>
+                        <div class="dependency-item">
+                            <span>docx</span>
+                            <span class="version-badge">Latest</span>
+                        </div>
+                        <div class="dependency-item">
+                            <span>pptxgenjs</span>
+                            <span class="version-badge">Latest</span>
+                        </div>
+                        <div class="dependency-item">
+                            <span>pdf-lib</span>
+                            <span class="version-badge">Latest</span>
+                        </div>
+                        <div class="dependency-item">
+                            <span>mammoth</span>
+                            <span class="version-badge">Latest</span>
+                        </div>
+                        <div class="dependency-item">
+                            <span>file-saver</span>
+                            <span class="version-badge">Latest</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="status-card">
+                    <h4>Files Modified</h4>
+                    <div style="font-size: 0.9rem; line-height: 1.6;">
+                        <div>✅ src/utils/importExportUtils.ts</div>
+                        <div>✅ src/context/CanvasEditorProvider.tsx</div>
+                        <div>✅ src/components/Layout/Header.tsx</div>
+                        <div>✅ package.json (dependencies)</div>
+                    </div>
+                </div>
+
+                <div class="status-card">
+                    <h4>New Functions Added</h4>
+                    <div style="font-size: 0.9rem; line-height: 1.6;">
+                        <div>✅ exportAsPDF()</div>
+                        <div>✅ exportAsDOCX()</div>
+                        <div>✅ exportAsPPTX()</div>
+                        <div>✅ importFromPDF()</div>
+                        <div>✅ importFromDOCX()</div>
+                        <div>✅ importFromPPTX()</div>
+                        <div>✅ importFromFile() - unified</div>
+                    </div>
+                </div>
+
+                <div class="status-card">
+                    <h4>UI Enhancements</h4>
+                    <div style="font-size: 0.9rem; line-height: 1.6;">
+                        <div>✅ Export dropdown expanded</div>
+                        <div>✅ Import filter updated</div>
+                        <div>✅ Format validation added</div>
+                        <div>✅ Error handling improved</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tech-details">
+🚀 IMPLEMENTATION SUMMARY
+
+📦 NEW EXPORT CAPABILITIES:
+• PDF Export: High-quality PDF generation with jsPDF
+  - Auto-detects orientation (landscape/portrait)
+  - Maintains aspect ratio with 5% margins
+  - Professional document output
+  
+• DOCX Export: Microsoft Word compatibility
+  - Embedded high-resolution images
+  - Proper document structure
+  - 6-inch width with aspect ratio preservation
+  
+• PPTX Export: PowerPoint presentations
+  - 16:9 slide layout
+  - Centered diagram placement
+  - Title and metadata inclusion
+  - Professional styling
+
+📥 NEW IMPORT CAPABILITIES:
+• PDF Import: Content extraction with pdf-lib
+  - Page parsing and analysis
+  - Text and layout extraction
+  - Image representation fallback
+  
+• DOCX Import: Word document processing
+  - HTML conversion with mammoth
+  - Text content extraction
+  - Embedded image handling
+  
+• PPTX Import: PowerPoint slide processing
+  - Slide content extraction
+  - Layout preservation
+  - Media handling
+
+🔧 TECHNICAL FEATURES:
+• Unified import function with smart format detection
+• Enhanced error handling and user feedback
+• Type-safe implementations with TypeScript
+• Async/await patterns for better performance
+• Canvas element validation and fallbacks
+• File size optimization and quality control
+
+📋 USER INTERFACE IMPROVEMENTS:
+• Export dropdown now includes PDF, DOCX, PPTX options
+• Import accepts all supported formats automatically
+• Visual separation between image and document formats
+• Improved user feedback and error messages
+• Professional file organization and naming
+        </div>
+
+        <div class="enhancement-box">
+            <h3>🧪 Testing Instructions</h3>
+            <ol style="line-height: 1.8;">
+                <li><strong>Start the application:</strong> Open FlowDigm in your browser</li>
+                <li><strong>Create some content:</strong> Add shapes, diagrams, or cloud service icons</li>
+                <li><strong>Test Export:</strong> Go to File → Export and try each format:
+                    <ul style="margin-top: 8px;">
+                        <li>PNG, JPEG, SVG (existing, enhanced)</li>
+                        <li>PDF (new - creates professional document)</li>
+                        <li>DOCX (new - Word-compatible document)</li>
+                        <li>PPTX (new - PowerPoint presentation)</li>
+                    </ul>
+                </li>
+                <li><strong>Test Import:</strong> Go to File → Import and try different file types</li>
+                <li><strong>Verify Quality:</strong> Check that exported files maintain high quality and proper formatting</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactive feedback
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.format-item');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 4px 15px rgba(0,0,0,0.1)';
+                });
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = 'none';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

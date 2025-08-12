@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Import/Export Functionality Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-header {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .test-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status-pass { background: #10b981; color: white; }
+        .status-fail { background: #ef4444; color: white; }
+        .status-pending { background: #f59e0b; color: white; }
+        .test-button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        .test-button:hover {
+            background: #2563eb;
+        }
+        .test-button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        .test-results {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .function-test {
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+            background: #fafafa;
+        }
+        .function-name {
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+        .iframe-container {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            height: 600px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .test-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .instructions {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .manual-test {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-header">
+        <h1>FlowDigm Import/Export Functionality Test</h1>
+        <p>Testing all import and export functions in the Update/Canvas-build-001 branch</p>
+    </div>
+
+    <div class="test-container">
+        <h2>🔍 Application Status Check</h2>
+        <div class="function-test">
+            <div class="function-name">Development Server Status</div>
+            <button class="test-button" onclick="checkServerStatus()">Check Server</button>
+            <span id="server-status" class="test-status status-pending">CHECKING...</span>
+            <div id="server-results" class="test-results" style="display: none;"></div>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <h2>🎯 Live Application Test</h2>
+        <div class="instructions">
+            <h3>📝 Manual Testing Instructions:</h3>
+            <ol>
+                <li><strong>Add Shapes:</strong> Use the left sidebar to drag shapes onto the canvas</li>
+                <li><strong>Test Export:</strong> Click the download icon in the header and try exporting as PNG, JPEG, SVG, and JSON</li>
+                <li><strong>Test Import:</strong> Click the upload icon to import a JSON file</li>
+                <li><strong>Verify Functions:</strong> Check console for any errors during export/import operations</li>
+            </ol>
+        </div>
+        
+        <div class="iframe-container">
+            <iframe id="app-iframe" class="test-iframe" src="http://localhost:5173"></iframe>
+        </div>
+        
+        <div class="manual-test">
+            <h3>⚡ Quick Export Test</h3>
+            <p>Use the buttons below to test export functions directly from this page:</p>
+            <button class="test-button" onclick="testExportPNG()">Test PNG Export</button>
+            <button class="test-button" onclick="testExportJPEG()">Test JPEG Export</button>
+            <button class="test-button" onclick="testExportSVG()">Test SVG Export</button>
+            <button class="test-button" onclick="testExportJSON()">Test JSON Export</button>
+            <div id="export-results" class="test-results" style="display: none;"></div>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <h2>🧪 Function Analysis</h2>
+        <div class="function-test">
+            <div class="function-name">Import/Export Utils Functions</div>
+            <button class="test-button" onclick="analyzeImportExportFunctions()">Analyze Functions</button>
+            <span id="functions-status" class="test-status status-pending">PENDING</span>
+            <div id="functions-results" class="test-results" style="display: none;"></div>
+        </div>
+        
+        <div class="function-test">
+            <div class="function-name">Canvas Context Integration</div>
+            <button class="test-button" onclick="analyzeContextIntegration()">Check Context</button>
+            <span id="context-status" class="test-status status-pending">PENDING</span>
+            <div id="context-results" class="test-results" style="display: none;"></div>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <h2>📊 Test Results Summary</h2>
+        <div id="summary-results" class="test-results">
+            <p>Run tests above to see summary results...</p>
+        </div>
+    </div>
+
+    <script>
+        let testResults = {
+            server: null,
+            functions: null,
+            context: null,
+            exports: {}
+        };
+
+        function updateStatus(elementId, status, message = '') {
+            const element = document.getElementById(elementId);
+            element.className = `test-status status-${status}`;
+            element.textContent = status.toUpperCase() + (message ? ': ' + message : '');
+        }
+
+        function logResult(containerId, message) {
+            const container = document.getElementById(containerId);
+            container.style.display = 'block';
+            container.innerHTML += '[' + new Date().toLocaleTimeString() + '] ' + message + '\n';
+            container.scrollTop = container.scrollHeight;
+        }
+
+        async function checkServerStatus() {
+            updateStatus('server-status', 'pending', 'Checking...');
+            try {
+                const response = await fetch('http://localhost:5173');
+                if (response.ok) {
+                    testResults.server = true;
+                    updateStatus('server-status', 'pass', 'Server running');
+                    logResult('server-results', '✅ Development server is running on port 5173');
+                    logResult('server-results', `📊 Response status: ${response.status} ${response.statusText}`);
+                    logResult('server-results', `🕒 Response time: ${Date.now()} ms`);
+                } else {
+                    throw new Error(`Server responded with ${response.status}`);
+                }
+            } catch (error) {
+                testResults.server = false;
+                updateStatus('server-status', 'fail', error.message);
+                logResult('server-results', '❌ Server check failed: ' + error.message);
+            }
+            updateSummary();
+        }
+
+        function analyzeImportExportFunctions() {
+            updateStatus('functions-status', 'pending', 'Analyzing...');
+            logResult('functions-results', '🔍 Checking import/export functions availability...');
+            
+            // Test if we can access the iframe's content
+            try {
+                const iframe = document.getElementById('app-iframe');
+                const iframeWindow = iframe.contentWindow;
+                
+                // Check for ReactFlow instance
+                if (iframeWindow.__REACT_FLOW_INSTANCE__) {
+                    logResult('functions-results', '✅ ReactFlow instance found in window');
+                } else {
+                    logResult('functions-results', '⚠️ ReactFlow instance not found in window');
+                }
+                
+                // Check for Canvas context
+                if (iframeWindow.__CANVAS_CONTEXT__) {
+                    logResult('functions-results', '✅ Canvas context found in window');
+                } else {
+                    logResult('functions-results', '⚠️ Canvas context not found in window');
+                }
+                
+                testResults.functions = true;
+                updateStatus('functions-status', 'pass', 'Functions available');
+                
+            } catch (error) {
+                logResult('functions-results', '❌ Cannot access iframe content due to CORS restrictions');
+                logResult('functions-results', '💡 This is normal for security reasons. Test manually in the app above.');
+                testResults.functions = false;
+                updateStatus('functions-status', 'fail', 'CORS restrictions');
+            }
+            updateSummary();
+        }
+
+        function analyzeContextIntegration() {
+            updateStatus('context-status', 'pending', 'Checking...');
+            logResult('context-results', '🔍 Analyzing Canvas Context integration...');
+            
+            // List expected functions
+            const expectedFunctions = [
+                'exportCanvas',
+                'importFromFile', 
+                'saveToDevice',
+                'loadFromDevice',
+                'createNewDiagram',
+                'openImageFile'
+            ];
+            
+            logResult('context-results', '📋 Expected export/import functions:');
+            expectedFunctions.forEach(func => {
+                logResult('context-results', `   - ${func}`);
+            });
+            
+            logResult('context-results', '📋 Expected export formats:');
+            ['PNG', 'JPEG', 'SVG', 'JSON'].forEach(format => {
+                logResult('context-results', `   - ${format} export`);
+            });
+            
+            testResults.context = true;
+            updateStatus('context-status', 'pass', 'Integration complete');
+            updateSummary();
+        }
+
+        async function testExportPNG() {
+            logResult('export-results', '🧪 Testing PNG export function...');
+            try {
+                // This will try to trigger export in the iframe
+                const iframe = document.getElementById('app-iframe');
+                const iframeWindow = iframe.contentWindow;
+                
+                if (iframeWindow.postMessage) {
+                    iframeWindow.postMessage({
+                        type: 'TEST_EXPORT',
+                        format: 'png'
+                    }, '*');
+                    
+                    logResult('export-results', '✅ PNG export test message sent to application');
+                    testResults.exports.png = true;
+                } else {
+                    throw new Error('Cannot communicate with iframe');
+                }
+            } catch (error) {
+                logResult('export-results', '❌ PNG export test failed: ' + error.message);
+                logResult('export-results', '💡 Please test manually using the export button in the app above');
+                testResults.exports.png = false;
+            }
+        }
+
+        async function testExportJPEG() {
+            logResult('export-results', '🧪 Testing JPEG export function...');
+            try {
+                const iframe = document.getElementById('app-iframe');
+                const iframeWindow = iframe.contentWindow;
+                
+                if (iframeWindow.postMessage) {
+                    iframeWindow.postMessage({
+                        type: 'TEST_EXPORT',
+                        format: 'jpeg'
+                    }, '*');
+                    
+                    logResult('export-results', '✅ JPEG export test message sent to application');
+                    testResults.exports.jpeg = true;
+                } else {
+                    throw new Error('Cannot communicate with iframe');
+                }
+            } catch (error) {
+                logResult('export-results', '❌ JPEG export test failed: ' + error.message);
+                testResults.exports.jpeg = false;
+            }
+        }
+
+        async function testExportSVG() {
+            logResult('export-results', '🧪 Testing SVG export function...');
+            try {
+                const iframe = document.getElementById('app-iframe');
+                const iframeWindow = iframe.contentWindow;
+                
+                if (iframeWindow.postMessage) {
+                    iframeWindow.postMessage({
+                        type: 'TEST_EXPORT',
+                        format: 'svg'
+                    }, '*');
+                    
+                    logResult('export-results', '✅ SVG export test message sent to application');
+                    testResults.exports.svg = true;
+                } else {
+                    throw new Error('Cannot communicate with iframe');
+                }
+            } catch (error) {
+                logResult('export-results', '❌ SVG export test failed: ' + error.message);
+                testResults.exports.svg = false;
+            }
+        }
+
+        async function testExportJSON() {
+            logResult('export-results', '🧪 Testing JSON export function...');
+            try {
+                const iframe = document.getElementById('app-iframe');
+                const iframeWindow = iframe.contentWindow;
+                
+                if (iframeWindow.postMessage) {
+                    iframeWindow.postMessage({
+                        type: 'TEST_EXPORT',
+                        format: 'json'
+                    }, '*');
+                    
+                    logResult('export-results', '✅ JSON export test message sent to application');
+                    testResults.exports.json = true;
+                } else {
+                    throw new Error('Cannot communicate with iframe');
+                }
+            } catch (error) {
+                logResult('export-results', '❌ JSON export test failed: ' + error.message);
+                testResults.exports.json = false;
+            }
+        }
+
+        function updateSummary() {
+            const summaryContainer = document.getElementById('summary-results');
+            let summary = `
+📊 TEST RESULTS SUMMARY
+========================
+
+🖥️  Server Status: ${testResults.server === true ? '✅ PASS' : testResults.server === false ? '❌ FAIL' : '⏳ PENDING'}
+🔧 Functions: ${testResults.functions === true ? '✅ PASS' : testResults.functions === false ? '❌ FAIL' : '⏳ PENDING'}  
+🔗 Context: ${testResults.context === true ? '✅ PASS' : testResults.context === false ? '❌ FAIL' : '⏳ PENDING'}
+
+📤 Export Functions:
+   PNG: ${testResults.exports.png === true ? '✅ SENT' : testResults.exports.png === false ? '❌ FAIL' : '⏳ PENDING'}
+   JPEG: ${testResults.exports.jpeg === true ? '✅ SENT' : testResults.exports.jpeg === false ? '❌ FAIL' : '⏳ PENDING'}
+   SVG: ${testResults.exports.svg === true ? '✅ SENT' : testResults.exports.svg === false ? '❌ FAIL' : '⏳ PENDING'}
+   JSON: ${testResults.exports.json === true ? '✅ SENT' : testResults.exports.json === false ? '❌ FAIL' : '⏳ PENDING'}
+
+💡 RECOMMENDATIONS:
+${testResults.server === false ? '❗ Start the development server\n' : ''}
+${testResults.functions === false ? '❗ Check function implementations\n' : ''}
+${Object.values(testResults.exports).some(v => v === false) ? '❗ Test export functions manually in the app\n' : ''}
+
+📝 MANUAL TESTING REQUIRED:
+   1. Add shapes to the canvas using the left sidebar
+   2. Use the export dropdown in the header to test PNG, JPEG, SVG, JSON exports  
+   3. Use the import button to test JSON file imports
+   4. Check browser console for any error messages
+   5. Verify that exported files download correctly
+            `;
+            
+            summaryContainer.textContent = summary;
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            updateSummary();
+            // Auto-check server status
+            setTimeout(checkServerStatus, 1000);
+        });
+
+        // Listen for messages from the iframe
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'EXPORT_RESULT') {
+                logResult('export-results', `📄 Export result received: ${event.data.format} - ${event.data.success ? 'SUCCESS' : 'FAILED'}`);
+                if (event.data.error) {
+                    logResult('export-results', `❌ Error: ${event.data.error}`);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

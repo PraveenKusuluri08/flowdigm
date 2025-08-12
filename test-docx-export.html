@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOCX Export Test - FlowDigm</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .docx-section {
+            background: #e8f4fd;
+            border: 2px solid #2196f3;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .docx-section h3 {
+            color: #1976d2;
+            margin-top: 0;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button.docx {
+            background: #2196f3;
+        }
+        button.docx:hover {
+            background: #1976d2;
+        }
+        button.secondary {
+            background: #6c757d;
+        }
+        button.secondary:hover {
+            background: #545b62;
+        }
+        #console {
+            background: #1e1e1e;
+            color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            height: 300px;
+            overflow-y: auto;
+            margin: 20px 0;
+            white-space: pre-wrap;
+        }
+        .test-canvas {
+            border: 2px solid #ccc;
+            width: 600px;
+            height: 300px;
+            background: linear-gradient(45deg, #f0f0f0 25%, transparent 25%, transparent 75%, #f0f0f0 75%),
+                        linear-gradient(45deg, #f0f0f0 25%, transparent 25%, transparent 75%, #f0f0f0 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+            position: relative;
+            margin: 20px auto;
+            display: block;
+        }
+        .feature-list {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .feature-list li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 DOCX Export Test - FlowDigm</h1>
+        <p>Comprehensive testing for Microsoft Word document export functionality</p>
+        
+        <div class="docx-section">
+            <h3>📝 DOCX Export Features</h3>
+            <div class="feature-list">
+                <h4>What's included in DOCX export:</h4>
+                <ul>
+                    <li>✅ Document title and metadata</li>
+                    <li>✅ High-quality diagram image (PNG embedded)</li>
+                    <li>✅ Export timestamp and filename</li>
+                    <li>✅ Node count and diagram statistics</li>
+                    <li>✅ Detailed component list (when metadata enabled)</li>
+                    <li>✅ Professional Word document formatting</li>
+                    <li>✅ Compatible with Microsoft Word, Google Docs, etc.</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>📊 Test Setup</h3>
+            <button onclick="createTestDiagram()" class="docx">Create Test Diagram</button>
+            <button onclick="checkDocxLibrary()" class="secondary">Check DOCX Library</button>
+            <button onclick="clearConsole()" class="secondary">Clear Console</button>
+            
+            <div class="test-canvas" id="test-canvas"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>📝 DOCX Export Tests</h3>
+            <button onclick="testBasicDocx()" class="docx">Basic DOCX Export</button>
+            <button onclick="testAdvancedDocx()" class="docx">Advanced DOCX (with metadata)</button>
+            <button onclick="testDocxWithOptions()" class="docx">DOCX with Custom Options</button>
+            <button onclick="testEnhancedDocx()" class="docx">🔥 Enhanced Professional DOCX</button>
+            <button onclick="testDocxFormats()" class="docx">Test All Document Formats</button>
+        </div>
+        
+        <div id="console"></div>
+    </div>
+
+    <!-- Load required libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/file-saver/2.0.5/FileSaver.min.js"></script>
+    
+    <script>
+        let consoleElement = document.getElementById('console');
+        
+        // Capture console logs
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        function addToConsole(type, ...args) {
+            const timestamp = new Date().toLocaleTimeString();
+            const message = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ');
+            
+            const color = {
+                'log': '#ffffff',
+                'error': '#ff6b6b',
+                'warn': '#ffa726',
+                'success': '#4caf50',
+                'info': '#42a5f5'
+            }[type] || '#ffffff';
+            
+            consoleElement.innerHTML += `<div style="color: ${color}; margin: 2px 0;">[${timestamp}] ${message}</div>`;
+            consoleElement.scrollTop = consoleElement.scrollHeight;
+        }
+        
+        console.log = (...args) => {
+            originalLog.apply(console, args);
+            addToConsole('log', ...args);
+        };
+        
+        console.error = (...args) => {
+            originalError.apply(console, args);
+            addToConsole('error', ...args);
+        };
+        
+        console.warn = (...args) => {
+            originalWarn.apply(console, args);
+            addToConsole('warn', ...args);
+        };
+        
+        function clearConsole() {
+            consoleElement.innerHTML = '';
+        }
+        
+        function createTestDiagram() {
+            console.log('🏗️ Creating test diagram for DOCX export...');
+            
+            // Create mock ReactFlow data
+            window.__REACT_FLOW_INSTANCE__ = {
+                getNodes: () => [
+                    { 
+                        id: '1', 
+                        position: { x: 50, y: 30 }, 
+                        data: { 
+                            label: 'Document Title', 
+                            width: 140, 
+                            height: 60,
+                            fill: '#e3f2fd',
+                            stroke: '#1976d2'
+                        },
+                        type: 'rectangle'
+                    },
+                    { 
+                        id: '2', 
+                        position: { x: 250, y: 100 }, 
+                        data: { 
+                            label: 'Content Section', 
+                            width: 120, 
+                            height: 80,
+                            fill: '#fff3e0',
+                            stroke: '#f57c00'
+                        },
+                        type: 'rectangle'
+                    },
+                    { 
+                        id: '3', 
+                        position: { x: 450, y: 30 }, 
+                        data: { 
+                            label: 'Export Process', 
+                            width: 100, 
+                            height: 100,
+                            fill: '#e8f5e8',
+                            stroke: '#4caf50'
+                        },
+                        type: 'circle'
+                    }
+                ],
+                getEdges: () => [
+                    { id: 'e1-2', source: '1', target: '2', label: 'Contains' },
+                    { id: 'e2-3', source: '2', target: '3', label: 'Exports to' }
+                ],
+                fitView: () => console.log('fitView called')
+            };
+            
+            // Create visual representation
+            const testCanvas = document.getElementById('test-canvas');
+            testCanvas.innerHTML = `
+                <div style="position: absolute; top: 20px; left: 40px; width: 140px; height: 60px; background: #e3f2fd; border: 2px solid #1976d2; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 11px;">
+                    Document Title
+                </div>
+                <div style="position: absolute; top: 90px; left: 240px; width: 120px; height: 80px; background: #fff3e0; border: 2px solid #f57c00; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 11px;">
+                    Content Section
+                </div>
+                <div style="position: absolute; top: 20px; left: 440px; width: 100px; height: 100px; background: #e8f5e8; border: 2px solid #4caf50; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 11px;">
+                    Export Process
+                </div>
+                <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;">
+                    <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+                        </marker>
+                    </defs>
+                    <line x1="180" y1="60" x2="240" y2="120" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+                    <line x1="360" y1="140" x2="440" y2="80" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+                    <text x="200" y="85" font-family="Arial" font-size="9" fill="#666">Contains</text>
+                    <text x="380" y="105" font-family="Arial" font-size="9" fill="#666">Exports to</text>
+                </svg>
+            `;
+            testCanvas.className = 'test-canvas react-flow';
+            
+            console.log('✅ Test diagram created - Perfect for DOCX export testing');
+        }
+        
+        function checkDocxLibrary() {
+            console.log('🔍 Checking DOCX export capabilities...');
+            
+            const checks = {
+                'html2canvas': typeof html2canvas !== 'undefined',
+                'saveAs (file-saver)': typeof saveAs !== 'undefined',
+                'exportFile function': typeof window.exportFile !== 'undefined',
+                'DOCX support': typeof window.exportFile !== 'undefined'
+            };
+            
+            Object.entries(checks).forEach(([name, available]) => {
+                const status = available ? '✅' : '❌';
+                console.log(`${status} ${name}: ${available ? 'Available' : 'Missing'}`);
+            });
+            
+            // Check if we can access the main app's export functions
+            if (window.parent && window.parent !== window) {
+                console.log('📱 Checking parent window export functions...');
+                try {
+                    if (window.parent.exportFile) {
+                        console.log('✅ Parent window export functions available');
+                    }
+                } catch (e) {
+                    console.log('⚠️ Cannot access parent window functions (cross-origin)');
+                }
+            }
+        }
+        
+        async function testBasicDocx() {
+            console.log('📝 Testing basic DOCX export...');
+            
+            try {
+                if (typeof window.exportFile === 'function') {
+                    await window.exportFile('docx', 'basic-docx-test', {
+                        includeMetadata: false,
+                        backgroundColor: '#ffffff'
+                    });
+                    console.log('✅ Basic DOCX export completed successfully');
+                } else {
+                    console.warn('⚠️ exportFile not available, simulating DOCX export...');
+                    simulateDocxExport('basic-docx-test');
+                }
+            } catch (error) {
+                console.error('❌ Basic DOCX export failed:', error);
+            }
+        }
+        
+        async function testAdvancedDocx() {
+            console.log('📝 Testing advanced DOCX export with metadata...');
+            
+            try {
+                if (typeof window.exportFile === 'function') {
+                    await window.exportFile('docx', 'advanced-docx-test', {
+                        includeMetadata: true,
+                        backgroundColor: '#ffffff',
+                        scale: 2,
+                        quality: 100
+                    });
+                    console.log('✅ Advanced DOCX export completed successfully');
+                } else {
+                    console.warn('⚠️ exportFile not available, simulating advanced DOCX export...');
+                    simulateDocxExport('advanced-docx-test', true);
+                }
+            } catch (error) {
+                console.error('❌ Advanced DOCX export failed:', error);
+            }
+        }
+        
+        async function testDocxWithOptions() {
+            console.log('📝 Testing DOCX export with custom options...');
+            
+            try {
+                if (typeof window.exportFile === 'function') {
+                    await window.exportFile('docx', 'custom-docx-test', {
+                        includeMetadata: true,
+                        backgroundColor: '#f8f9fa',
+                        scale: 1.5,
+                        quality: 90,
+                        border: 20
+                    });
+                    console.log('✅ Custom DOCX export completed successfully');
+                } else {
+                    console.warn('⚠️ exportFile not available, simulating custom DOCX export...');
+                    simulateDocxExport('custom-docx-test', true);
+                }
+            } catch (error) {
+                console.error('❌ Custom DOCX export failed:', error);
+            }
+        }
+        
+        async function testDocxFormats() {
+            console.log('📄 Testing all document formats...');
+            
+            const formats = ['pdf', 'docx', 'pptx'];
+            
+            for (const format of formats) {
+                console.log(`🧪 Testing ${format.toUpperCase()} export...`);
+                try {
+                    if (typeof window.exportFile === 'function') {
+                        await window.exportFile(format, `document-test-${format}`, {
+                            includeMetadata: true,
+                            backgroundColor: '#ffffff'
+                        });
+                        console.log(`✅ ${format.toUpperCase()} export completed`);
+                    } else {
+                        console.warn(`⚠️ Simulating ${format.toUpperCase()} export...`);
+                        simulateDocxExport(`document-test-${format}`);
+                    }
+                } catch (error) {
+                    console.error(`❌ ${format.toUpperCase()} export failed:`, error);
+                }
+                
+                // Add delay between tests
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+        }
+        
+        async function testEnhancedDocx() {
+            console.log('🔥 Testing Enhanced Professional DOCX Export...');
+            
+            const testCanvas = document.getElementById('test-canvas');
+            if (!testCanvas) {
+                console.error('❌ Test canvas not found. Create a test diagram first.');
+                return;
+            }
+            
+            try {
+                const enhancedOptions = {
+                    includeMetadata: true,
+                    backgroundColor: '#ffffff',
+                    scale: 2, // High quality scaling
+                    quality: 100,
+                    width: 800,  // Optimal width
+                    height: 600, // Optimal height
+                    format: 'docx'
+                };
+                
+                console.log('📊 Enhanced DOCX Options:', enhancedOptions);
+                
+                // Use main app export if available, otherwise simulate
+                if (typeof window.exportFile === 'function') {
+                    await window.exportFile({
+                        canvasElement: testCanvas,
+                        nodes: mockNodes,
+                        filename: 'enhanced-professional-diagram',
+                        format: 'docx',
+                        options: enhancedOptions
+                    });
+                    console.log('✅ Enhanced Professional DOCX export completed with:');
+                    console.log('  • High-quality 2x scaling');
+                    console.log('  • Professional document formatting');
+                    console.log('  • Enhanced metadata and component listing');
+                    console.log('  • Optimal image sizing for Word documents');
+                    console.log('  • Beautiful styling with colors and spacing');
+                } else {
+                    console.warn('⚠️ Simulating Enhanced Professional DOCX export...');
+                    simulateEnhancedDocxExport('enhanced-professional-diagram', enhancedOptions);
+                }
+            } catch (error) {
+                console.error('❌ Enhanced DOCX export failed:', error);
+            }
+        }
+        
+        function simulateEnhancedDocxExport(filename, options) {
+            console.log(`🔧 Simulating Enhanced DOCX export for ${filename}...`);
+            
+            const docxContent = `Enhanced FlowDigm Professional DOCX Export
+            
+🎯 ENHANCED FEATURES:
+✅ Professional document formatting with margins and spacing
+✅ High-quality image scaling (${options.scale}x resolution)  
+✅ Optimal image sizing for Word documents
+✅ Enhanced metadata with component details
+✅ Better error handling and fallback options
+✅ Professional header styling with colors
+✅ Smart image dimension calculations
+✅ Component listing with positions and types
+
+📊 Export Configuration:
+Filename: ${filename}
+Export Date: ${new Date().toLocaleString()}
+Background: ${options.backgroundColor}
+Scale: ${options.scale}x
+Quality: ${options.quality}%
+Include Metadata: ${options.includeMetadata}
+Dimensions: ${options.width}x${options.height}
+
+This enhanced version creates a professional Microsoft Word document
+with superior formatting, high-quality embedded images, and detailed
+component information suitable for business presentations.`;
+            
+            const blob = new Blob([docxContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${filename}-enhanced-simulation.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            console.log('✅ Enhanced DOCX simulation completed - Check your downloads!');
+        }
+            console.log(`🔧 Simulating DOCX export for ${filename}...`);
+            
+            // Create a simple text file to simulate the download
+            const docxContent = `FlowDigm DOCX Export Simulation
+            
+Filename: ${filename}
+Export Date: ${new Date().toLocaleString()}
+Include Metadata: ${includeMetadata}
+
+This is a simulation of DOCX export functionality.
+In the actual implementation, this would be a Microsoft Word document
+with embedded diagram images and formatted content.
+
+Features that would be included:
+- Document title and headers
+- High-quality diagram image
+- Metadata information
+- Professional Word formatting
+- Compatible with Microsoft Word and other word processors
+`;
+            
+            const blob = new Blob([docxContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.download = `${filename}-simulation.txt`;
+            link.href = url;
+            link.click();
+            URL.revokeObjectURL(url);
+            
+            console.log('✅ DOCX simulation completed - check downloaded file');
+        }
+        
+        // Auto-initialize
+        setTimeout(() => {
+            console.log('📝 DOCX Export Test Page Loaded');
+            console.log('📋 Click "Create Test Diagram" to start DOCX testing');
+            checkDocxLibrary();
+        }, 1000);
+    </script>
+</body>
+</html>

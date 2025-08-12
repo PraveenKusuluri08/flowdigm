@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Export Function Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+        .export-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+        button {
+            padding: 12px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .success {
+            background: #28a745;
+        }
+        .error {
+            background: #dc3545;
+        }
+        .info {
+            background: #17a2b8;
+        }
+        .warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        .test-canvas {
+            width: 100%;
+            height: 300px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .shape {
+            position: absolute;
+            border: 2px solid #007bff;
+            background: rgba(0, 123, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .circle {
+            border-radius: 50%;
+        }
+        .diamond {
+            transform: rotate(45deg);
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 3px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .feature {
+            padding: 15px;
+            border: 1px solid #28a745;
+            border-radius: 5px;
+            background: rgba(40, 167, 69, 0.1);
+        }
+        .feature h4 {
+            margin: 0 0 10px 0;
+            color: #28a745;
+        }
+        .format-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .format {
+            padding: 10px;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            background: rgba(0, 123, 255, 0.05);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Comprehensive Export Function Test</h1>
+        <p>This page tests the new comprehensive <code>exportFile</code> function that supports multiple formats with high-quality output and cross-browser compatibility.</p>
+
+        <div class="feature-list">
+            <div class="feature">
+                <h4>📱 Cross-Browser Support</h4>
+                <p>Works on Chrome, Firefox, Safari, and Edge with consistent behavior.</p>
+            </div>
+            <div class="feature">
+                <h4>🎨 High-Quality Output</h4>
+                <p>2x scale rendering, customizable quality settings, and optimized image processing.</p>
+            </div>
+            <div class="feature">
+                <h4>📄 Multiple Formats</h4>
+                <p>PNG, JPEG, SVG, PDF, PPTX, and DOCX support with format-specific optimizations.</p>
+            </div>
+            <div class="feature">
+                <h4>⚙️ Advanced Options</h4>
+                <p>Quality control, background colors, metadata inclusion, and custom scaling.</p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 Supported Export Formats</h3>
+            <div class="format-info">
+                <div class="format">
+                    <strong>PNG</strong><br>
+                    Lossless, transparent background support
+                </div>
+                <div class="format">
+                    <strong>JPEG</strong><br>
+                    Compressed, smaller file sizes
+                </div>
+                <div class="format">
+                    <strong>SVG</strong><br>
+                    Vector graphics, scalable
+                </div>
+                <div class="format">
+                    <strong>PDF</strong><br>
+                    Document format with metadata
+                </div>
+                <div class="format">
+                    <strong>PPTX</strong><br>
+                    PowerPoint presentation
+                </div>
+                <div class="format">
+                    <strong>DOCX</strong><br>
+                    Word document format
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🎯 Test Canvas</h3>
+            <div class="test-canvas" id="testCanvas">
+                <div class="shape" style="left: 50px; top: 50px; width: 80px; height: 60px;">
+                    Rectangle
+                </div>
+                <div class="shape circle" style="left: 200px; top: 40px; width: 80px; height: 80px;">
+                    Circle
+                </div>
+                <div class="shape diamond" style="left: 350px; top: 70px; width: 60px; height: 60px;">
+                    Diamond
+                </div>
+                <div class="shape" style="left: 100px; top: 180px; width: 120px; height: 40px; border-radius: 20px;">
+                    Rounded
+                </div>
+                <div style="position: absolute; left: 20px; top: 250px; font-size: 14px; color: #666;">
+                    Sample diagram content for export testing
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🧪 Export Function Tests</h3>
+            <p>Test the comprehensive <code>exportFile</code> function with different formats and options:</p>
+            
+            <div class="export-buttons">
+                <button onclick="testExport('png')" class="success">Export PNG</button>
+                <button onclick="testExport('jpeg')" class="success">Export JPEG</button>
+                <button onclick="testExport('svg')" class="success">Export SVG</button>
+                <button onclick="testExport('pdf')" class="info">Export PDF</button>
+                <button onclick="testExport('pptx')" class="info">Export PPTX</button>
+                <button onclick="testExport('docx')" class="info">Export DOCX</button>
+            </div>
+
+            <h4>🔧 Advanced Export Options</h4>
+            <div class="export-buttons">
+                <button onclick="testExportWithOptions('png', {quality: 0.5, scale: 1})">PNG (Low Quality)</button>
+                <button onclick="testExportWithOptions('png', {quality: 1.0, scale: 3})">PNG (High Quality)</button>
+                <button onclick="testExportWithOptions('jpeg', {quality: 0.8, backgroundColor: '#f0f8ff'})">JPEG (Blue BG)</button>
+                <button onclick="testExportWithOptions('pdf', {includeMetadata: true})">PDF (With Metadata)</button>
+            </div>
+
+            <h4>📋 Test Results</h4>
+            <div class="log" id="testLog">
+                Ready to test export functions...<br>
+                Click any export button above to start testing.<br>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>📚 Implementation Details</h3>
+            <p>The comprehensive <code>exportFile</code> function includes:</p>
+            <ul>
+                <li><strong>Multiple Fallback Methods:</strong> Uses dom-to-image first, then html2canvas as fallback</li>
+                <li><strong>High-Quality Rendering:</strong> 2x scale by default, customizable quality settings</li>
+                <li><strong>Cross-Browser Compatibility:</strong> Handles browser-specific quirks and limitations</li>
+                <li><strong>Canvas Preparation:</strong> Automatically fits view and ensures all elements are visible</li>
+                <li><strong>Format-Specific Optimizations:</strong> Different strategies for each export format</li>
+                <li><strong>Error Handling:</strong> Comprehensive error reporting and recovery</li>
+                <li><strong>Metadata Support:</strong> Includes creation date, title, and component information</li>
+                <li><strong>Library Integration:</strong> Uses html2canvas, jsPDF, PptxGenJS, docx, and dom-to-image</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h3>💡 Usage Example</h3>
+            <pre style="background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto;"><code>// Basic usage
+await exportFile('png', 'my-diagram');
+
+// With custom options
+await exportFile('pdf', 'my-diagram', {
+  quality: 1.0,
+  scale: 2,
+  backgroundColor: '#ffffff',
+  includeMetadata: true
+});
+
+// All supported formats
+const formats = ['png', 'jpeg', 'svg', 'pdf', 'pptx', 'docx'];
+for (const format of formats) {
+  await exportFile(format, `diagram-${format}`);
+}</code></pre>
+        </div>
+    </div>
+
+    <script>
+        function log(message) {
+            const logDiv = document.getElementById('testLog');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `[${timestamp}] ${message}<br>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        async function testExport(format) {
+            log(`🔄 Starting ${format.toUpperCase()} export test...`);
+            
+            try {
+                // Check if we're in the FlowDigm application context
+                if (typeof window.exportFile === 'function') {
+                    log(`✅ Using application exportFile function`);
+                    await window.exportFile(format, `test-diagram-${format}`);
+                    log(`✅ ${format.toUpperCase()} export completed successfully!`);
+                } else if (window.__CANVAS_CONTEXT__ && window.__CANVAS_CONTEXT__.exportCanvas) {
+                    log(`✅ Using canvas context export function`);
+                    await window.__CANVAS_CONTEXT__.exportCanvas(format);
+                    log(`✅ ${format.toUpperCase()} export completed successfully!`);
+                } else {
+                    // Fallback: simulate export for testing
+                    log(`⚠️ FlowDigm export functions not available - simulating export`);
+                    await simulateExport(format);
+                    log(`✅ ${format.toUpperCase()} export simulation completed!`);
+                }
+            } catch (error) {
+                log(`❌ ${format.toUpperCase()} export failed: ${error.message}`);
+                console.error('Export error:', error);
+            }
+        }
+
+        async function testExportWithOptions(format, options) {
+            log(`🔧 Starting ${format.toUpperCase()} export with custom options...`);
+            log(`📋 Options: ${JSON.stringify(options)}`);
+            
+            try {
+                if (typeof window.exportFile === 'function') {
+                    await window.exportFile(format, `test-diagram-${format}-custom`, options);
+                    log(`✅ ${format.toUpperCase()} export with options completed successfully!`);
+                } else {
+                    await simulateExport(format, options);
+                    log(`✅ ${format.toUpperCase()} export simulation with options completed!`);
+                }
+            } catch (error) {
+                log(`❌ ${format.toUpperCase()} export with options failed: ${error.message}`);
+                console.error('Export error:', error);
+            }
+        }
+
+        async function simulateExport(format, options = {}) {
+            // Simulate the export process for testing
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            if (format === 'svg') {
+                // Simulate SVG export
+                const canvas = document.getElementById('testCanvas');
+                const svgContent = `<svg width="500" height="300" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="100%" height="100%" fill="${options.backgroundColor || '#ffffff'}"/>
+                    <rect x="50" y="50" width="80" height="60" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                    <circle cx="240" cy="80" r="40" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                    <text x="250" y="250" font-family="Arial" font-size="14" fill="#666">Test Export</text>
+                </svg>`;
+                
+                const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.download = `test-diagram-${format}.svg`;
+                link.href = url;
+                link.click();
+                URL.revokeObjectURL(url);
+            } else if (format === 'png' || format === 'jpeg') {
+                // Simulate canvas-based export
+                const canvas = document.createElement('canvas');
+                canvas.width = 500;
+                canvas.height = 300;
+                const ctx = canvas.getContext('2d');
+                
+                ctx.fillStyle = options.backgroundColor || '#ffffff';
+                ctx.fillRect(0, 0, 500, 300);
+                
+                ctx.fillStyle = '#e3f2fd';
+                ctx.strokeStyle = '#1976d2';
+                ctx.lineWidth = 2;
+                
+                // Draw test shapes
+                ctx.fillRect(50, 50, 80, 60);
+                ctx.strokeRect(50, 50, 80, 60);
+                
+                ctx.beginPath();
+                ctx.arc(240, 80, 40, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.stroke();
+                
+                canvas.toBlob((blob) => {
+                    if (blob) {
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.download = `test-diagram-${format}.${format}`;
+                        link.href = url;
+                        link.click();
+                        URL.revokeObjectURL(url);
+                    }
+                }, `image/${format}`, options.quality || 1.0);
+            } else {
+                // For other formats, just show a message
+                log(`📄 ${format.toUpperCase()} export would be triggered here`);
+            }
+        }
+
+        // Check if we're running in the FlowDigm application
+        if (window.location.hostname === 'localhost' && window.location.port === '5173') {
+            log('🎯 Running in FlowDigm application context');
+            log('🔗 Export functions should be available from the main application');
+        } else {
+            log('🧪 Running in standalone test mode');
+            log('🎭 Using simulated export functions for demonstration');
+        }
+        
+        // Add export function to global scope for testing
+        if (typeof window.exportFile === 'undefined') {
+            // Try to get it from the parent window or main application
+            try {
+                if (window.parent && window.parent !== window && window.parent.exportFile) {
+                    window.exportFile = window.parent.exportFile;
+                    log('📡 Found exportFile in parent window');
+                }
+            } catch (e) {
+                // Ignore cross-origin errors
+            }
+        }
+    </script>
+</body>
+</html>

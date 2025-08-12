@@ -1,0 +1,51 @@
+{
+  "fileType": "FlowDigm Diagram",
+  "application": "FlowDigm", 
+  "version": "1.0",
+  "createdAt": "2025-08-09T22:05:00.000Z",
+  "nodeCount": 2,
+  "edgeCount": 0,
+  "data": {
+    "nodes": [
+      {
+        "id": "new-format-node-1",
+        "type": "rect",
+        "position": { "x": 50, "y": 50 },
+        "data": {
+          "label": "New Format Test",
+          "width": 140,
+          "height": 60,
+          "fill": "#fff3e0",
+          "stroke": "#ff9800",
+          "strokeWidth": 2
+        }
+      },
+      {
+        "id": "new-format-node-2", 
+        "type": "diamond",
+        "position": { "x": 250, "y": 100 },
+        "data": {
+          "label": "Diamond Shape",
+          "width": 120,
+          "height": 120,
+          "fill": "#f3e5f5",
+          "stroke": "#9c27b0",
+          "strokeWidth": 2
+        }
+      }
+    ],
+    "edges": [],
+    "viewport": {
+      "x": 0,
+      "y": 0,
+      "zoom": 1
+    },
+    "grid": {
+      "visible": true,
+      "size": 20,
+      "snap": false
+    },
+    "fileName": "New Format Test Diagram",
+    "version": "1.0"
+  }
+}

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resize Functionality Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .instruction { background: #f0f8ff; padding: 10px; margin: 10px 0; }
+        .expected { background: #f0fff0; padding: 10px; margin: 10px 0; }
+        .debug { background: #fff8dc; padding: 10px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>🔧 FlowDigm Resize Functionality Test</h1>
+    
+    <div class="test-section">
+        <h2>Test Steps:</h2>
+        
+        <div class="instruction">
+            <strong>Step 1:</strong> Open the main application at <a href="http://localhost:5173" target="_blank">http://localhost:5173</a>
+        </div>
+        
+        <div class="instruction">
+            <strong>Step 2:</strong> Select "Rectangle" from the sidebar and click on the canvas to add a shape
+        </div>
+        
+        <div class="instruction">
+            <strong>Step 3:</strong> Click on the rectangle to select it
+        </div>
+        
+        <div class="expected">
+            <strong>Expected:</strong> Blue border appears around the rectangle with blue resize handles at corners and edges
+        </div>
+        
+        <div class="instruction">
+            <strong>Step 4:</strong> Open browser Developer Tools (F12) and go to Console tab
+        </div>
+        
+        <div class="instruction">
+            <strong>Step 5:</strong> Drag one of the blue resize handles to resize the rectangle
+        </div>
+        
+        <div class="expected">
+            <strong>Expected Console Output:</strong>
+            <pre>
+🔄 Rectangle resizing: {width: [new width], height: [new height]}
+🔄 data.onResize available: true
+🔄 Calling data.onResize with: {width: [new width], height: [new height]}
+🎯 handleNodeResize called!
+🎯 Resizing node: [node id] to: {width: [new width], height: [new height]}
+🎯 Current nodes count: [number]
+🎯 setNodes callback - updating node: [node id]
+🎯 Updated node data: {width: [new width], height: [new height], ...other props}
+🎯 setNodes returning updated nodes
+            </pre>
+        </div>
+        
+        <div class="expected">
+            <strong>Expected Visual Result:</strong> The rectangle should actually change size as you drag the handles
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🐛 Troubleshooting:</h2>
+        
+        <div class="debug">
+            <strong>If resize handles don't appear:</strong>
+            <ul>
+                <li>Make sure the shape is properly selected (blue border visible)</li>
+                <li>Check that selectNodesOnDrag={true} in ReactFlow config</li>
+                <li>Verify NodeResizer isVisible={selected} prop</li>
+            </ul>
+        </div>
+        
+        <div class="debug">
+            <strong>If handles appear but shape doesn't resize:</strong>
+            <ul>
+                <li>Check console for "data.onResize available: false" warnings</li>
+                <li>Verify onResize callback is passed to node data during creation</li>
+                <li>Check that handleNodeResize function is being called</li>
+            </ul>
+        </div>
+        
+        <div class="debug">
+            <strong>If console shows errors:</strong>
+            <ul>
+                <li>Check for TypeScript compilation errors</li>
+                <li>Verify ReactFlow version compatibility</li>
+                <li>Check NodeResizer import from 'reactflow'</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>✅ Success Criteria:</h2>
+        <ul>
+            <li>Blue resize handles appear when shape is selected</li>
+            <li>Console shows resize event logs when dragging handles</li>
+            <li>Shape visually changes size in real-time during drag</li>
+            <li>No JavaScript errors in console</li>
+            <li>Minimum size constraints are respected</li>
+        </ul>
+    </div>
+    
+    <script>
+        // Auto-open developer tools instructions
+        console.log('🧪 FlowDigm Resize Test Guide:');
+        console.log('1. Follow the test steps above');
+        console.log('2. Watch for resize event logs in this console');
+        console.log('3. Report any missing logs or errors');
+        
+        // Function to test if we're in the main app
+        if (window.location.href.includes('localhost:5173') && !window.location.href.includes('test-resize')) {
+            console.log('✅ You are in the main FlowDigm app - ready to test resize!');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowDigm Export Test - All Formats</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #495057;
+        }
+        .format-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .format-card {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+        }
+        .format-card h4 {
+            margin: 0 0 10px 0;
+            color: #343a40;
+        }
+        .format-card p {
+            margin: 0 0 15px 0;
+            font-size: 12px;
+            color: #6c757d;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            margin: 2px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button.primary {
+            background: #007bff;
+        }
+        button.primary:hover {
+            background: #0056b3;
+        }
+        button.secondary {
+            background: #6c757d;
+        }
+        button.secondary:hover {
+            background: #545b62;
+        }
+        #console {
+            background: #1e1e1e;
+            color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            height: 300px;
+            overflow-y: auto;
+            margin: 20px 0;
+            white-space: pre-wrap;
+        }
+        .test-canvas {
+            border: 2px solid #ccc;
+            width: 600px;
+            height: 400px;
+            background: linear-gradient(45deg, #f0f0f0 25%, transparent 25%, transparent 75%, #f0f0f0 75%),
+                        linear-gradient(45deg, #f0f0f0 25%, transparent 25%, transparent 75%, #f0f0f0 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+            position: relative;
+            margin: 20px auto;
+            display: block;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.warning { background: #fff3cd; color: #856404; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.pending { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 FlowDigm Export Test - All Formats</h1>
+        <p>Test all export formats exactly like draw.io functionality</p>
+        
+        <div class="test-section">
+            <h3>📊 Test Setup</h3>
+            <button onclick="createTestData()" class="primary">Create Test Diagram</button>
+            <button onclick="checkLibraries()" class="secondary">Check Libraries</button>
+            <button onclick="clearConsole()" class="secondary">Clear Console</button>
+            
+            <div class="test-canvas" id="test-canvas"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🖼️ Image Formats</h3>
+            <div class="format-grid">
+                <div class="format-card">
+                    <h4>PNG <span id="png-status" class="status pending">PENDING</span></h4>
+                    <p>Portable Network Graphics - Best for diagrams with transparency</p>
+                    <button onclick="testExport('png')">Test PNG</button>
+                    <button onclick="testAdvancedExport('png')">Advanced</button>
+                </div>
+                <div class="format-card">
+                    <h4>JPEG <span id="jpeg-status" class="status pending">PENDING</span></h4>
+                    <p>Joint Photographic Experts Group - Best for photos</p>
+                    <button onclick="testExport('jpeg')">Test JPEG</button>
+                    <button onclick="testAdvancedExport('jpeg')">Advanced</button>
+                </div>
+                <div class="format-card">
+                    <h4>WebP <span id="webp-status" class="status pending">PENDING</span></h4>
+                    <p>Modern web format - Smaller file sizes</p>
+                    <button onclick="testExport('webp')">Test WebP</button>
+                    <button onclick="testAdvancedExport('webp')">Advanced</button>
+                </div>
+                <div class="format-card">
+                    <h4>SVG <span id="svg-status" class="status pending">PENDING</span></h4>
+                    <p>Scalable Vector Graphics - Perfect for diagrams</p>
+                    <button onclick="testExport('svg')">Test SVG</button>
+                    <button onclick="testAdvancedExport('svg')">Advanced</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>📄 Document Formats</h3>
+            <div class="format-grid">
+                <div class="format-card">
+                    <h4>PDF <span id="pdf-status" class="status pending">PENDING</span></h4>
+                    <p>Portable Document Format - Universal document format</p>
+                    <button onclick="testExport('pdf')">Test PDF</button>
+                    <button onclick="testAdvancedExport('pdf')">Advanced</button>
+                </div>
+                <div class="format-card">
+                    <h4>DOCX <span id="docx-status" class="status pending">PENDING</span></h4>
+                    <p>Microsoft Word Document - Rich text with embedded images</p>
+                    <button onclick="testExport('docx')">Test DOCX</button>
+                    <button onclick="testAdvancedExport('docx')">Advanced</button>
+                </div>
+                <div class="format-card">
+                    <h4>PPTX <span id="pptx-status" class="status pending">PENDING</span></h4>
+                    <p>Microsoft PowerPoint Presentation - Slides with diagrams</p>
+                    <button onclick="testExport('pptx')">Test PPTX</button>
+                    <button onclick="testAdvancedExport('pptx')">Advanced</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🌐 Web Formats</h3>
+            <div class="format-grid">
+                <div class="format-card">
+                    <h4>HTML <span id="html-status" class="status pending">PENDING</span></h4>
+                    <p>Standalone HTML file with embedded diagram</p>
+                    <button onclick="testExport('html')">Test HTML</button>
+                    <button onclick="testAdvancedExport('html')">Advanced</button>
+                </div>
+                <div class="format-card">
+                    <h4>XML <span id="xml-status" class="status pending">PENDING</span></h4>
+                    <p>DrawIO-compatible XML format</p>
+                    <button onclick="testExport('xml')">Test XML</button>
+                    <button onclick="testAdvancedExport('xml')">Advanced</button>
+                </div>
+                <div class="format-card">
+                    <h4>URL <span id="url-status" class="status pending">PENDING</span></h4>
+                    <p>Shareable URL with diagram data</p>
+                    <button onclick="testExport('url')">Test URL</button>
+                    <button onclick="testAdvancedExport('url')">Advanced</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🔧 Batch Testing</h3>
+            <button onclick="testAllFormats()" class="primary">Test All Formats</button>
+            <button onclick="testImageFormats()" class="secondary">Test Image Formats</button>
+            <button onclick="testDocumentFormats()" class="secondary">Test Document Formats</button>
+            <button onclick="testWebFormats()" class="secondary">Test Web Formats</button>
+        </div>
+        
+        <div id="console"></div>
+    </div>
+
+    <!-- Load required libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/file-saver/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
+    
+    <script>
+        let consoleElement = document.getElementById('console');
+        let testResults = {};
+        
+        // Capture console logs
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        function addToConsole(type, ...args) {
+            const timestamp = new Date().toLocaleTimeString();
+            const message = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ');
+            
+            const color = {
+                'log': '#ffffff',
+                'error': '#ff6b6b',
+                'warn': '#ffa726',
+                'success': '#4caf50',
+                'info': '#42a5f5'
+            }[type] || '#ffffff';
+            
+            consoleElement.innerHTML += `<div style="color: ${color}; margin: 2px 0;">[${timestamp}] ${message}</div>`;
+            consoleElement.scrollTop = consoleElement.scrollHeight;
+        }
+        
+        console.log = (...args) => {
+            originalLog.apply(console, args);
+            addToConsole('log', ...args);
+        };
+        
+        console.error = (...args) => {
+            originalError.apply(console, args);
+            addToConsole('error', ...args);
+        };
+        
+        console.warn = (...args) => {
+            originalWarn.apply(console, args);
+            addToConsole('warn', ...args);
+        };
+        
+        function clearConsole() {
+            consoleElement.innerHTML = '';
+        }
+        
+        function updateStatus(format, status, message = '') {
+            const statusElement = document.getElementById(`${format}-status`);
+            if (statusElement) {
+                statusElement.className = `status ${status}`;
+                statusElement.textContent = status.toUpperCase();
+                if (message) {
+                    statusElement.title = message;
+                }
+            }
+        }
+        
+        function createTestData() {
+            console.log('🏗️ Creating test diagram data...');
+            
+            // Create mock ReactFlow data
+            window.__REACT_FLOW_INSTANCE__ = {
+                getNodes: () => [
+                    { 
+                        id: '1', 
+                        position: { x: 100, y: 50 }, 
+                        data: { 
+                            label: 'Start Node', 
+                            width: 120, 
+                            height: 80,
+                            fill: '#e3f2fd',
+                            stroke: '#1976d2'
+                        },
+                        type: 'rectangle'
+                    },
+                    { 
+                        id: '2', 
+                        position: { x: 300, y: 150 }, 
+                        data: { 
+                            label: 'Process Node', 
+                            width: 120, 
+                            height: 80,
+                            fill: '#fff3e0',
+                            stroke: '#f57c00'
+                        },
+                        type: 'circle'
+                    },
+                    { 
+                        id: '3', 
+                        position: { x: 500, y: 250 }, 
+                        data: { 
+                            label: 'End Node', 
+                            width: 120, 
+                            height: 80,
+                            fill: '#e8f5e8',
+                            stroke: '#4caf50'
+                        },
+                        type: 'diamond'
+                    }
+                ],
+                getEdges: () => [
+                    { id: 'e1-2', source: '1', target: '2', label: 'Flow 1' },
+                    { id: 'e2-3', source: '2', target: '3', label: 'Flow 2' }
+                ],
+                fitView: () => console.log('fitView called')
+            };
+            
+            // Create visual representation
+            const testCanvas = document.getElementById('test-canvas');
+            testCanvas.innerHTML = `
+                <div style="position: absolute; top: 30px; left: 80px; width: 120px; height: 80px; background: #e3f2fd; border: 2px solid #1976d2; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px;">
+                    Start Node
+                </div>
+                <div style="position: absolute; top: 130px; left: 280px; width: 120px; height: 80px; background: #fff3e0; border: 2px solid #f57c00; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px;">
+                    Process Node
+                </div>
+                <div style="position: absolute; top: 230px; left: 480px; width: 120px; height: 80px; background: #e8f5e8; border: 2px solid #4caf50; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px; transform: rotate(45deg);">
+                    End Node
+                </div>
+                <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;">
+                    <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+                        </marker>
+                    </defs>
+                    <line x1="200" y1="90" x2="280" y2="170" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+                    <line x1="400" y1="190" x2="480" y2="270" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+                    <text x="240" y="125" font-family="Arial" font-size="10" fill="#666">Flow 1</text>
+                    <text x="440" y="225" font-family="Arial" font-size="10" fill="#666">Flow 2</text>
+                </svg>
+            `;
+            testCanvas.className = 'test-canvas react-flow';
+            
+            console.log('✅ Test diagram created with 3 nodes and 2 edges');
+        }
+        
+        function checkLibraries() {
+            console.log('🔍 Checking export libraries...');
+            
+            const libraries = {
+                'html2canvas': typeof html2canvas !== 'undefined',
+                'jsPDF': typeof window.jspdf !== 'undefined',
+                'saveAs': typeof saveAs !== 'undefined',
+                'domtoimage': typeof domtoimage !== 'undefined',
+                'Export Functions': typeof window.exportFile !== 'undefined'
+            };
+            
+            Object.entries(libraries).forEach(([name, available]) => {
+                const status = available ? '✅' : '❌';
+                console.log(`${status} ${name}: ${available ? 'Available' : 'Missing'}`);
+            });
+        }
+        
+        async function testExport(format) {
+            console.log(`🧪 Testing ${format.toUpperCase()} export...`);
+            updateStatus(format, 'pending', 'Testing...');
+            
+            try {
+                if (typeof window.exportFile === 'function') {
+                    await window.exportFile(format, `test-export-${format}`, {
+                        quality: 90,
+                        scale: 2,
+                        backgroundColor: '#ffffff'
+                    });
+                    
+                    testResults[format] = { success: true, timestamp: new Date() };
+                    updateStatus(format, 'success', 'Export completed successfully');
+                    console.log(`✅ ${format.toUpperCase()} export completed successfully`);
+                } else {
+                    throw new Error('exportFile function not available');
+                }
+            } catch (error) {
+                testResults[format] = { success: false, error: error.message, timestamp: new Date() };
+                updateStatus(format, 'error', error.message);
+                console.error(`❌ ${format.toUpperCase()} export failed:`, error);
+            }
+        }
+        
+        async function testAdvancedExport(format) {
+            console.log(`🔧 Testing advanced ${format.toUpperCase()} export...`);
+            
+            try {
+                if (typeof window.exportFile === 'function') {
+                    await window.exportFile(format, `advanced-test-${format}`, {
+                        quality: 100,
+                        scale: 3,
+                        backgroundColor: '#f8f9fa',
+                        transparent: format === 'png',
+                        border: 20,
+                        includeGrid: true,
+                        cropToContent: true
+                    });
+                    
+                    console.log(`✅ Advanced ${format.toUpperCase()} export completed`);
+                } else {
+                    throw new Error('exportFile function not available');
+                }
+            } catch (error) {
+                console.error(`❌ Advanced ${format.toUpperCase()} export failed:`, error);
+            }
+        }
+        
+        async function testAllFormats() {
+            console.log('🚀 Testing all export formats...');
+            
+            const formats = ['png', 'jpeg', 'webp', 'svg', 'pdf', 'docx', 'pptx', 'html', 'xml', 'url'];
+            
+            for (const format of formats) {
+                await testExport(format);
+                // Add delay between tests
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            
+            console.log('✅ All format tests completed');
+            console.log('📊 Test Results:', testResults);
+        }
+        
+        async function testImageFormats() {
+            console.log('🖼️ Testing image formats...');
+            const imageFormats = ['png', 'jpeg', 'webp', 'svg'];
+            
+            for (const format of imageFormats) {
+                await testExport(format);
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+        }
+        
+        async function testDocumentFormats() {
+            console.log('📄 Testing document formats...');
+            const documentFormats = ['pdf', 'docx', 'pptx'];
+            
+            for (const format of documentFormats) {
+                await testExport(format);
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+        }
+        
+        async function testWebFormats() {
+            console.log('🌐 Testing web formats...');
+            const webFormats = ['html', 'xml', 'url'];
+            
+            for (const format of webFormats) {
+                await testExport(format);
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+        }
+        
+        // Auto-initialize
+        setTimeout(() => {
+            console.log('🚀 FlowDigm Export Test Page Loaded');
+            console.log('📋 Click "Create Test Diagram" to start testing');
+            checkLibraries();
+        }, 1000);
+    </script>
+</body>
+</html>

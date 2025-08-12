@@ -2,7 +2,7 @@
 // contexts/CanvasContext.js - Fixed for Stable Positioning
 import React, { createContext, useReducer, useCallback, useEffect } from 'react';
 import type { CanvasData } from '../types/importExport';
-import { exportAsJSON, importFromJSON, exportAsFlowdigm, exportFile } from '../utils/importExportUtils';
+import { exportAsJSON, importFromJSON, exportAsPNG, exportAsJPEG, exportAsSVG, exportAsPNGSimple, exportAsPNGCanvas } from '../utils/importExportUtils';
 import { saveFileToDevice, loadFileFromDevice, setupAutoSave, loadAutoSave, clearAutoSave, hasUnsavedWork } from '../utils/fileSystemUtils';
 import { processImageFileForShapes, createImageFileInput } from '../utils/imageProcessingUtils';
 
@@ -366,7 +366,7 @@ const CanvasProvider = ({ children }: { children: React.ReactNode }) => {
     dispatch({ type: 'CLEAR_CANVAS' });
   }, []);
 
-  const exportCanvas = useCallback(async (format: string, canvasElement?: HTMLElement, options: any = {}) => {
+  const exportCanvas = useCallback(async (format: string, canvasElement?: HTMLElement) => {
     try {
       const fileName = state.filename || 'Untitled Diagram';
       
@@ -396,7 +396,6 @@ const CanvasProvider = ({ children }: { children: React.ReactNode }) => {
         targetCanvasElement = document.querySelector('.react-flow__renderer') as HTMLElement;
       }
       if (!targetCanvasElement) {
-        // Use the main canvas container as fallback
         targetCanvasElement = document.querySelector('#canvas-container') as HTMLElement;
       }
       
@@ -417,6 +416,8 @@ const CanvasProvider = ({ children }: { children: React.ReactNode }) => {
         }
       }));
 
+      const edges: any[] = []; // Empty edges array for context shapes
+
       const canvasData: CanvasData = {
         nodes: reactFlowNodes.length > 0 ? reactFlowNodes : nodes,
         edges: reactFlowEdges,
@@ -432,29 +433,15 @@ const CanvasProvider = ({ children }: { children: React.ReactNode }) => {
 
       switch (format.toLowerCase()) {
         case 'png':
-          // Try enhanced export method first
           try {
             await exportAsPNGSimple(fileName);
           } catch (error) {
             console.error('Enhanced export failed, trying canvas-based fallback:', error);
             try {
-              const reactFlowInstance = (window as any).__REACT_FLOW_INSTANCE__;
-              if (reactFlowInstance) {
-                const nodes = reactFlowInstance.getNodes();
-                const edges = reactFlowInstance.getEdges();
-                if (nodes.length > 0) {
-                  await exportAsPNGCanvas(nodes, edges, fileName);
-                } else {
-                  // If no nodes, try basic html2canvas
-                  if (canvasElement) {
-                    await exportAsPNG(canvasElement, fileName);
-                  }
-                }
-              } else {
-                // Fallback to basic html2canvas
-                if (canvasElement) {
-                  await exportAsPNG(canvasElement, fileName);
-                }
+              if (reactFlowNodes.length > 0) {
+                await exportAsPNGCanvas(reactFlowNodes, reactFlowEdges, fileName);
+              } else if (targetCanvasElement) {
+                await exportAsPNG(targetCanvasElement, fileName);
               }
             } catch (fallbackError) {
               console.error('All export methods failed:', fallbackError);
@@ -464,26 +451,19 @@ const CanvasProvider = ({ children }: { children: React.ReactNode }) => {
           break;
         case 'jpeg':
         case 'jpg':
-          if (canvasElement) {
-            await exportAsJPEG(canvasElement, fileName);
+          if (targetCanvasElement) {
+            await exportAsJPEG(targetCanvasElement, fileName);
           }
           break;
         case 'svg':
-          // Get actual ReactFlow data for SVG export
           try {
-            const reactFlowInstance = (window as any).__REACT_FLOW_INSTANCE__;
-            if (reactFlowInstance) {
-              const reactFlowNodes = reactFlowInstance.getNodes();
-              const reactFlowEdges = reactFlowInstance.getEdges();
-              console.log('SVG Export - ReactFlow nodes:', reactFlowNodes.length, 'edges:', reactFlowEdges.length);
+            if (reactFlowNodes.length > 0) {
               exportAsSVG(reactFlowNodes, reactFlowEdges, fileName);
             } else {
-              // Fallback to context data
               exportAsSVG(nodes, edges, fileName);
             }
           } catch (error) {
             console.error('SVG export failed:', error);
-            // Fallback to context data
             exportAsSVG(nodes, edges, fileName);
           }
           break;

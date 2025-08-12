@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Export Debug Test - FlowDigm</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+        .debug-section {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .debug-section h3 {
+            color: #2d3748;
+            margin-top: 0;
+        }
+        .test-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 5px;
+            transition: transform 0.2s;
+        }
+        .test-button:hover {
+            transform: translateY(-2px);
+        }
+        .test-button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .log-area {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-top: 10px;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-weight: 600;
+        }
+        .status.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        .status.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        .status.info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #3b82f6;
+        }
+        .iframe-container {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            height: 600px;
+            margin: 20px 0;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🐛 Export Debug Test</h1>
+            <p>Test and debug the export functionality</p>
+        </div>
+
+        <div class="debug-section">
+            <h3>🔍 System Status Check</h3>
+            <button class="test-button" onclick="checkSystemStatus()">Check System Status</button>
+            <div id="systemStatus"></div>
+        </div>
+
+        <div class="debug-section">
+            <h3>🎯 Direct Export Tests</h3>
+            <p>Test export functions directly in this window:</p>
+            <button class="test-button" onclick="testPNGExport()">Test PNG Export</button>
+            <button class="test-button" onclick="testJPEGExport()">Test JPEG Export</button>
+            <button class="test-button" onclick="testSVGExport()">Test SVG Export</button>
+            <button class="test-button" onclick="testPDFExport()">Test PDF Export</button>
+            <button class="test-button" onclick="testDOCXExport()">Test DOCX Export</button>
+            <button class="test-button" onclick="testPPTXExport()">Test PPTX Export</button>
+            <div id="exportResults"></div>
+        </div>
+
+        <div class="debug-section">
+            <h3>🖥️ FlowDigm Application (Live Test)</h3>
+            <p>Test exports in the actual application:</p>
+            <div class="iframe-container">
+                <iframe src="http://localhost:5173" title="FlowDigm Application"></iframe>
+            </div>
+        </div>
+
+        <div class="debug-section">
+            <h3>📝 Console Output</h3>
+            <div id="console" class="log-area">Console output will appear here...</div>
+        </div>
+    </div>
+
+    <script>
+        // Capture console output
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        const consoleDiv = document.getElementById('console');
+
+        function appendToConsole(type, ...args) {
+            const timestamp = new Date().toLocaleTimeString();
+            const message = `[${timestamp}] ${type.toUpperCase()}: ${args.join(' ')}\n`;
+            consoleDiv.textContent += message;
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+
+        console.log = function(...args) {
+            appendToConsole('log', ...args);
+            originalLog.apply(console, args);
+        };
+
+        console.error = function(...args) {
+            appendToConsole('error', ...args);
+            originalError.apply(console, args);
+        };
+
+        console.warn = function(...args) {
+            appendToConsole('warn', ...args);
+            originalWarn.apply(console, args);
+        };
+
+        function setStatus(elementId, type, message) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function checkSystemStatus() {
+            console.log('🔍 Starting system status check...');
+            let status = '<div class="status info">System Status Check:</div>';
+            
+            // Check if libraries are available
+            const libraries = [
+                { name: 'html2canvas', check: () => typeof html2canvas !== 'undefined' },
+                { name: 'jsPDF', check: () => typeof jsPDF !== 'undefined' },
+                { name: 'docx', check: () => typeof docx !== 'undefined' },
+                { name: 'PptxGenJS', check: () => typeof PptxGenJS !== 'undefined' },
+                { name: 'pdf-lib', check: () => typeof PDFLib !== 'undefined' },
+                { name: 'mammoth', check: () => typeof mammoth !== 'undefined' },
+                { name: 'file-saver', check: () => typeof saveAs !== 'undefined' }
+            ];
+
+            libraries.forEach(lib => {
+                try {
+                    const available = lib.check();
+                    status += `<div class="status ${available ? 'success' : 'error'}">
+                        ${lib.name}: ${available ? '✅ Available' : '❌ Not Available'}
+                    </div>`;
+                    console.log(`Library ${lib.name}: ${available ? 'Available' : 'Not Available'}`);
+                } catch (error) {
+                    status += `<div class="status error">${lib.name}: ❌ Error checking - ${error.message}</div>`;
+                    console.error(`Error checking ${lib.name}:`, error);
+                }
+            });
+
+            // Check iframe communication
+            try {
+                const iframe = document.querySelector('iframe');
+                if (iframe && iframe.contentWindow) {
+                    status += '<div class="status success">✅ Iframe communication available</div>';
+                    console.log('Iframe communication: Available');
+                } else {
+                    status += '<div class="status error">❌ Iframe not ready</div>';
+                    console.log('Iframe communication: Not ready');
+                }
+            } catch (error) {
+                status += `<div class="status error">❌ Iframe error - ${error.message}</div>`;
+                console.error('Iframe error:', error);
+            }
+
+            setStatus('systemStatus', 'info', status);
+        }
+
+        function createTestCanvas() {
+            console.log('🎨 Creating test canvas...');
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 600;
+            const ctx = canvas.getContext('2d');
+            
+            if (!ctx) {
+                throw new Error('Could not get canvas context');
+            }
+            
+            // Fill background
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, 800, 600);
+            
+            // Draw grid
+            ctx.strokeStyle = '#f0f0f0';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < 800; x += 20) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, 600);
+                ctx.stroke();
+            }
+            for (let y = 0; y < 600; y += 20) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(800, y);
+                ctx.stroke();
+            }
+            
+            // Draw test shapes
+            ctx.fillStyle = '#3b82f6';
+            ctx.strokeStyle = '#1e40af';
+            ctx.lineWidth = 2;
+            
+            // Rectangle
+            ctx.fillRect(100, 100, 150, 100);
+            ctx.strokeRect(100, 100, 150, 100);
+            
+            // Circle
+            ctx.beginPath();
+            ctx.arc(400, 150, 50, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.stroke();
+            
+            // Triangle
+            ctx.beginPath();
+            ctx.moveTo(600, 100);
+            ctx.lineTo(550, 200);
+            ctx.lineTo(650, 200);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            
+            // Text
+            ctx.fillStyle = '#1f2937';
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Test Export Canvas', 400, 300);
+            ctx.fillText('Rectangle', 175, 150);
+            ctx.fillText('Circle', 400, 150);
+            ctx.fillText('Triangle', 600, 150);
+            
+            console.log('✅ Test canvas created successfully');
+            return canvas;
+        }
+
+        function downloadCanvas(canvas, filename) {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            console.log(`📥 Downloaded: ${filename}`);
+        }
+
+        async function testPNGExport() {
+            try {
+                console.log('🖼️ Testing PNG export...');
+                const canvas = createTestCanvas();
+                downloadCanvas(canvas, 'test-export.png');
+                setStatus('exportResults', 'success', '✅ PNG export test completed! Check your downloads.');
+            } catch (error) {
+                console.error('❌ PNG export test failed:', error);
+                setStatus('exportResults', 'error', `❌ PNG export test failed: ${error.message}`);
+            }
+        }
+
+        async function testJPEGExport() {
+            try {
+                console.log('🖼️ Testing JPEG export...');
+                const canvas = createTestCanvas();
+                const link = document.createElement('a');
+                link.download = 'test-export.jpg';
+                link.href = canvas.toDataURL('image/jpeg', 0.9);
+                link.click();
+                setStatus('exportResults', 'success', '✅ JPEG export test completed! Check your downloads.');
+            } catch (error) {
+                console.error('❌ JPEG export test failed:', error);
+                setStatus('exportResults', 'error', `❌ JPEG export test failed: ${error.message}`);
+            }
+        }
+
+        async function testSVGExport() {
+            try {
+                console.log('🎨 Testing SVG export...');
+                const svgContent = `
+                <svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="100%" height="100%" fill="white"/>
+                    <rect x="100" y="100" width="150" height="100" fill="#3b82f6" stroke="#1e40af" stroke-width="2"/>
+                    <circle cx="400" cy="150" r="50" fill="#3b82f6" stroke="#1e40af" stroke-width="2"/>
+                    <polygon points="600,100 550,200 650,200" fill="#3b82f6" stroke="#1e40af" stroke-width="2"/>
+                    <text x="400" y="300" text-anchor="middle" font-family="Arial" font-size="16" fill="#1f2937">Test Export SVG</text>
+                </svg>`;
+                
+                const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.download = 'test-export.svg';
+                link.href = url;
+                link.click();
+                URL.revokeObjectURL(url);
+                
+                setStatus('exportResults', 'success', '✅ SVG export test completed! Check your downloads.');
+            } catch (error) {
+                console.error('❌ SVG export test failed:', error);
+                setStatus('exportResults', 'error', `❌ SVG export test failed: ${error.message}`);
+            }
+        }
+
+        async function testPDFExport() {
+            try {
+                console.log('📄 Testing PDF export...');
+                
+                // Simple PDF creation test (if jsPDF is available)
+                if (typeof jsPDF !== 'undefined') {
+                    const pdf = new jsPDF();
+                    pdf.text('Test PDF Export', 20, 20);
+                    pdf.text('This is a test PDF generated from the debug page.', 20, 40);
+                    pdf.save('test-export.pdf');
+                    setStatus('exportResults', 'success', '✅ PDF export test completed! Check your downloads.');
+                } else {
+                    throw new Error('jsPDF library not available');
+                }
+            } catch (error) {
+                console.error('❌ PDF export test failed:', error);
+                setStatus('exportResults', 'error', `❌ PDF export test failed: ${error.message}`);
+            }
+        }
+
+        async function testDOCXExport() {
+            try {
+                console.log('📄 Testing DOCX export...');
+                setStatus('exportResults', 'info', '⚠️ DOCX export requires complex library setup. Check console for details.');
+                console.log('DOCX export test would require docx library to be loaded');
+            } catch (error) {
+                console.error('❌ DOCX export test failed:', error);
+                setStatus('exportResults', 'error', `❌ DOCX export test failed: ${error.message}`);
+            }
+        }
+
+        async function testPPTXExport() {
+            try {
+                console.log('📄 Testing PPTX export...');
+                setStatus('exportResults', 'info', '⚠️ PPTX export requires complex library setup. Check console for details.');
+                console.log('PPTX export test would require PptxGenJS library to be loaded');
+            } catch (error) {
+                console.error('❌ PPTX export test failed:', error);
+                setStatus('exportResults', 'error', `❌ PPTX export test failed: ${error.message}`);
+            }
+        }
+
+        // Initialize
+        console.log('🚀 Export Debug Test page loaded');
+        console.log('📋 Available tests: PNG, JPEG, SVG, PDF, DOCX, PPTX');
+        console.log('💡 Tip: Open browser developer tools to see detailed logs');
+    </script>
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Export Functions Test - FlowDigm</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2563eb;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background-color: #f9fafb;
+        }
+        .test-section h2 {
+            color: #374151;
+            margin-bottom: 15px;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status.fixed {
+            background-color: #d1fae5;
+            color: #047857;
+        }
+        .status.enhanced {
+            background-color: #dbeafe;
+            color: #1d4ed8;
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        .feature-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        .checkmark {
+            color: #10b981;
+            font-weight: bold;
+        }
+        .improvement {
+            background-color: #fef3c7;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            border-left: 4px solid #f59e0b;
+        }
+        .improvement h3 {
+            color: #92400e;
+            margin: 0 0 10px 0;
+        }
+        .note {
+            background-color: #eff6ff;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            border-left: 4px solid #3b82f6;
+        }
+        .test-instructions {
+            background-color: #f0fdf4;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid #bbf7d0;
+        }
+        .test-instructions h3 {
+            color: #166534;
+            margin-top: 0;
+        }
+        .test-instructions ol {
+            color: #374151;
+            line-height: 1.6;
+        }
+        .test-instructions li {
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Export Functions Fixed & Enhanced</h1>
+        
+        <div class="test-section">
+            <h2>📸 Image Export Improvements <span class="status fixed">FIXED</span></h2>
+            <ul class="feature-list">
+                <li>
+                    <span>Enhanced PNG export with multiple canvas detection methods</span>
+                    <span class="checkmark">✅</span>
+                </li>
+                <li>
+                    <span>Fixed JPEG export with improved html2canvas configuration</span>
+                    <span class="checkmark">✅</span>
+                </li>
+                <li>
+                    <span>Added ReactFlow element visibility controls</span>
+                    <span class="checkmark">✅</span>
+                </li>
+                <li>
+                    <span>Improved canvas dimension validation</span>
+                    <span class="checkmark">✅</span>
+                </li>
+                <li>
+                    <span>Enhanced error handling and logging</span>
+                    <span class="checkmark">✅</span>
+                </li>
+            </ul>
+            
+            <div class="improvement">
+                <h3>🔧 Key Improvements:</h3>
+                <ul>
+                    <li><strong>Multiple Canvas Detection:</strong> Uses .react-flow, .react-flow__viewport, and fallback methods</li>
+                    <li><strong>Better Rendering Wait:</strong> Adds proper delays for ReactFlow rendering completion</li>
+                    <li><strong>Enhanced onclone Handler:</strong> Ensures node and edge visibility in exported images</li>
+                    <li><strong>Comprehensive Error Validation:</strong> Checks canvas dimensions and content before download</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📄 PDF Export Enhancement <span class="status enhanced">ENHANCED</span></h2>
+            <ul class="feature-list">
+                <li>
+                    <span>Comprehensive PDF generation with proper scaling</span>
+                    <span class="checkmark">✅</span>
+                </li>
+                <li>
+                    <span>Fallback method for node-based PDF export</span>
+                    <span class="checkmark">✅</span>
+                </li>
+                <li>
+                    <span>PDF metadata and proper page layout</span>
+                    <span class="checkmark">✅</span>
+                </li>
+                <li>
+                    <span>Image centering and aspect ratio maintenance</span>
+                    <span class="checkmark">✅</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2>📋 DOCX Export Enhancement <span class="status enhanced">ENHANCED</span></h2>
+            <ul class="feature-list">
+                <li>
+                    <span>Rich document generation with diagram preview</span>
+                    <span class="checkmark">✅</span>
+                </li>
+                <li>
+                    <span>Node and connection detailed listing</span>
+                    <span class="checkmark">✅</span>
+                </li>
+                <li>
+                    <span>Professional formatting with colors and styles</span>
+                    <span class="checkmark">✅</span>
+                </li>
+                <li>
+                    <span>Embedded diagram image in document</span>
+                    <span class="checkmark">✅</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2>🎯 PPTX Export Enhancement <span class="status enhanced">ENHANCED</span></h2>
+            <ul class="feature-list">
+                <li>
+                    <span>Multi-slide presentation with diagram and details</span>
+                    <span class="checkmark">✅</span>
+                </li>
+                <li>
+                    <span>Professional slide layout and formatting</span>
+                    <span class="checkmark">✅</span>
+                </li>
+                <li>
+                    <span>Summary information and metadata</span>
+                    <span class="checkmark">✅</span>
+                </li>
+                <li>
+                    <span>High-quality image embedding</span>
+                    <span class="checkmark">✅</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 JSON Export Enhancement <span class="status enhanced">ENHANCED</span></h2>
+            <ul class="feature-list">
+                <li>
+                    <span>Enhanced JSON with metadata and export information</span>
+                    <span class="checkmark">✅</span>
+                </li>
+                <li>
+                    <span>Data validation and error checking</span>
+                    <span class="checkmark">✅</span>
+                </li>
+                <li>
+                    <span>Comprehensive logging and status reporting</span>
+                    <span class="checkmark">✅</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="test-instructions">
+            <h3>🧪 How to Test the Fixed Export Functions:</h3>
+            <ol>
+                <li><strong>Open FlowDigm Application:</strong> Navigate to <code>http://localhost:5173</code> in your browser</li>
+                <li><strong>Create a Sample Diagram:</strong> Add a few nodes and connections to test with</li>
+                <li><strong>Test PNG Export:</strong> Click Export → PNG - images should now be visible and properly rendered</li>
+                <li><strong>Test JPEG Export:</strong> Click Export → JPEG - images should now be visible with proper quality</li>
+                <li><strong>Test PDF Export:</strong> Click Export → PDF - should generate a properly formatted PDF with the diagram</li>
+                <li><strong>Test DOCX Export:</strong> Click Export → DOCX - should download a Word document with diagram and details</li>
+                <li><strong>Test PPTX Export:</strong> Click Export → PPTX - should download a PowerPoint presentation</li>
+                <li><strong>Test JSON Export:</strong> Click Export → JSON - should download a JSON file with enhanced metadata</li>
+            </ol>
+        </div>
+
+        <div class="note">
+            <h3>🔍 Key Problem Solutions:</h3>
+            <p><strong>Original Issues:</strong></p>
+            <ul>
+                <li>"Images after download in JPEG/PDF formats are not visible" → <strong>Fixed with enhanced canvas detection and html2canvas configuration</strong></li>
+                <li>"Couldn't download PPT, JSON, DOCX formats" → <strong>Fixed with comprehensive error handling and proper library usage</strong></li>
+            </ul>
+            
+            <p><strong>Technical Improvements:</strong></p>
+            <ul>
+                <li><strong>Canvas Detection:</strong> Multiple fallback methods to find ReactFlow elements</li>
+                <li><strong>Rendering Timing:</strong> Proper delays and ReactFlow fitView() calls</li>
+                <li><strong>Error Handling:</strong> Comprehensive validation and user-friendly error messages</li>
+                <li><strong>Library Integration:</strong> Correct usage of jsPDF, docx, pptxgenjs, and file-saver libraries</li>
+            </ul>
+        </div>
+
+        <div class="improvement">
+            <h3>🎉 Expected Results After Fix:</h3>
+            <ul>
+                <li><strong>PNG/JPEG:</strong> Downloaded images will now be visible and contain the actual diagram content</li>
+                <li><strong>PDF:</strong> Generated PDFs will have properly scaled and centered diagram images</li>
+                <li><strong>DOCX:</strong> Word documents will include both the diagram image and detailed node/connection information</li>
+                <li><strong>PPTX:</strong> PowerPoint presentations will have professional slides with the diagram and summary information</li>
+                <li><strong>JSON:</strong> JSON exports will include enhanced metadata and proper error handling</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Auto-refresh to show latest updates
+        console.log('✅ Export functions have been fixed and enhanced!');
+        console.log('🔧 Key improvements:');
+        console.log('   - Enhanced canvas detection for PNG/JPEG exports');
+        console.log('   - Fixed PDF generation with proper scaling');
+        console.log('   - Enhanced DOCX with rich content and embedded images');
+        console.log('   - Multi-slide PPTX with professional formatting');
+        console.log('   - Enhanced JSON with metadata and validation');
+        console.log('');
+        console.log('🧪 Test the export functions in the main application now!');
+    </script>
+</body>
+</html>

@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowDigm - Comprehensive File Type Support Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            margin-bottom: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+        .header h1 {
+            color: #2d3748;
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        .header p {
+            color: #4a5568;
+            margin: 10px 0 0 0;
+            font-size: 1.1rem;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        .feature-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .feature-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .feature-content {
+            padding: 25px;
+        }
+        .file-type {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            margin: 10px 0;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            transition: background-color 0.2s;
+        }
+        .file-type:hover {
+            background: #e2e8f0;
+        }
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .file-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .status-indicator {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .status-supported {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .status-partial {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .status-not-supported {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .status-testing {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .test-section {
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+        }
+        .test-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        .test-button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .results-panel {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 2px solid #374151;
+        }
+        .instructions {
+            background: #eff6ff;
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .instructions h3 {
+            color: #1e40af;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-top: 4px solid #667eea;
+        }
+        .summary-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        .summary-label {
+            color: #4a5568;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="header">
+            <h1>📁 File Type Support Analysis</h1>
+            <p>Comprehensive testing for PNG, DOCX, PDF, JPEG, SVG, and PPT import/export functionality</p>
+        </div>
+
+        <div class="summary-grid">
+            <div class="summary-card">
+                <div class="summary-number" id="supportedCount">0</div>
+                <div class="summary-label">Fully Supported</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-number" id="partialCount">0</div>
+                <div class="summary-label">Partially Supported</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-number" id="notSupportedCount">0</div>
+                <div class="summary-label">Not Supported</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-number" id="totalCount">6</div>
+                <div class="summary-label">Total File Types</div>
+            </div>
+        </div>
+
+        <div class="feature-grid">
+            <!-- Export Functionality -->
+            <div class="feature-card">
+                <div class="feature-header">
+                    📤 Export Functionality
+                </div>
+                <div class="feature-content">
+                    <div class="file-type">
+                        <div class="file-info">
+                            <div class="file-icon" style="background: #059669;">PNG</div>
+                            <div>
+                                <strong>PNG Images</strong>
+                                <div style="font-size: 0.9rem; color: #6b7280;">High-quality raster graphics</div>
+                            </div>
+                        </div>
+                        <span class="status-indicator status-supported" id="png-export-status">✅ Supported</span>
+                    </div>
+
+                    <div class="file-type">
+                        <div class="file-info">
+                            <div class="file-icon" style="background: #dc2626;">JPEG</div>
+                            <div>
+                                <strong>JPEG Images</strong>
+                                <div style="font-size: 0.9rem; color: #6b7280;">Compressed raster graphics</div>
+                            </div>
+                        </div>
+                        <span class="status-indicator status-supported" id="jpeg-export-status">✅ Supported</span>
+                    </div>
+
+                    <div class="file-type">
+                        <div class="file-info">
+                            <div class="file-icon" style="background: #7c3aed;">SVG</div>
+                            <div>
+                                <strong>SVG Vector</strong>
+                                <div style="font-size: 0.9rem; color: #6b7280;">Scalable vector graphics</div>
+                            </div>
+                        </div>
+                        <span class="status-indicator status-supported" id="svg-export-status">✅ Supported</span>
+                    </div>
+
+                    <div class="file-type">
+                        <div class="file-info">
+                            <div class="file-icon" style="background: #1f2937;">PDF</div>
+                            <div>
+                                <strong>PDF Documents</strong>
+                                <div style="font-size: 0.9rem; color: #6b7280;">Portable document format</div>
+                            </div>
+                        </div>
+                        <span class="status-indicator status-not-supported" id="pdf-export-status">❌ Not Supported</span>
+                    </div>
+
+                    <div class="file-type">
+                        <div class="file-info">
+                            <div class="file-icon" style="background: #2563eb;">DOCX</div>
+                            <div>
+                                <strong>Word Documents</strong>
+                                <div style="font-size: 0.9rem; color: #6b7280;">Microsoft Word format</div>
+                            </div>
+                        </div>
+                        <span class="status-indicator status-not-supported" id="docx-export-status">❌ Not Supported</span>
+                    </div>
+
+                    <div class="file-type">
+                        <div class="file-info">
+                            <div class="file-icon" style="background: #ea580c;">PPT</div>
+                            <div>
+                                <strong>PowerPoint</strong>
+                                <div style="font-size: 0.9rem; color: #6b7280;">Presentation format</div>
+                            </div>
+                        </div>
+                        <span class="status-indicator status-not-supported" id="ppt-export-status">❌ Not Supported</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Import Functionality -->
+            <div class="feature-card">
+                <div class="feature-header">
+                    📥 Import Functionality
+                </div>
+                <div class="feature-content">
+                    <div class="file-type">
+                        <div class="file-info">
+                            <div class="file-icon" style="background: #059669;">PNG</div>
+                            <div>
+                                <strong>PNG Images</strong>
+                                <div style="font-size: 0.9rem; color: #6b7280;">Import as image nodes</div>
+                            </div>
+                        </div>
+                        <span class="status-indicator status-supported" id="png-import-status">✅ Supported</span>
+                    </div>
+
+                    <div class="file-type">
+                        <div class="file-info">
+                            <div class="file-icon" style="background: #dc2626;">JPEG</div>
+                            <div>
+                                <strong>JPEG Images</strong>
+                                <div style="font-size: 0.9rem; color: #6b7280;">Import as image nodes</div>
+                            </div>
+                        </div>
+                        <span class="status-indicator status-supported" id="jpeg-import-status">✅ Supported</span>
+                    </div>
+
+                    <div class="file-type">
+                        <div class="file-info">
+                            <div class="file-icon" style="background: #7c3aed;">SVG</div>
+                            <div>
+                                <strong>SVG Vector</strong>
+                                <div style="font-size: 0.9rem; color: #6b7280;">Import as image nodes</div>
+                            </div>
+                        </div>
+                        <span class="status-indicator status-supported" id="svg-import-status">✅ Supported</span>
+                    </div>
+
+                    <div class="file-type">
+                        <div class="file-info">
+                            <div class="file-icon" style="background: #1f2937;">PDF</div>
+                            <div>
+                                <strong>PDF Documents</strong>
+                                <div style="font-size: 0.9rem; color: #6b7280;">Extract shapes/content</div>
+                            </div>
+                        </div>
+                        <span class="status-indicator status-not-supported" id="pdf-import-status">❌ Not Supported</span>
+                    </div>
+
+                    <div class="file-type">
+                        <div class="file-info">
+                            <div class="file-icon" style="background: #2563eb;">DOCX</div>
+                            <div>
+                                <strong>Word Documents</strong>
+                                <div style="font-size: 0.9rem; color: #6b7280;">Extract embedded content</div>
+                            </div>
+                        </div>
+                        <span class="status-indicator status-not-supported" id="docx-import-status">❌ Not Supported</span>
+                    </div>
+
+                    <div class="file-type">
+                        <div class="file-info">
+                            <div class="file-icon" style="background: #ea580c;">PPT</div>
+                            <div>
+                                <strong>PowerPoint</strong>
+                                <div style="font-size: 0.9rem; color: #6b7280;">Extract slide content</div>
+                            </div>
+                        </div>
+                        <span class="status-indicator status-not-supported" id="ppt-import-status">❌ Not Supported</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>🧪 Test Instructions</h3>
+            <p><strong>Current Status:</strong> FlowDigm currently supports basic image import/export functionality.</p>
+            <ul>
+                <li><strong>✅ Working:</strong> PNG, JPEG, SVG export; PNG, JPEG, SVG import as image nodes</li>
+                <li><strong>❌ Missing:</strong> PDF, DOCX, PPT import/export functionality</li>
+                <li><strong>🔄 JSON:</strong> Full diagram data import/export (for backup/sharing)</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h3>🚀 Live Testing</h3>
+            <p>Click the buttons below to test the available functionality:</p>
+            
+            <div style="margin: 20px 0;">
+                <h4>Export Tests (requires shapes on canvas):</h4>
+                <button class="test-button" onclick="testExport('png')">Test PNG Export</button>
+                <button class="test-button" onclick="testExport('jpeg')">Test JPEG Export</button>
+                <button class="test-button" onclick="testExport('svg')">Test SVG Export</button>
+                <button class="test-button" onclick="testExport('json')">Test JSON Export</button>
+            </div>
+
+            <div style="margin: 20px 0;">
+                <h4>Import Tests:</h4>
+                <button class="test-button" onclick="testImport('image')">Test Image Import</button>
+                <button class="test-button" onclick="testImport('json')">Test JSON Import</button>
+            </div>
+
+            <div class="results-panel" id="testResults">
+                🔍 Test results will appear here...\n
+                💡 Tip: Open FlowDigm in another tab to perform actual tests\n
+                📝 This page analyzes the current codebase capabilities\n
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>📋 Implementation Recommendations</h3>
+            
+            <h4>🚀 Priority 1: PDF Support</h4>
+            <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <p><strong>Export PDF:</strong> Use libraries like jsPDF with html2canvas or react-pdf</p>
+                <p><strong>Import PDF:</strong> PDF.js for text/shape extraction (complex)</p>
+            </div>
+
+            <h4>🚀 Priority 2: Office Formats (DOCX/PPT)</h4>
+            <div style="background: #dbeafe; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                <p><strong>Export DOCX:</strong> Use libraries like docx.js or mammoth.js</p>
+                <p><strong>Export PPT:</strong> Use PptxGenJS for PowerPoint generation</p>
+                <p><strong>Import DOCX/PPT:</strong> Complex parsing with mammoth.js/pptx2json</p>
+            </div>
+
+            <h4>📊 Current Implementation Status:</h4>
+            <pre style="background: #f3f4f6; padding: 15px; border-radius: 8px; overflow-x: auto;">
+✅ PNG Export    - ✅ Implemented (html2canvas)
+✅ JPEG Export   - ✅ Implemented (html2canvas) 
+✅ SVG Export    - ✅ Implemented (manual SVG generation)
+✅ JSON Export   - ✅ Implemented (diagram data)
+✅ Image Import  - ✅ Implemented (PNG, JPEG, SVG, GIF, BMP, WebP)
+❌ PDF Export    - ❌ Not implemented
+❌ PDF Import    - ❌ Not implemented  
+❌ DOCX Export   - ❌ Not implemented
+❌ DOCX Import   - ❌ Not implemented
+❌ PPT Export    - ❌ Not implemented
+❌ PPT Import    - ❌ Not implemented
+            </pre>
+        </div>
+    </div>
+
+    <script>
+        // Update counters
+        function updateCounters() {
+            const supportedFormats = ['png', 'jpeg', 'svg'];
+            const partialFormats = [];
+            const notSupportedFormats = ['pdf', 'docx', 'ppt'];
+            
+            document.getElementById('supportedCount').textContent = supportedFormats.length;
+            document.getElementById('partialCount').textContent = partialFormats.length;
+            document.getElementById('notSupportedCount').textContent = notSupportedFormats.length;
+        }
+
+        function testExport(format) {
+            const results = document.getElementById('testResults');
+            results.innerHTML += `🧪 Testing ${format.toUpperCase()} export...\n`;
+            
+            // Check if we're in the FlowDigm app context
+            if (typeof window.exportCanvas === 'function') {
+                try {
+                    window.exportCanvas(format);
+                    results.innerHTML += `✅ ${format.toUpperCase()} export function called successfully\n`;
+                } catch (error) {
+                    results.innerHTML += `❌ ${format.toUpperCase()} export failed: ${error.message}\n`;
+                }
+            } else {
+                results.innerHTML += `ℹ️ ${format.toUpperCase()} export function not available in this context\n`;
+                results.innerHTML += `💡 Open FlowDigm app and try File > Export > ${format.toUpperCase()}\n`;
+            }
+            results.scrollTop = results.scrollHeight;
+        }
+
+        function testImport(type) {
+            const results = document.getElementById('testResults');
+            results.innerHTML += `🧪 Testing ${type} import...\n`;
+            
+            if (type === 'image') {
+                results.innerHTML += `💡 To test image import: File > Import > Select PNG/JPEG/SVG file\n`;
+                results.innerHTML += `✅ Supported formats: .png, .jpg, .jpeg, .svg, .gif, .bmp, .webp\n`;
+            } else if (type === 'json') {
+                results.innerHTML += `💡 To test JSON import: File > Import > Select .json file\n`;
+                results.innerHTML += `✅ Import FlowDigm diagram files (.json format)\n`;
+            }
+            results.scrollTop = results.scrollHeight;
+        }
+
+        // Initialize counters
+        updateCounters();
+
+        // Show current implementation details
+        document.getElementById('testResults').innerHTML = `🔍 FlowDigm File Type Analysis Complete
+
+📊 EXPORT CAPABILITIES:
+✅ PNG - Fully implemented with html2canvas
+✅ JPEG - Fully implemented with html2canvas  
+✅ SVG - Fully implemented with manual SVG generation
+✅ JSON - Fully implemented for diagram data
+❌ PDF - Not implemented (requires jsPDF integration)
+❌ DOCX - Not implemented (requires docx library)
+❌ PPT - Not implemented (requires PptxGenJS)
+
+📥 IMPORT CAPABILITIES:
+✅ Images - PNG, JPEG, SVG, GIF, BMP, WebP supported
+✅ JSON - Full diagram restoration supported
+❌ PDF - Not implemented (requires PDF.js parsing)
+❌ DOCX - Not implemented (requires mammoth.js)
+❌ PPT - Not implemented (requires pptx parsing)
+
+🎯 PRIORITY RECOMMENDATIONS:
+1. Add PDF export using jsPDF + html2canvas
+2. Add DOCX export using docx.js library
+3. Add PPT export using PptxGenJS
+4. Consider PDF import with PDF.js for shape extraction
+
+💻 TECHNICAL NOTES:
+- Current codebase in: src/utils/importExportUtils.ts
+- Header integration in: src/components/Layout/Header.tsx
+- Canvas context in: src/context/CanvasEditorProvider.tsx
+`;
+    </script>
+</body>
+</html>
