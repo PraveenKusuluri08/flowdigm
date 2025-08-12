@@ -2,7 +2,7 @@
 // contexts/CanvasContext.js - Fixed for Stable Positioning
 import React, { createContext, useReducer, useCallback, useEffect } from 'react';
 import type { CanvasData } from '../types/importExport';
-import { exportAsPNG, exportAsJPEG, exportAsSVG, exportAsJSON, importFromJSON, exportAsPNGSimple, exportAsPNGCanvas, exportAsFlowdigm } from '../utils/importExportUtils';
+import { exportAsJSON, importFromJSON, exportAsFlowdigm, exportFile } from '../utils/importExportUtils';
 import { saveFileToDevice, loadFileFromDevice, setupAutoSave, loadAutoSave, clearAutoSave, hasUnsavedWork } from '../utils/fileSystemUtils';
 import { processImageFileForShapes, createImageFileInput } from '../utils/imageProcessingUtils';
 
@@ -272,7 +272,7 @@ interface CanvasContextType {
   // Import/Export functions
   importCanvas: (canvasData: any) => void;
   clearCanvas: () => void;
-  exportCanvas: (format: string, canvasElement?: HTMLElement) => Promise<void>;
+  exportCanvas: (format: string, canvasElement?: HTMLElement, options?: any) => Promise<void>;
   importFromFile: (file: File) => Promise<void>;
     importImageFile: (file: File) => Promise<void>;
   // Save/Load functions
@@ -377,12 +377,50 @@ const CanvasProvider = ({ children }: { children: React.ReactNode }) => {
     dispatch({ type: 'CLEAR_CANVAS' });
   }, []);
 
-  const exportCanvas = useCallback(async (format: string, canvasElement?: HTMLElement) => {
+  const exportCanvas = useCallback(async (format: string, canvasElement?: HTMLElement, options: any = {}) => {
     try {
+      console.log('🚀 ExportCanvas called with format:', format);
+      console.log('📊 Canvas element provided:', !!canvasElement);
+      
       const fileName = state.filename || 'Untitled Diagram';
+      console.log('📝 Using filename:', fileName);
+      
+      // Get ReactFlow instance first
+      const reactFlowInstance = (window as any).__REACT_FLOW_INSTANCE__;
+      console.log('🔗 ReactFlow instance available:', !!reactFlowInstance);
+      
+      let reactFlowNodes: any[] = [];
+      let reactFlowEdges: any[] = [];
+      
+      if (reactFlowInstance) {
+        reactFlowNodes = reactFlowInstance.getNodes() || [];
+        reactFlowEdges = reactFlowInstance.getEdges() || [];
+        console.log('📈 ReactFlow data - Nodes:', reactFlowNodes.length, 'Edges:', reactFlowEdges.length);
+      }
+      
+      // Also get shapes from context as fallback
+      const contextShapes = state.shapes || [];
+      console.log('🎨 Context shapes:', contextShapes.length);
+      
+      // Find the ReactFlow canvas element with multiple fallback methods
+      let targetCanvasElement = canvasElement;
+      if (!targetCanvasElement) {
+        targetCanvasElement = document.querySelector('.react-flow') as HTMLElement;
+      }
+      if (!targetCanvasElement) {
+        targetCanvasElement = document.querySelector('[data-testid="rf__wrapper"]') as HTMLElement;
+      }
+      if (!targetCanvasElement) {
+        targetCanvasElement = document.querySelector('.react-flow__renderer') as HTMLElement;
+      }
+      if (!targetCanvasElement) {
+        // Use the main canvas container as fallback
+        targetCanvasElement = document.querySelector('#canvas-container') as HTMLElement;
+      }
+      console.log('🎯 Found ReactFlow element:', !!targetCanvasElement, targetCanvasElement?.className);
       
       // Convert shapes to nodes format for export
-      const nodes = state.shapes.map((shape: any) => ({
+      const nodes = contextShapes.map((shape: any) => ({
         id: shape.id,
         type: shape.type,
         position: { x: shape.x, y: shape.y },
@@ -398,90 +436,66 @@ const CanvasProvider = ({ children }: { children: React.ReactNode }) => {
         }
       }));
 
-      const edges: any[] = []; // For now, edges are empty as they're handled separately in ReactFlow
-
       const canvasData: CanvasData = {
-        nodes,
-        edges,
+        nodes: reactFlowNodes.length > 0 ? reactFlowNodes : nodes,
+        edges: reactFlowEdges,
         viewport: {
           x: state.stage.x,
           y: state.stage.y,
           zoom: state.stage.scale
         },
         grid: state.grid,
-        fileName: state.filename,
+        fileName: fileName,
         version: '1.0'
       };
 
-      switch (format.toLowerCase()) {
-        case 'png':
-          // Try enhanced export method first
-          try {
-            await exportAsPNGSimple(fileName);
-          } catch (error) {
-            console.error('Enhanced export failed, trying canvas-based fallback:', error);
-            try {
-              const reactFlowInstance = (window as any).__REACT_FLOW_INSTANCE__;
-              if (reactFlowInstance) {
-                const nodes = reactFlowInstance.getNodes();
-                const edges = reactFlowInstance.getEdges();
-                if (nodes.length > 0) {
-                  await exportAsPNGCanvas(nodes, edges, fileName);
-                } else {
-                  // If no nodes, try basic html2canvas
-                  if (canvasElement) {
-                    await exportAsPNG(canvasElement, fileName);
-                  }
-                }
-              } else {
-                // Fallback to basic html2canvas
-                if (canvasElement) {
-                  await exportAsPNG(canvasElement, fileName);
-                }
-              }
-            } catch (fallbackError) {
-              console.error('All export methods failed:', fallbackError);
-              throw new Error('Failed to export PNG: All methods failed');
-            }
-          }
-          break;
-        case 'jpeg':
-        case 'jpg':
-          if (canvasElement) {
-            await exportAsJPEG(canvasElement, fileName);
-          }
-          break;
-        case 'svg':
-          // Get actual ReactFlow data for SVG export
-          try {
-            const reactFlowInstance = (window as any).__REACT_FLOW_INSTANCE__;
-            if (reactFlowInstance) {
-              const reactFlowNodes = reactFlowInstance.getNodes();
-              const reactFlowEdges = reactFlowInstance.getEdges();
-              console.log('SVG Export - ReactFlow nodes:', reactFlowNodes.length, 'edges:', reactFlowEdges.length);
-              exportAsSVG(reactFlowNodes, reactFlowEdges, fileName);
-            } else {
-              // Fallback to context data
-              exportAsSVG(nodes, edges, fileName);
-            }
-          } catch (error) {
-            console.error('SVG export failed:', error);
-            // Fallback to context data
-            exportAsSVG(nodes, edges, fileName);
-          }
-          break;
-        case 'json':
-          // Backward compatibility: allow JSON export explicitly if chosen
-          exportAsJSON(canvasData, fileName);
-          break;
-        case 'flowdigm':
-          exportAsFlowdigm(canvasData, fileName);
-          break;
-        default:
-          throw new Error(`Unsupported export format: ${format}`);
+      console.log('📋 Final canvas data:', canvasData);
+
+      // Use the new comprehensive export function for all supported formats
+      const supportedFormats = ['png', 'jpeg', 'jpg', 'webp', 'svg', 'pdf', 'pptx', 'docx', 'html', 'xml', 'url'];
+      const normalizedFormat = format.toLowerCase();
+      
+      if (supportedFormats.includes(normalizedFormat)) {
+        console.log(`🎯 Using comprehensive exportFile for format: ${normalizedFormat}`);
+        
+        // Map format names
+        const mappedFormat = normalizedFormat === 'jpg' ? 'jpeg' : normalizedFormat;
+        
+        // Merge default options with provided options
+        const exportOptions = {
+          quality: 1.0,
+          scale: 2,
+          backgroundColor: '#ffffff',
+          includeMetadata: true,
+          ...options
+        };
+        
+        await exportFile(
+          mappedFormat as 'png' | 'jpeg' | 'webp' | 'svg' | 'pdf' | 'pptx' | 'docx' | 'html' | 'xml' | 'url',
+          fileName,
+          exportOptions
+        );
+      } else {
+        // Fallback to legacy export methods for other formats
+        switch (normalizedFormat) {
+          case 'json':
+            console.log('📄 Starting JSON export...');
+            await exportAsJSON(canvasData, fileName);
+            break;
+            
+          case 'flowdigm':
+            console.log('📄 Starting FlowDigm export...');
+            exportAsFlowdigm(canvasData, fileName);
+            break;
+            
+          default:
+            throw new Error(`Unsupported export format: ${format}`);
+        }
       }
+      
+      console.log('✅ Export completed successfully for format:', format);
     } catch (error) {
-      console.error('Export error:', error);
+      console.error('❌ Export error in CanvasEditorProvider:', error);
       throw error;
     }
   }, [state]);

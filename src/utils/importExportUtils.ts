@@ -2,6 +2,10 @@
 import type { Node, Edge } from 'reactflow';
 import type { CanvasData } from '../types/importExport';
 import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import PptxGenJS from 'pptxgenjs';
+import { Document, Packer, Paragraph, TextRun, ImageRun } from 'docx';
+import { saveAs } from 'file-saver';
 
 // @ts-ignore
 import domtoimage from 'dom-to-image';
@@ -82,6 +86,818 @@ export const exportCanvas = async (format: 'png' | 'jpg' | 'svg' | 'json' = 'png
   } catch (error) {
     console.error('❌ Export failed:', error);
     alert(`Export failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+};
+
+/**
+ * Comprehensive exportFile function that supports multiple formats like draw.io
+ * @param format - The export format: 'png', 'jpeg', 'webp', 'svg', 'pdf', 'pptx', 'docx', 'html', 'xml', 'url'
+ * @param filename - Optional custom filename (without extension)
+ * @param options - Additional export options
+ */
+export const exportFile = async (
+  format: 'png' | 'jpeg' | 'webp' | 'svg' | 'pdf' | 'pptx' | 'docx' | 'html' | 'xml' | 'url',
+  filename?: string,
+  options: {
+    quality?: number;
+    scale?: number;
+    width?: string | number;
+    height?: string | number;
+    backgroundColor?: string;
+    transparent?: boolean;
+    border?: number;
+    includeGrid?: boolean;
+    cropToContent?: boolean;
+    embedImages?: boolean;
+    includeMetadata?: boolean;
+  } = {}
+): Promise<void> => {
+  try {
+    console.log(`🔄 Starting comprehensive export in format: ${format}`);
+    
+    // Get the ReactFlow instance and canvas element
+    const reactFlowInstance = (window as any).__REACT_FLOW_INSTANCE__;
+    const canvasElement = document.querySelector('.react-flow') as HTMLElement;
+    
+    if (!reactFlowInstance || !canvasElement) {
+      throw new Error('ReactFlow instance or canvas element not found. Please refresh the page and try again.');
+    }
+    
+    // Get current nodes and edges
+    const nodes = reactFlowInstance.getNodes();
+    const edges = reactFlowInstance.getEdges();
+    
+    console.log(`📊 Found ${nodes.length} nodes and ${edges.length} edges`);
+    
+    if (nodes.length === 0) {
+      throw new Error('No content found to export. Please add some shapes to the canvas first.');
+    }
+    
+    // Generate filename with timestamp if not provided
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+    const baseFilename = filename || `flowdigm-diagram-${timestamp}`;
+    
+    // Set default options
+    const exportOptions = {
+      quality: options.quality || 1.0,
+      scale: options.scale || 2,
+      backgroundColor: options.backgroundColor || '#ffffff',
+      includeMetadata: options.includeMetadata !== false,
+      ...options
+    };
+    
+    // Prepare the canvas for high-quality export
+    await prepareCanvasForExport(reactFlowInstance, canvasElement);
+    
+    // Export based on format
+    switch (format) {
+      case 'png':
+        await exportAsPNGHighQuality(canvasElement, baseFilename, exportOptions);
+        break;
+      
+      case 'jpeg':
+        await exportAsJPEGHighQuality(canvasElement, baseFilename, exportOptions);
+        break;
+      
+      case 'webp':
+        await exportAsWebP(canvasElement, baseFilename, exportOptions);
+        break;
+      
+      case 'svg':
+        await exportAsSVGAdvanced(nodes, edges, baseFilename, exportOptions);
+        break;
+      
+      case 'pdf':
+        await exportAsPDF(canvasElement, baseFilename, exportOptions);
+        break;
+      
+      case 'pptx':
+        await exportAsPPTX(canvasElement, nodes, baseFilename, exportOptions);
+        break;
+      
+      case 'docx':
+        await exportAsDOCX(canvasElement, nodes, baseFilename, exportOptions);
+        break;
+      
+      case 'html':
+        await exportAsHTML(nodes, edges, baseFilename, exportOptions);
+        break;
+      
+      case 'xml':
+        await exportAsXML(nodes, edges, baseFilename, exportOptions);
+        break;
+      
+      case 'url':
+        await exportAsURL(nodes, edges, baseFilename, exportOptions);
+        break;
+      
+      default:
+        throw new Error(`Unsupported export format: ${format}`);
+    }
+    
+    console.log(`✅ Export completed successfully: ${baseFilename}.${format}`);
+    
+  } catch (error) {
+    console.error('❌ Comprehensive export failed:', error);
+    throw new Error(`Export failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+};
+
+/**
+ * Prepares the canvas for high-quality export
+ */
+const prepareCanvasForExport = async (reactFlowInstance: any, canvasElement: HTMLElement): Promise<void> => {
+  try {
+    // Fit view to ensure all content is visible
+    reactFlowInstance.fitView({ padding: 0.1 });
+    
+    // Wait for ReactFlow to finish rendering
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Ensure all elements are visible
+    const nodeElements = canvasElement.querySelectorAll('.react-flow__node');
+    nodeElements.forEach((node: any) => {
+      node.style.visibility = 'visible';
+      node.style.opacity = '1';
+      node.style.display = 'block';
+    });
+    
+    const edgeElements = canvasElement.querySelectorAll('.react-flow__edge');
+    edgeElements.forEach((edge: any) => {
+      edge.style.visibility = 'visible';
+      edge.style.opacity = '1';
+      edge.style.display = 'block';
+    });
+    
+    // Wait a bit more for rendering to stabilize
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+  } catch (error) {
+    console.warn('Warning: Could not fully prepare canvas for export:', error);
+  }
+};
+
+/**
+ * High-quality PNG export using multiple fallback methods
+ */
+const exportAsPNGHighQuality = async (
+  canvasElement: HTMLElement, 
+  filename: string, 
+  options: any
+): Promise<void> => {
+  try {
+    console.log('🖼️ Starting high-quality PNG export...');
+    
+    let canvas: HTMLCanvasElement;
+    
+    // Try dom-to-image first (best for ReactFlow)
+    try {
+      const dataUrl = await domtoimage.toPng(canvasElement, {
+        quality: options.quality,
+        bgcolor: options.backgroundColor,
+        width: canvasElement.scrollWidth * options.scale,
+        height: canvasElement.scrollHeight * options.scale,
+        style: {
+          'transform': `scale(${options.scale})`,
+          'transform-origin': 'top left'
+        },
+        filter: (node: any) => {
+          const className = node.className;
+          const classNameStr = typeof className === 'string' ? className : (className ? String(className) : '');
+          return !classNameStr.includes('react-flow__controls') && 
+                 !classNameStr.includes('react-flow__minimap') &&
+                 !classNameStr.includes('react-flow__panel') &&
+                 !classNameStr.includes('react-flow__selection');
+        }
+      });
+      
+      // Convert data URL to blob and download
+      const link = document.createElement('a');
+      link.download = `${filename}.png`;
+      link.href = dataUrl;
+      link.click();
+      
+      console.log('✅ PNG export completed using dom-to-image');
+      return;
+      
+    } catch (domError) {
+      console.warn('dom-to-image failed, trying html2canvas:', domError);
+    }
+    
+    // Fallback to html2canvas
+    canvas = await html2canvas(canvasElement, {
+      backgroundColor: options.backgroundColor,
+      scale: options.scale,
+      useCORS: true,
+      allowTaint: true,
+      foreignObjectRendering: true,
+      removeContainer: true,
+      logging: false,
+      width: canvasElement.scrollWidth,
+      height: canvasElement.scrollHeight,
+      ignoreElements: (element) => {
+        const className = element.className;
+        const classNameStr = typeof className === 'string' ? className : (className ? String(className) : '');
+        return classNameStr.includes('react-flow__controls') || 
+               classNameStr.includes('react-flow__minimap') ||
+               classNameStr.includes('react-flow__panel') ||
+               classNameStr.includes('react-flow__selection');
+      }
+    });
+    
+    // Download the canvas
+    canvas.toBlob((blob) => {
+      if (blob) {
+        saveAs(blob, `${filename}.png`);
+        console.log('✅ PNG export completed using html2canvas');
+      }
+    }, 'image/png');
+    
+  } catch (error) {
+    console.error('PNG export error:', error);
+    throw new Error(`Failed to export PNG: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+};
+
+/**
+ * High-quality JPEG export
+ */
+const exportAsJPEGHighQuality = async (
+  canvasElement: HTMLElement, 
+  filename: string, 
+  options: any
+): Promise<void> => {
+  try {
+    console.log('🖼️ Starting high-quality JPEG export...');
+    
+    const canvas = await html2canvas(canvasElement, {
+      backgroundColor: options.backgroundColor,
+      scale: options.scale,
+      useCORS: true,
+      allowTaint: true,
+      foreignObjectRendering: true,
+      removeContainer: true,
+      logging: false,
+      ignoreElements: (element) => {
+        const className = element.className; const classNameStr = typeof className === 'string' ? className : (className ? String(className) : '');
+        return classNameStr.includes('react-flow__controls') || 
+               classNameStr.includes('react-flow__minimap') ||
+               classNameStr.includes('react-flow__panel') ||
+               classNameStr.includes('react-flow__selection');
+      }
+    });
+    
+    canvas.toBlob((blob) => {
+      if (blob) {
+        saveAs(blob, `${filename}.jpeg`);
+        console.log('✅ JPEG export completed');
+      }
+    }, 'image/jpeg', options.quality);
+    
+  } catch (error) {
+    console.error('JPEG export error:', error);
+    throw new Error(`Failed to export JPEG: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+};
+
+/**
+ * Advanced SVG export with better rendering
+ */
+const exportAsSVGAdvanced = async (
+  nodes: Node[], 
+  edges: Edge[], 
+  filename: string, 
+  options: any
+): Promise<void> => {
+  try {
+    console.log('📐 Starting advanced SVG export...');
+    
+    // Calculate canvas bounds
+    const bounds = calculateCanvasBounds(nodes);
+    const padding = 50;
+    const width = bounds.maxX - bounds.minX + padding * 2;
+    const height = bounds.maxY - bounds.minY + padding * 2;
+    
+    // Generate high-quality SVG
+    let svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#f0f0f0" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="100%" height="100%" fill="${options.backgroundColor}"/>
+  <rect width="100%" height="100%" fill="url(#grid)"/>`;
+    
+    // Add edges with better styling
+    edges.forEach(edge => {
+      const sourceNode = nodes.find(n => n.id === edge.source);
+      const targetNode = nodes.find(n => n.id === edge.target);
+      
+      if (sourceNode && targetNode) {
+        const x1 = sourceNode.position.x + (sourceNode.data?.width || 80) / 2 - bounds.minX + padding;
+        const y1 = sourceNode.position.y + (sourceNode.data?.height || 60) / 2 - bounds.minY + padding;
+        const x2 = targetNode.position.x + (targetNode.data?.width || 80) / 2 - bounds.minX + padding;
+        const y2 = targetNode.position.y + (targetNode.data?.height || 60) / 2 - bounds.minY + padding;
+        
+        svg += `
+  <g class="edge" id="edge-${edge.id}">
+    <path d="M ${x1} ${y1} L ${x2} ${y2}" stroke="#3b82f6" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  </g>`;
+      }
+    });
+    
+    // Add arrow marker definition
+    svg += `
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6"/>
+    </marker>
+  </defs>`;
+    
+    // Add nodes with high-quality rendering
+    nodes.forEach(node => {
+      const x = node.position.x - bounds.minX + padding;
+      const y = node.position.y - bounds.minY + padding;
+      const width = node.data?.width || 80;
+      const height = node.data?.height || 60;
+      const fill = node.data?.fill || '#ffffff';
+      const stroke = node.data?.stroke || '#000000';
+      const strokeWidth = node.data?.strokeWidth || 2;
+      const label = node.data?.label || node.type || '';
+      
+      svg += `
+  <g class="node" id="node-${node.id}">`;
+      
+      // Render different shapes based on node type
+      if (node.type === 'circle') {
+        const radius = Math.min(width, height) / 2;
+        svg += `<circle cx="${x + width/2}" cy="${y + height/2}" r="${radius}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}"/>`;
+      } else if (node.type === 'diamond') {
+        svg += `<polygon points="${x + width/2},${y} ${x + width},${y + height/2} ${x + width/2},${y + height} ${x},${y + height/2}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}"/>`;
+      } else {
+        svg += `<rect x="${x}" y="${y}" width="${width}" height="${height}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}" rx="4"/>`;
+      }
+      
+      if (label) {
+        svg += `<text x="${x + width/2}" y="${y + height/2}" text-anchor="middle" dominant-baseline="middle" font-family="Arial, sans-serif" font-size="12" fill="#333">${label}</text>`;
+      }
+      
+      svg += `
+  </g>`;
+    });
+    
+    // Add metadata if requested
+    if (options.includeMetadata) {
+      svg += `
+  <metadata>
+    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+      <rdf:Description>
+        <dc:title xmlns:dc="http://purl.org/dc/elements/1.1/">${filename}</dc:title>
+        <dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">FlowDigm</dc:creator>
+        <dc:date xmlns:dc="http://purl.org/dc/elements/1.1/">${new Date().toISOString()}</dc:date>
+      </rdf:Description>
+    </rdf:RDF>
+  </metadata>`;
+    }
+    
+    svg += '</svg>';
+    
+    // Download SVG
+    const blob = new Blob([svg], { type: 'image/svg+xml' });
+    saveAs(blob, `${filename}.svg`);
+    
+    console.log('✅ SVG export completed');
+    
+  } catch (error) {
+    console.error('SVG export error:', error);
+    throw new Error(`Failed to export SVG: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+};
+
+/**
+ * PDF export using jsPDF
+ */
+const exportAsPDF = async (
+  canvasElement: HTMLElement, 
+  filename: string, 
+  options: any
+): Promise<void> => {
+  try {
+    console.log('📄 Starting PDF export...');
+    
+    // First, capture the canvas as image
+    const canvas = await html2canvas(canvasElement, {
+      backgroundColor: options.backgroundColor,
+      scale: options.scale,
+      useCORS: true,
+      allowTaint: true,
+      foreignObjectRendering: true,
+      removeContainer: true,
+      logging: false,
+      ignoreElements: (element) => {
+        const className = element.className; const classNameStr = typeof className === 'string' ? className : (className ? String(className) : '');
+        return classNameStr.includes('react-flow__controls') || 
+               classNameStr.includes('react-flow__minimap') ||
+               classNameStr.includes('react-flow__panel') ||
+               classNameStr.includes('react-flow__selection');
+      }
+    });
+    
+    // Create PDF document
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({
+      orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
+      unit: 'px',
+      format: [canvas.width, canvas.height]
+    });
+    
+    // Add title page with metadata
+    if (options.includeMetadata) {
+      pdf.setFontSize(20);
+      pdf.text('FlowDigm Diagram Export', 40, 40);
+      pdf.setFontSize(12);
+      pdf.text(`Generated: ${new Date().toLocaleString()}`, 40, 60);
+      pdf.text(`Filename: ${filename}`, 40, 80);
+      pdf.addPage();
+    }
+    
+    // Add the diagram image
+    pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+    
+    // Save the PDF
+    pdf.save(`${filename}.pdf`);
+    
+    console.log('✅ PDF export completed');
+    
+  } catch (error) {
+    console.error('PDF export error:', error);
+    throw new Error(`Failed to export PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+};
+
+/**
+ * PowerPoint (PPTX) export using PptxGenJS
+ */
+const exportAsPPTX = async (
+  canvasElement: HTMLElement, 
+  nodes: Node[], 
+  filename: string, 
+  options: any
+): Promise<void> => {
+  try {
+    console.log('📊 Starting PPTX export...');
+    
+    // Create new presentation
+    const pres = new PptxGenJS();
+    
+    // Set presentation properties
+    pres.author = 'FlowDigm';
+    pres.company = 'FlowDigm';
+    pres.title = filename;
+    pres.subject = 'Diagram Export';
+    
+    // Create title slide
+    if (options.includeMetadata) {
+      const titleSlide = pres.addSlide();
+      titleSlide.addText('FlowDigm Diagram', { 
+        x: 1, y: 1, w: 8, h: 1, 
+        fontSize: 24, bold: true, align: 'center' 
+      });
+      titleSlide.addText(`Generated: ${new Date().toLocaleString()}`, { 
+        x: 1, y: 2.5, w: 8, h: 0.5, 
+        fontSize: 14, align: 'center' 
+      });
+    }
+    
+    // Create diagram slide
+    const diagramSlide = pres.addSlide();
+    
+    // Capture canvas as image
+    const canvas = await html2canvas(canvasElement, {
+      backgroundColor: options.backgroundColor,
+      scale: 1, // Lower scale for PPTX compatibility
+      useCORS: true,
+      allowTaint: true,
+      foreignObjectRendering: true,
+      removeContainer: true,
+      logging: false,
+      ignoreElements: (element) => {
+        const className = element.className; const classNameStr = typeof className === 'string' ? className : (className ? String(className) : '');
+        return classNameStr.includes('react-flow__controls') || 
+               classNameStr.includes('react-flow__minimap') ||
+               classNameStr.includes('react-flow__panel') ||
+               classNameStr.includes('react-flow__selection');
+      }
+    });
+    
+    // Add image to slide
+    const imgData = canvas.toDataURL('image/png');
+    diagramSlide.addImage({ 
+      data: imgData,
+      x: 0.5, y: 0.5, w: 9, h: 6.5,
+      sizing: { type: 'contain', w: 9, h: 6.5 }
+    });
+    
+    // Add slide with node details if requested
+    if (options.includeMetadata && nodes.length > 0) {
+      const detailsSlide = pres.addSlide();
+      detailsSlide.addText('Diagram Components', { 
+        x: 1, y: 0.5, w: 8, h: 0.5, 
+        fontSize: 18, bold: true 
+      });
+      
+      let yPos = 1.5;
+      nodes.forEach((node, index) => {
+        if (yPos > 6) {
+          // Add new slide if content overflows
+          pres.addSlide();
+          yPos = 1;
+        }
+        
+        const label = node.data?.label || node.type || `Node ${index + 1}`;
+        detailsSlide.addText(`• ${label} (${node.type})`, { 
+          x: 1, y: yPos, w: 8, h: 0.3, 
+          fontSize: 12 
+        });
+        yPos += 0.4;
+      });
+    }
+    
+    // Save the presentation
+    await pres.writeFile({ fileName: `${filename}.pptx` });
+    
+    console.log('✅ PPTX export completed');
+    
+  } catch (error) {
+    console.error('PPTX export error:', error);
+    throw new Error(`Failed to export PPTX: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+};
+
+/**
+ * Word Document (DOCX) export using docx library
+ */
+const exportAsDOCX = async (
+  canvasElement: HTMLElement, 
+  nodes: Node[], 
+  filename: string, 
+  options: any
+): Promise<void> => {
+  try {
+    console.log('📝 Starting enhanced DOCX export...');
+    
+    // Capture canvas as image with high quality
+    const canvas = await html2canvas(canvasElement, {
+      backgroundColor: options.backgroundColor || '#ffffff',
+      scale: options.scale || 2, // Higher scale for better quality
+      useCORS: true,
+      allowTaint: true,
+      foreignObjectRendering: true,
+      removeContainer: true,
+      logging: false,
+      width: options.width ? parseInt(options.width) : undefined,
+      height: options.height ? parseInt(options.height) : undefined,
+      ignoreElements: (element) => {
+        const className = element.className;
+        const classNameStr = typeof className === 'string' ? className : (className ? String(className) : '');
+        return classNameStr.includes('react-flow__controls') || 
+               classNameStr.includes('react-flow__minimap') ||
+               classNameStr.includes('react-flow__panel') ||
+               classNameStr.includes('react-flow__selection');
+      }
+    });
+    
+    // Convert canvas to buffer
+    const imgData = canvas.toDataURL('image/png');
+    const base64Data = imgData.split(',')[1];
+    const imageBuffer = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+    
+    // Create document sections
+    const children: any[] = [];
+    
+    // Add document title
+    children.push(
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: filename || 'FlowDigm Diagram',
+            bold: true,
+            size: 36,
+            color: '1976d2'
+          })
+        ],
+        spacing: { after: 400 }
+      })
+    );
+    
+    // Add metadata section if requested
+    if (options.includeMetadata) {
+      children.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Document Information',
+              bold: true,
+              size: 24,
+              color: '424242'
+            })
+          ],
+          spacing: { before: 200, after: 200 }
+        })
+      );
+      
+      const metadata = [
+        `Generated: ${new Date().toLocaleString()}`,
+        `Filename: ${filename}`,
+        `Total Components: ${nodes.length}`,
+        `Export Quality: ${options.quality || 100}%`,
+        `Scale: ${options.scale || 2}x`
+      ];
+      
+      metadata.forEach(info => {
+        children.push(
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: `• ${info}`,
+                size: 20,
+                color: '666666'
+              })
+            ],
+            spacing: { after: 100 }
+          })
+        );
+      });
+    }
+    
+    // Add diagram section
+    children.push(
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: 'Diagram',
+            bold: true,
+            size: 24,
+            color: '424242'
+          })
+        ],
+        spacing: { before: 400, after: 200 }
+      })
+    );
+    
+    // Add diagram image with better error handling
+    try {
+      // Calculate optimal dimensions for Word document (max 6.5 inches wide)
+      const maxWidth = 468; // 6.5 inches in points
+      const maxHeight = 350; // Keep reasonable height
+      
+      let imageWidth = canvas.width;
+      let imageHeight = canvas.height;
+      
+      // Scale down if too large
+      if (imageWidth > maxWidth) {
+        const scale = maxWidth / imageWidth;
+        imageWidth = maxWidth;
+        imageHeight = imageHeight * scale;
+      }
+      
+      if (imageHeight > maxHeight) {
+        const scale = maxHeight / imageHeight;
+        imageHeight = maxHeight;
+        imageWidth = imageWidth * scale;
+      }
+      
+      children.push(
+        new Paragraph({
+          children: [
+            new ImageRun({
+              data: imageBuffer,
+              transformation: {
+                width: Math.round(imageWidth),
+                height: Math.round(imageHeight)
+              },
+              type: 'png'
+            } as any)
+          ],
+          spacing: { after: 400 }
+        })
+      );
+      
+      console.log(`✅ Diagram image added to DOCX (${Math.round(imageWidth)}x${Math.round(imageHeight)})`);
+      
+    } catch (imageError) {
+      console.warn('Failed to add image to DOCX, adding text placeholder instead:', imageError);
+      children.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: '[Diagram image could not be embedded - please export as PNG for image format]',
+              size: 20,
+              italics: true,
+              color: 'ff6b6b'
+            })
+          ],
+          spacing: { after: 400 }
+        })
+      );
+    }
+    
+    // Add detailed component list if requested
+    if (options.includeMetadata && nodes.length > 0) {
+      children.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Diagram Components',
+              bold: true,
+              size: 24,
+              color: '424242'
+            })
+          ],
+          spacing: { before: 400, after: 200 }
+        })
+      );
+      
+      nodes.forEach((node, index) => {
+        const label = node.data?.label || node.type || `Component ${index + 1}`;
+        const nodeType = node.type || 'default';
+        const position = `(${Math.round(node.position?.x || 0)}, ${Math.round(node.position?.y || 0)})`;
+        
+        children.push(
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: `${index + 1}. `,
+                bold: true,
+                size: 20,
+                color: '1976d2'
+              }),
+              new TextRun({
+                text: `${label}`,
+                bold: true,
+                size: 20,
+                color: '424242'
+              }),
+              new TextRun({
+                text: ` - Type: ${nodeType}, Position: ${position}`,
+                size: 18,
+                color: '666666'
+              })
+            ],
+            spacing: { after: 100 }
+          })
+        );
+      });
+    }
+    
+    // Add footer
+    children.push(
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: `Generated by FlowDigm - Professional Diagram Tool`,
+            size: 16,
+            italics: true,
+            color: '999999'
+          })
+        ],
+        spacing: { before: 600 }
+      })
+    );
+    
+    // Create document with better formatting
+    const doc = new Document({
+      sections: [
+        {
+          properties: {
+            page: {
+              margin: {
+                top: 720,    // 1 inch
+                right: 720,  // 1 inch  
+                bottom: 720, // 1 inch
+                left: 720    // 1 inch
+              }
+            }
+          },
+          children: children
+        }
+      ]
+    });
+    
+    // Generate and save document
+    console.log('📦 Generating DOCX file...');
+    const buffer = await Packer.toBuffer(doc);
+    const blob = new Blob([new Uint8Array(buffer)], { 
+      type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
+    });
+    saveAs(blob, `${filename}.docx`);
+    
+    console.log('✅ Enhanced DOCX export completed successfully');
+    
+  } catch (error) {
+    console.error('❌ Enhanced DOCX export error:', error);
+    throw new Error(`Failed to export DOCX: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 };
 
@@ -852,11 +1668,12 @@ export const exportAsPNGDomToImage = async (canvasElement: HTMLElement, fileName
       },
       filter: (node: any) => {
         // Filter out UI elements that shouldn't be in the export
-        const className = node.className || '';
-        return !className.includes('react-flow__controls') && 
-               !className.includes('react-flow__minimap') &&
-               !className.includes('react-flow__panel') &&
-               !className.includes('react-flow__selection');
+        const className = node.className;
+        const classNameStr = typeof className === 'string' ? className : (className ? String(className) : '');
+        return !classNameStr.includes('react-flow__controls') && 
+               !classNameStr.includes('react-flow__minimap') &&
+               !classNameStr.includes('react-flow__panel') &&
+               !classNameStr.includes('react-flow__selection');
       }
     });
     
@@ -1250,4 +2067,424 @@ export const createFileInput = (accept: string, multiple: boolean = false): HTML
   input.multiple = multiple;
   input.style.display = 'none';
   return input;
-}; 
+};
+
+/**
+ * WebP export using canvas conversion
+ */
+const exportAsWebP = async (
+  canvasElement: HTMLElement, 
+  filename: string, 
+  options: any
+): Promise<void> => {
+  try {
+    console.log('🖼️ Starting WebP export...');
+    
+    let canvas: HTMLCanvasElement;
+    
+    // Try html2canvas first for best quality
+    canvas = await html2canvas(canvasElement, {
+      backgroundColor: options.transparent ? null : (options.backgroundColor || '#ffffff'),
+      scale: (options.scale || 100) / 100,
+      useCORS: true,
+      allowTaint: true,
+      foreignObjectRendering: true,
+      removeContainer: true,
+      logging: false,
+      width: options.width ? parseInt(options.width) : canvasElement.scrollWidth,
+      height: options.height ? parseInt(options.height) : canvasElement.scrollHeight,
+      ignoreElements: (element) => {
+        const className = element.className; const classNameStr = typeof className === 'string' ? className : (className ? String(className) : '');
+        return classNameStr.includes('react-flow__controls') || 
+               classNameStr.includes('react-flow__minimap') ||
+               classNameStr.includes('react-flow__panel') ||
+               classNameStr.includes('react-flow__selection');
+      }
+    });
+    
+    // Convert to WebP
+    const quality = (options.quality || 100) / 100;
+    const dataURL = canvas.toDataURL('image/webp', quality);
+    
+    // Download the file
+    const link = document.createElement('a');
+    link.download = `${filename}.webp`;
+    link.href = dataURL;
+    link.click();
+    
+    console.log('✅ WebP export completed');
+    
+  } catch (error) {
+    console.error('❌ WebP export failed:', error);
+    throw new Error(`WebP export failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+};
+
+/**
+ * HTML export - Creates a standalone HTML file with embedded diagram
+ */
+const exportAsHTML = async (
+  nodes: any[], 
+  edges: any[], 
+  filename: string, 
+  options: any
+): Promise<void> => {
+  try {
+    console.log('🌐 Starting HTML export...');
+    
+    // Calculate diagram bounds
+    let minX = 0, minY = 0, maxX = 800, maxY = 600;
+    
+    if (nodes.length > 0) {
+      minX = Math.min(...nodes.map(n => n.position.x));
+      minY = Math.min(...nodes.map(n => n.position.y));
+      maxX = Math.max(...nodes.map(n => n.position.x + (n.data?.width || 100)));
+      maxY = Math.max(...nodes.map(n => n.position.y + (n.data?.height || 80)));
+    }
+    
+    const padding = (options.border || 20);
+    const width = maxX - minX + padding * 2;
+    const height = maxY - minY + padding * 2;
+    
+    // Generate SVG content
+    let svgContent = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" style="background-color: ${options.backgroundColor || '#ffffff'}">`;
+    
+    // Add grid if requested
+    if (options.includeGrid) {
+      svgContent += `
+        <defs>
+          <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#f0f0f0" stroke-width="1"/>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#grid)" />`;
+    }
+    
+    // Add nodes
+    nodes.forEach(node => {
+      const x = node.position.x - minX + padding;
+      const y = node.position.y - minY + padding;
+      const nodeWidth = node.data?.width || 120;
+      const nodeHeight = node.data?.height || 80;
+      const fill = node.data?.fill || '#e3f2fd';
+      const stroke = node.data?.stroke || '#1976d2';
+      const label = node.data?.label || node.type || '';
+      
+      if (node.type === 'circle') {
+        const radius = Math.min(nodeWidth, nodeHeight) / 2;
+        svgContent += `
+          <circle cx="${x + nodeWidth/2}" cy="${y + nodeHeight/2}" r="${radius}" 
+                  fill="${fill}" stroke="${stroke}" stroke-width="2"/>
+          <text x="${x + nodeWidth/2}" y="${y + nodeHeight/2}" text-anchor="middle" 
+                dominant-baseline="middle" font-family="Arial, sans-serif" font-size="12" fill="#333">${label}</text>`;
+      } else {
+        svgContent += `
+          <rect x="${x}" y="${y}" width="${nodeWidth}" height="${nodeHeight}" 
+                fill="${fill}" stroke="${stroke}" stroke-width="2" rx="4"/>
+          <text x="${x + nodeWidth/2}" y="${y + nodeHeight/2}" text-anchor="middle" 
+                dominant-baseline="middle" font-family="Arial, sans-serif" font-size="12" fill="#333">${label}</text>`;
+      }
+    });
+    
+    // Add edges
+    edges.forEach(edge => {
+      const sourceNode = nodes.find(n => n.id === edge.source);
+      const targetNode = nodes.find(n => n.id === edge.target);
+      
+      if (sourceNode && targetNode) {
+        const sourceX = sourceNode.position.x - minX + padding + (sourceNode.data?.width || 120) / 2;
+        const sourceY = sourceNode.position.y - minY + padding + (sourceNode.data?.height || 80) / 2;
+        const targetX = targetNode.position.x - minX + padding + (targetNode.data?.width || 120) / 2;
+        const targetY = targetNode.position.y - minY + padding + (targetNode.data?.height || 80) / 2;
+        
+        svgContent += `
+          <line x1="${sourceX}" y1="${sourceY}" x2="${targetX}" y2="${targetY}" 
+                stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>`;
+      }
+    });
+    
+    svgContent += `
+      <defs>
+        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+        </marker>
+      </defs>
+    </svg>`;
+    
+    // Create complete HTML document
+    const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${filename}</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+        .diagram-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            display: inline-block;
+        }
+        .diagram-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .export-info {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="diagram-container">
+        <div class="diagram-title">${filename}</div>
+        ${svgContent}
+        <div class="export-info">
+            Exported from FlowDigm on ${new Date().toLocaleString()}
+        </div>
+    </div>
+</body>
+</html>`;
+    
+    // Download the HTML file
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.download = `${filename}.html`;
+    link.href = url;
+    link.click();
+    URL.revokeObjectURL(url);
+    
+    console.log('✅ HTML export completed');
+    
+  } catch (error) {
+    console.error('❌ HTML export failed:', error);
+    throw new Error(`HTML export failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+};
+
+/**
+ * XML export - Creates DrawIO-compatible XML format
+ */
+const exportAsXML = async (
+  nodes: any[], 
+  edges: any[], 
+  filename: string, 
+  _options: any
+): Promise<void> => {
+  try {
+    console.log('📄 Starting XML export...');
+    
+    // Create DrawIO-compatible XML structure
+    let xmlContent = `<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="FlowDigm" modified="${new Date().toISOString()}" agent="FlowDigm" etag="${Math.random().toString(36)}" version="1.0" type="device">
+  <diagram id="${Math.random().toString(36)}" name="Page-1">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>`;
+    
+    // Add nodes
+    nodes.forEach(node => {
+      const x = node.position.x;
+      const y = node.position.y;
+      const width = node.data?.width || 120;
+      const height = node.data?.height || 80;
+      const label = node.data?.label || node.type || '';
+      const fill = node.data?.fill || '#e3f2fd';
+      const stroke = node.data?.stroke || '#1976d2';
+      
+      let style = `rounded=0;whiteSpace=wrap;html=1;fillColor=${fill};strokeColor=${stroke};`;
+      
+      if (node.type === 'circle') {
+        style = `ellipse;whiteSpace=wrap;html=1;fillColor=${fill};strokeColor=${stroke};`;
+      }
+      
+      xmlContent += `
+        <mxCell id="${node.id}" value="${label}" style="${style}" vertex="1" parent="1">
+          <mxGeometry x="${x}" y="${y}" width="${width}" height="${height}" as="geometry"/>
+        </mxCell>`;
+    });
+    
+    // Add edges
+    edges.forEach(edge => {
+      xmlContent += `
+        <mxCell id="${edge.id}" value="${edge.label || ''}" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="${edge.source}" target="${edge.target}">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="320" as="sourcePoint"/>
+            <mxPoint x="450" y="270" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>`;
+    });
+    
+    xmlContent += `
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>`;
+    
+    // Download the XML file
+    const blob = new Blob([xmlContent], { type: 'application/xml' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.download = `${filename}.xml`;
+    link.href = url;
+    link.click();
+    URL.revokeObjectURL(url);
+    
+    console.log('✅ XML export completed');
+    
+  } catch (error) {
+    console.error('❌ XML export failed:', error);
+    throw new Error(`XML export failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+};
+
+/**
+ * URL export - Creates a shareable URL with diagram data
+ */
+const exportAsURL = async (
+  nodes: any[], 
+  edges: any[], 
+  filename: string, 
+  _options: any
+): Promise<void> => {
+  try {
+    console.log('🔗 Starting URL export...');
+    
+    // Create diagram data object
+    const diagramData = {
+      nodes: nodes.map(node => ({
+        id: node.id,
+        type: node.type,
+        position: node.position,
+        data: node.data
+      })),
+      edges: edges.map(edge => ({
+        id: edge.id,
+        source: edge.source,
+        target: edge.target,
+        type: edge.type || 'default'
+      })),
+      metadata: {
+        name: filename,
+        created: new Date().toISOString(),
+        version: '1.0'
+      }
+    };
+    
+    // Compress and encode the data
+    const jsonString = JSON.stringify(diagramData);
+    const encodedData = btoa(encodeURIComponent(jsonString));
+    
+    // Create shareable URL
+    const baseUrl = window.location.origin + window.location.pathname;
+    const shareableUrl = `${baseUrl}?diagram=${encodedData}`;
+    
+    // Copy to clipboard
+    try {
+      await navigator.clipboard.writeText(shareableUrl);
+      console.log('✅ URL copied to clipboard');
+      
+      // Also create a downloadable text file with the URL
+      const urlContent = `FlowDigm Diagram URL
+      
+Shareable Link:
+${shareableUrl}
+
+Instructions:
+1. Copy the link above
+2. Share it with others
+3. Open the link to view the diagram
+
+Diagram Name: ${filename}
+Export Date: ${new Date().toLocaleString()}
+Nodes: ${nodes.length}
+Edges: ${edges.length}`;
+      
+      const blob = new Blob([urlContent], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.download = `${filename}-url.txt`;
+      link.href = url;
+      link.click();
+      URL.revokeObjectURL(url);
+      
+      alert(`Shareable URL has been copied to clipboard and saved as a text file!\n\nURL: ${shareableUrl}`);
+      
+    } catch (clipboardError) {
+      console.warn('Could not copy to clipboard, creating download instead');
+      
+      // Fallback: create downloadable text file
+      const urlContent = `Shareable FlowDigm Diagram URL:\n\n${shareableUrl}`;
+      const blob = new Blob([urlContent], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.download = `${filename}-url.txt`;
+      link.href = url;
+      link.click();
+      URL.revokeObjectURL(url);
+      
+      alert(`Shareable URL has been saved as a text file!\n\nURL: ${shareableUrl}`);
+    }
+    
+    console.log('✅ URL export completed');
+    
+  } catch (error) {
+    console.error('❌ URL export failed:', error);
+    throw new Error(`URL export failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+};
+
+/**
+ * Load diagram from URL parameter (for shareable URLs)
+ */
+export const loadDiagramFromURL = (): any | null => {
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const diagramData = urlParams.get('diagram');
+    
+    if (diagramData) {
+      console.log('🔗 Loading diagram from URL...');
+      const decodedData = decodeURIComponent(atob(diagramData));
+      const parsedData = JSON.parse(decodedData);
+      
+      console.log('✅ Diagram loaded from URL:', parsedData.metadata?.name || 'Unnamed');
+      return parsedData;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('❌ Failed to load diagram from URL:', error);
+    return null;
+  }
+};
+
+// Export all functions to global scope for testing and external access
+if (typeof window !== 'undefined') {
+  (window as any).exportFile = exportFile;
+  (window as any).exportCanvas = exportCanvas;
+  (window as any).exportAsPNGSimple = exportAsPNGSimple;
+  (window as any).exportAsJSON = exportAsJSON;
+  (window as any).exportAsSVG = exportAsSVG;
+  (window as any).exportAsWebP = exportAsWebP;
+  (window as any).exportAsHTML = exportAsHTML;
+  (window as any).exportAsXML = exportAsXML;
+  (window as any).exportAsURL = exportAsURL;
+  
+  console.log('🚀 FlowDigm Export Functions Available:');
+  console.log('  - window.exportFile(format, filename, options)');
+  console.log('  - window.exportCanvas(format)');
+  console.log('  - Available formats: png, jpeg, webp, svg, pdf, pptx, docx, html, xml, url');
+  console.log('  - Advanced options: quality, scale, backgroundColor, transparent, border, etc.');
+} 
