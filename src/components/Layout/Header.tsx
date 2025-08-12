@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useCallback, useContext, useState } from "react";
+import { useCallback, useContext, useState, useEffect, useRef } from "react";
 import icon from "../../assets/images/logo.jpeg"
 import {
   File,
@@ -8,14 +8,20 @@ import {
   Save,
   Download,
   Upload,
+  Cloud,
+  HardDrive,
+  Globe,
+  Github,
+  ExternalLink,
 } from "lucide-react";
 import { CanvasContext } from "../../context/CanvasEditorProvider";
-import { createFileInput } from "../../utils/importExportUtils";
 
 const Header = () => {
   const [isEditingName, setIsEditingName] = useState(false);
   const [showExportDropdown, setShowExportDropdown] = useState(false);
   const [showAdvancedExport, setShowAdvancedExport] = useState(false);
+  const [showImportDropdown, setShowImportDropdown] = useState(false);
+  const importDropdownRef = useRef<HTMLDivElement>(null);
   const [exportOptions, setExportOptions] = useState({
     format: 'png',
     quality: 100,
@@ -30,8 +36,25 @@ const Header = () => {
     embedImages: true
   });
 
+  // Close import dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (importDropdownRef.current && !importDropdownRef.current.contains(event.target as Node)) {
+        setShowImportDropdown(false);
+      }
+    };
+
+    if (showImportDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showImportDropdown]);
+
   const context = useContext(CanvasContext) as any;
-  const {state, setFileNameContext, exportCanvas, importFromFile, importImageFile, saveToDevice, loadFromDevice, createNewDiagram, openImageFile } = context;
+  const {state, setFileNameContext, exportCanvas, importFromFile, saveToDevice, loadFromDevice, createNewDiagram, openImageFile } = context;
 
   if (!context) {
     return <div>Loading...</div>;
@@ -91,32 +114,60 @@ const Header = () => {
   }, [loadFromDevice]);
 
   const handleImport = useCallback(() => {
-    // Accept comprehensive file formats
-    const input = createFileInput('.json,.svg,.png,.jpg,.jpeg,.gif,.bmp,.webp,.pdf,.docx,.pptx,.ppt', false);
+    setShowImportDropdown(!showImportDropdown);
+  }, [showImportDropdown]);
+
+  // Import source handlers
+  const handleDeviceImport = useCallback(async () => {
+    setShowImportDropdown(false);
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json,.flowdigm,.svg,.xml,.drawio,.vsdx,.csv,.txt,.png,.jpg,.jpeg,.gif,.bmp,.webp,.pdf,.docx,.pptx,.ppt';
+    input.style.display = 'none';
+    
     input.onchange = async (event) => {
       const target = event.target as HTMLInputElement;
       const file = target.files?.[0];
       if (file) {
         try {
-          const ext = file.name.toLowerCase().split('.').pop();
-          
-          // Handle different file types
-          if (ext === 'json') {
-            await importFromFile(file);
-          } else if (['pdf', 'docx', 'pptx', 'ppt'].includes(ext || '')) {
-            // For document formats, show a notification about the import
-            alert(`Importing ${ext?.toUpperCase()} files is supported but may convert content to image representation.`);
-            await importImageFile(file);
-          } else {
-            // Handle image formats
-            await importImageFile(file);
-          }
+          await importFromFile(file);
+          alert(`Successfully imported ${file.name}!`);
         } catch (error) {
           alert('Failed to import file: ' + error);
         }
       }
     };
+    document.body.appendChild(input);
     input.click();
+    document.body.removeChild(input);
+  }, [importFromFile]);
+
+  const handleCloudImport = useCallback((source: string) => {
+    setShowImportDropdown(false);
+    alert(`${source} integration coming soon! Please use Device import for now.`);
+  }, []);
+
+  const handleBrowserImport = useCallback(() => {
+    setShowImportDropdown(false);
+    handleDeviceImport();
+  }, [handleDeviceImport]);
+
+  const handleURLImport = useCallback(async () => {
+    setShowImportDropdown(false);
+    const url = prompt('Enter the URL of the file to import:');
+    if (url) {
+      try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const fileName = url.split('/').pop() || 'imported-file';
+        const file = new globalThis.File([blob], fileName, { type: blob.type });
+        
+        await importFromFile(file);
+        alert(`Successfully imported from ${url}!`);
+      } catch (error) {
+        alert('Failed to import from URL: ' + error);
+      }
+    }
   }, [importFromFile]);
 
   const handleExport = useCallback(async (format: string) => {
@@ -300,14 +351,111 @@ const Header = () => {
               <Save size={16} />
               <span className="text-sm">Save As</span>
             </button>
-            <button
-              onClick={handleImport}
-              className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded text-gray-600"
-              title="Import from..."
-            >
-              <Upload size={16} />
-              <span className="text-sm">Import</span>
-            </button>
+            
+            {/* Import Dropdown */}
+            <div className="relative" ref={importDropdownRef}>
+              <button
+                onClick={handleImport}
+                className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded text-gray-600"
+                title="Import from..."
+              >
+                <Upload size={16} />
+                <span className="text-sm">Import</span>
+                <ChevronDown size={14} />
+              </button>
+              
+              {showImportDropdown && (
+                <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[200px]">
+                  <div className="py-2">
+                    <div className="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wide border-b border-gray-100">
+                      Import Sources
+                    </div>
+                    
+                    <button
+                      onClick={handleDeviceImport}
+                      className="w-full flex items-center gap-3 px-4 py-2 hover:bg-blue-50 text-gray-700 hover:text-blue-600"
+                    >
+                      <HardDrive size={16} />
+                      <span className="text-sm">Device</span>
+                      <span className="ml-auto text-xs text-green-600">✓</span>
+                    </button>
+                    
+                    <button
+                      onClick={handleBrowserImport}
+                      className="w-full flex items-center gap-3 px-4 py-2 hover:bg-blue-50 text-gray-700 hover:text-blue-600"
+                    >
+                      <Globe size={16} />
+                      <span className="text-sm">Browser</span>
+                      <span className="ml-auto text-xs text-green-600">✓</span>
+                    </button>
+                    
+                    <button
+                      onClick={handleURLImport}
+                      className="w-full flex items-center gap-3 px-4 py-2 hover:bg-blue-50 text-gray-700 hover:text-blue-600"
+                    >
+                      <ExternalLink size={16} />
+                      <span className="text-sm">URL</span>
+                      <span className="ml-auto text-xs text-green-600">✓</span>
+                    </button>
+                    
+                    <div className="border-t border-gray-100 mt-2 pt-2">
+                      <div className="px-4 py-1 text-xs text-gray-500">Cloud Services (Coming Soon)</div>
+                      
+                      <button
+                        onClick={() => handleCloudImport('Google Drive')}
+                        className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-gray-500"
+                      >
+                        <Cloud size={16} />
+                        <span className="text-sm">Google Drive</span>
+                        <span className="ml-auto text-xs text-orange-500">Soon</span>
+                      </button>
+                      
+                      <button
+                        onClick={() => handleCloudImport('OneDrive')}
+                        className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-gray-500"
+                      >
+                        <Cloud size={16} />
+                        <span className="text-sm">OneDrive</span>
+                        <span className="ml-auto text-xs text-orange-500">Soon</span>
+                      </button>
+                      
+                      <button
+                        onClick={() => handleCloudImport('Dropbox')}
+                        className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-gray-500"
+                      >
+                        <Cloud size={16} />
+                        <span className="text-sm">Dropbox</span>
+                        <span className="ml-auto text-xs text-orange-500">Soon</span>
+                      </button>
+                      
+                      <button
+                        onClick={() => handleCloudImport('GitHub')}
+                        className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-gray-500"
+                      >
+                        <Github size={16} />
+                        <span className="text-sm">GitHub</span>
+                        <span className="ml-auto text-xs text-orange-500">Soon</span>
+                      </button>
+                      
+                      <button
+                        onClick={() => handleCloudImport('GitLab')}
+                        className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-gray-500"
+                      >
+                        <Github size={16} />
+                        <span className="text-sm">GitLab</span>
+                        <span className="ml-auto text-xs text-orange-500">Soon</span>
+                      </button>
+                    </div>
+                    
+                    <div className="border-t border-gray-100 mt-2 pt-2">
+                      <div className="px-4 py-1 text-xs text-gray-500">
+                        Supports: JSON, FlowDigm, SVG, XML, Draw.io, Visio, CSV, TXT, Images
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
             
             {/* Export Dropdown */}
             <div className="relative">

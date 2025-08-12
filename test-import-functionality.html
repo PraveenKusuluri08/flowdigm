@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Import Functionality Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .test-file {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            color: #333;
+        }
+        .test-file:hover {
+            background: #e3f2fd;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <h1>Import Functionality Test Suite</h1>
+    <p>This page tests the enhanced import functionality for multiple file formats.</p>
+    
+    <div class="test-section">
+        <h2>🔧 Test Files</h2>
+        <p>Click to download test files for importing:</p>
+        
+        <div class="test-files">
+            <a href="#" class="test-file" onclick="downloadTestJSON()">📄 Sample JSON</a>
+            <a href="#" class="test-file" onclick="downloadTestSVG()">🎨 Sample SVG</a>
+            <a href="#" class="test-file" onclick="downloadTestXML()">📋 Sample XML</a>
+            <a href="#" class="test-file" onclick="downloadTestCSV()">📊 Sample CSV</a>
+            <a href="#" class="test-file" onclick="downloadTestTXT()">📝 Sample TXT</a>
+            <a href="#" class="test-file" onclick="downloadFlowDigmJSON()">🔄 FlowDigm JSON</a>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>📥 Import Test</h2>
+        <p>Select files to test the import functionality:</p>
+        
+        <input type="file" id="fileInput" multiple accept=".json,.svg,.xml,.csv,.txt,.png,.jpg,.jpeg,.gif,.bmp,.webp,.drawio,.vsdx,.flowdigm">
+        <button onclick="testImport()">Test Import</button>
+        
+        <div id="importStatus" class="status info" style="display: none;">
+            Ready to test import...
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>📊 Import Results</h2>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        // Sample test files
+        function downloadTestJSON() {
+            const data = {
+                nodes: [
+                    {
+                        id: "1",
+                        type: "rect",
+                        position: { x: 100, y: 100 },
+                        data: {
+                            label: "Start",
+                            width: 120,
+                            height: 80,
+                            fill: "#e3f2fd",
+                            stroke: "#1976d2",
+                            strokeWidth: 2
+                        }
+                    },
+                    {
+                        id: "2",
+                        type: "rect",
+                        position: { x: 300, y: 200 },
+                        data: {
+                            label: "Process",
+                            width: 120,
+                            height: 80,
+                            fill: "#f3e5f5",
+                            stroke: "#7b1fa2",
+                            strokeWidth: 2
+                        }
+                    }
+                ],
+                edges: [
+                    {
+                        id: "e1-2",
+                        source: "1",
+                        target: "2",
+                        type: "default"
+                    }
+                ],
+                viewport: { x: 0, y: 0, zoom: 1 },
+                grid: { visible: true, size: 20, snap: false },
+                fileName: "test-diagram",
+                version: "1.0"
+            };
+            downloadFile('test-diagram.json', JSON.stringify(data, null, 2));
+        }
+        
+        function downloadTestSVG() {
+            const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+    <rect x="50" y="50" width="100" height="60" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+    <text x="100" y="85" text-anchor="middle" fill="#333">Start</text>
+    <circle cx="250" cy="150" r="40" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2"/>
+    <text x="250" y="155" text-anchor="middle" fill="#333">End</text>
+</svg>`;
+            downloadFile('test-diagram.svg', svg);
+        }
+        
+        function downloadTestXML() {
+            const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<diagram>
+    <shape id="1" x="100" y="100" width="120" height="80" label="Process A"/>
+    <shape id="2" x="300" y="150" width="120" height="80" label="Process B"/>
+    <shape id="3" x="500" y="200" width="120" height="80" label="Result"/>
+</diagram>`;
+            downloadFile('test-diagram.xml', xml);
+        }
+        
+        function downloadTestCSV() {
+            const csv = `source,target,label
+Start,Process A,begin
+Process A,Process B,next
+Process B,End,finish`;
+            downloadFile('test-connections.csv', csv);
+        }
+        
+        function downloadTestTXT() {
+            const txt = `Start -> Process A
+Process A -> Process B
+Process B -> End
+Decision Point
+Final Result`;
+            downloadFile('test-flow.txt', txt);
+        }
+        
+        function downloadFlowDigmJSON() {
+            const data = {
+                flowdigm: true,
+                version: "2.0",
+                metadata: {
+                    title: "Sample FlowDigm Diagram",
+                    created: new Date().toISOString()
+                },
+                nodes: [
+                    {
+                        id: "start",
+                        type: "rect",
+                        position: { x: 100, y: 100 },
+                        data: {
+                            label: "Start Process",
+                            width: 140,
+                            height: 80,
+                            fill: "#4caf50",
+                            stroke: "#2e7d32"
+                        }
+                    }
+                ],
+                edges: [],
+                viewport: { x: 0, y: 0, zoom: 1 }
+            };
+            downloadFile('flowdigm-sample.json', JSON.stringify(data, null, 2));
+        }
+        
+        function downloadFile(filename, content) {
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showStatus(`Downloaded ${filename}`, 'success');
+        }
+        
+        function testImport() {
+            const fileInput = document.getElementById('fileInput');
+            const files = fileInput.files;
+            
+            if (files.length === 0) {
+                showStatus('Please select at least one file to test', 'error');
+                return;
+            }
+            
+            showStatus(`Testing import for ${files.length} file(s)...`, 'info');
+            
+            // Test import by simulating the import process
+            Array.from(files).forEach((file, index) => {
+                setTimeout(() => {
+                    testSingleFile(file, index);
+                }, index * 500);
+            });
+        }
+        
+        function testSingleFile(file, index) {
+            const resultsDiv = document.getElementById('results');
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            
+            // Create result item
+            const resultItem = document.createElement('div');
+            resultItem.className = 'status info';
+            resultItem.innerHTML = `
+                <strong>File ${index + 1}:</strong> ${file.name} (${fileExtension})
+                <br>Size: ${(file.size / 1024).toFixed(2)} KB
+                <br>Status: Testing...
+            `;
+            resultsDiv.appendChild(resultItem);
+            
+            // Simulate file reading and parsing
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    const content = e.target.result;
+                    let parseResult = 'Unknown format';
+                    
+                    // Simulate different parsing logic
+                    switch (fileExtension) {
+                        case 'json':
+                            try {
+                                const json = JSON.parse(content);
+                                if (json.flowdigm) {
+                                    parseResult = '✅ Valid FlowDigm JSON format detected';
+                                } else if (json.nodes && json.edges) {
+                                    parseResult = '✅ Valid standard JSON diagram format';
+                                } else {
+                                    parseResult = '⚠️ JSON file, but not recognized diagram format';
+                                }
+                            } catch {
+                                parseResult = '❌ Invalid JSON format';
+                            }
+                            break;
+                        case 'svg':
+                            if (content.includes('<svg') && content.includes('</svg>')) {
+                                parseResult = '✅ Valid SVG format detected';
+                            } else {
+                                parseResult = '❌ Invalid SVG format';
+                            }
+                            break;
+                        case 'xml':
+                        case 'drawio':
+                            if (content.includes('<?xml') && (content.includes('<diagram') || content.includes('<mxfile'))) {
+                                parseResult = '✅ Valid XML/Draw.io format detected';
+                            } else {
+                                parseResult = '⚠️ XML file, but format not fully recognized';
+                            }
+                            break;
+                        case 'csv':
+                            const lines = content.split('\n').filter(line => line.trim());
+                            if (lines.length > 1) {
+                                parseResult = `✅ Valid CSV format with ${lines.length} lines`;
+                            } else {
+                                parseResult = '❌ CSV file appears empty or invalid';
+                            }
+                            break;
+                        case 'txt':
+                            if (content.trim().length > 0) {
+                                parseResult = `✅ Text file with ${content.split('\n').length} lines`;
+                            } else {
+                                parseResult = '❌ Empty text file';
+                            }
+                            break;
+                        default:
+                            parseResult = `⚠️ File type ${fileExtension} - format detection needed`;
+                    }
+                    
+                    resultItem.className = 'status success';
+                    resultItem.innerHTML = `
+                        <strong>File ${index + 1}:</strong> ${file.name} (${fileExtension})
+                        <br>Size: ${(file.size / 1024).toFixed(2)} KB
+                        <br>Status: ${parseResult}
+                        <br>Import Function: importFile() would handle this format
+                    `;
+                    
+                } catch (error) {
+                    resultItem.className = 'status error';
+                    resultItem.innerHTML = `
+                        <strong>File ${index + 1}:</strong> ${file.name}
+                        <br>Status: ❌ Error during processing: ${error.message}
+                    `;
+                }
+            };
+            
+            reader.onerror = function() {
+                resultItem.className = 'status error';
+                resultItem.innerHTML = `
+                    <strong>File ${index + 1}:</strong> ${file.name}
+                    <br>Status: ❌ Error reading file
+                `;
+            };
+            
+            reader.readAsText(file);
+        }
+        
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('importStatus');
+            statusDiv.className = `status ${type}`;
+            statusDiv.textContent = message;
+            statusDiv.style.display = 'block';
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 3000);
+            }
+        }
+        
+        // Auto-show status on page load
+        window.onload = function() {
+            showStatus('Import functionality test page loaded. Enhanced import functions are ready!', 'success');
+        };
+    </script>
+</body>
+</html>

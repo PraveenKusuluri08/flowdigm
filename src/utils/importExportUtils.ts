@@ -4,7 +4,7 @@ import type { CanvasData } from '../types/importExport';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import PptxGenJS from 'pptxgenjs';
-import { Document, Packer, Paragraph, TextRun, ImageRun } from 'docx';
+import { Document as DocxDocument, Packer, Paragraph, TextRun, ImageRun } from 'docx';
 import { saveAs } from 'file-saver';
 
 // @ts-ignore
@@ -867,7 +867,7 @@ const exportAsDOCX = async (
     );
     
     // Create document with better formatting
-    const doc = new Document({
+    const doc = new DocxDocument({
       sections: [
         {
           properties: {
@@ -1982,6 +1982,683 @@ export const importFromJSON = (file: File): Promise<CanvasData> => {
     
     reader.readAsText(file);
   });
+};
+
+/**
+ * Import from FlowDigm native format (.flowdigm)
+ */
+export const importFromFlowdigm = (file: File): Promise<CanvasData> => {
+  return importFromJSON(file); // Same as JSON for now
+};
+
+/**
+ * Import from SVG format
+ */
+export const importFromSVG = (file: File): Promise<CanvasData> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    
+    reader.onload = (event) => {
+      try {
+        const content = event.target?.result as string;
+        const parser = new DOMParser();
+        const svgDoc = parser.parseFromString(content, 'image/svg+xml');
+        
+        // Extract shapes from SVG
+        const canvasData = parseSVGToCanvasData(svgDoc, file.name);
+        resolve(canvasData);
+      } catch (error) {
+        reject(new Error('Failed to parse SVG file'));
+      }
+    };
+    
+    reader.onerror = () => {
+      reject(new Error('Failed to read SVG file'));
+    };
+    
+    reader.readAsText(file);
+  });
+};
+
+/**
+ * Import from XML format (Draw.io, Visio, etc.)
+ */
+export const importFromXML = (file: File): Promise<CanvasData> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    
+    reader.onload = (event) => {
+      try {
+        const content = event.target?.result as string;
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(content, 'application/xml');
+        
+        // Check for parser errors
+        const parseError = xmlDoc.querySelector('parsererror');
+        if (parseError) {
+          throw new Error('Invalid XML format');
+        }
+        
+        // Detect XML format and parse accordingly
+        const canvasData = parseXMLToCanvasData(xmlDoc, file.name);
+        resolve(canvasData);
+      } catch (error) {
+        reject(new Error('Failed to parse XML file'));
+      }
+    };
+    
+    reader.onerror = () => {
+      reject(new Error('Failed to read XML file'));
+    };
+    
+    reader.readAsText(file);
+  });
+};
+
+/**
+ * Import from CSV format (node/edge lists)
+ */
+export const importFromCSV = (file: File): Promise<CanvasData> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    
+    reader.onload = (event) => {
+      try {
+        const content = event.target?.result as string;
+        const canvasData = parseCSVToCanvasData(content, file.name);
+        resolve(canvasData);
+      } catch (error) {
+        reject(new Error('Failed to parse CSV file'));
+      }
+    };
+    
+    reader.onerror = () => {
+      reject(new Error('Failed to read CSV file'));
+    };
+    
+    reader.readAsText(file);
+  });
+};
+
+/**
+ * Import from TXT format (simple node lists)
+ */
+export const importFromTXT = (file: File): Promise<CanvasData> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    
+    reader.onload = (event) => {
+      try {
+        const content = event.target?.result as string;
+        const canvasData = parseTXTToCanvasData(content, file.name);
+        resolve(canvasData);
+      } catch (error) {
+        reject(new Error('Failed to parse TXT file'));
+      }
+    };
+    
+    reader.onerror = () => {
+      reject(new Error('Failed to read TXT file'));
+    };
+    
+    reader.readAsText(file);
+  });
+};
+
+/**
+ * Import from image formats (PNG, JPG, etc.) - extract text and create nodes
+ */
+export const importFromImage = (file: File): Promise<CanvasData> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    
+    reader.onload = (event) => {
+      try {
+        const dataUrl = event.target?.result as string;
+        
+        // Create a single image node
+        const canvasData: CanvasData = {
+          nodes: [
+            {
+              id: 'image-1',
+              type: 'image',
+              position: { x: 100, y: 100 },
+              data: {
+                label: file.name,
+                imageUrl: dataUrl,
+                width: 300,
+                height: 200,
+                fill: '#ffffff',
+                stroke: '#000000',
+                strokeWidth: 2
+              }
+            }
+          ],
+          edges: [],
+          viewport: { x: 0, y: 0, zoom: 1 },
+          grid: { visible: true, size: 20, snap: false },
+          fileName: file.name.replace(/\.[^/.]+$/, ""),
+          version: '1.0'
+        };
+        
+        resolve(canvasData);
+      } catch (error) {
+        reject(new Error('Failed to process image file'));
+      }
+    };
+    
+    reader.onerror = () => {
+      reject(new Error('Failed to read image file'));
+    };
+    
+    reader.readAsDataURL(file);
+  });
+};
+
+/**
+ * Universal import function that detects file type and routes to appropriate handler
+ */
+export const importFile = async (file: File): Promise<CanvasData> => {
+  const extension = file.name.split('.').pop()?.toLowerCase() || '';
+  
+  console.log(`🔄 Importing file: ${file.name} (${extension})`);
+  
+  try {
+    switch (extension) {
+      case 'json':
+        // Check if it's FlowDigm format by reading a small part
+        const preview = await file.slice(0, 1000).text();
+        if (preview.includes('"flowdigm"') || preview.includes('"version"')) {
+          return await importFromFlowdigm(file);
+        }
+        return await importFromJSON(file);
+      
+      case 'flowdigm':
+        return await importFromFlowdigm(file);
+      
+      case 'svg':
+        return await importFromSVG(file);
+      
+      case 'xml':
+      case 'drawio':
+      case 'vsdx':
+        return await importFromXML(file);
+      
+      case 'csv':
+        return await importFromCSV(file);
+      
+      case 'txt':
+        return await importFromTXT(file);
+      
+      case 'png':
+      case 'jpg':
+      case 'jpeg':
+      case 'gif':
+      case 'bmp':
+      case 'webp':
+        return await importFromImage(file);
+      
+      default:
+        throw new Error(`Unsupported file format: ${extension}. Supported formats: JSON, FlowDigm, SVG, XML, Draw.io, CSV, TXT, PNG, JPG`);
+    }
+  } catch (error) {
+    console.error(`❌ Import failed for ${file.name}:`, error);
+    throw error;
+  }
+};
+
+// Helper functions for parsing different formats
+
+/**
+ * Parse SVG content to CanvasData
+ */
+const parseSVGToCanvasData = (svgDoc: Document, fileName: string): CanvasData => {
+  const nodes: any[] = [];
+  const edges: any[] = [];
+  
+  // Extract shapes from SVG elements
+  const shapes: NodeListOf<Element> = svgDoc.querySelectorAll('rect, circle, ellipse, polygon, path, text, g');
+  
+  shapes.forEach((shape: Element, index: number) => {
+    const nodeId = `svg-node-${index}`;
+    let x = 0, y = 0, width = 100, height = 80;
+    let label = '';
+    
+    // Extract position and dimensions based on element type
+    if (shape.tagName === 'rect') {
+      x = parseFloat(shape.getAttribute('x') || '0');
+      y = parseFloat(shape.getAttribute('y') || '0');
+      width = parseFloat(shape.getAttribute('width') || '100');
+      height = parseFloat(shape.getAttribute('height') || '80');
+    } else if (shape.tagName === 'circle') {
+      const cx = parseFloat(shape.getAttribute('cx') || '50');
+      const cy = parseFloat(shape.getAttribute('cy') || '50');
+      const r = parseFloat(shape.getAttribute('r') || '25');
+      x = cx - r;
+      y = cy - r;
+      width = height = r * 2;
+    } else if (shape.tagName === 'text') {
+      x = parseFloat(shape.getAttribute('x') || '0');
+      y = parseFloat(shape.getAttribute('y') || '0');
+      label = shape.textContent || '';
+      width = label.length * 8; // Estimate width
+      height = 20;
+    }
+    
+    // Extract text content for label
+    if (!label) {
+      const textElement = shape.querySelector('text');
+      label = textElement?.textContent || shape.getAttribute('id') || `Shape ${index + 1}`;
+    }
+    
+    nodes.push({
+      id: nodeId,
+      type: shape.tagName === 'circle' ? 'circle' : 'rect',
+      position: { x, y },
+      data: {
+        label,
+        width,
+        height,
+        fill: shape.getAttribute('fill') || '#e3f2fd',
+        stroke: shape.getAttribute('stroke') || '#1976d2',
+        strokeWidth: parseFloat(shape.getAttribute('stroke-width') || '2')
+      }
+    });
+  });
+  
+  // If no shapes found, create a default node
+  if (nodes.length === 0) {
+    nodes.push({
+      id: 'default-1',
+      type: 'rect',
+      position: { x: 100, y: 100 },
+      data: {
+        label: 'Imported SVG',
+        width: 120,
+        height: 80,
+        fill: '#e3f2fd',
+        stroke: '#1976d2',
+        strokeWidth: 2
+      }
+    });
+  }
+  
+  return {
+    nodes,
+    edges,
+    viewport: { x: 0, y: 0, zoom: 1 },
+    grid: { visible: true, size: 20, snap: false },
+    fileName: fileName.replace(/\.[^/.]+$/, ""),
+    version: '1.0'
+  };
+};
+
+/**
+ * Parse XML content to CanvasData (Draw.io, Visio, etc.)
+ */
+const parseXMLToCanvasData = (xmlDoc: Document, fileName: string): CanvasData => {
+  const nodes: any[] = [];
+  const edges: any[] = [];
+  
+  // Try to detect and parse Draw.io format
+  const mxFile = xmlDoc.querySelector('mxfile');
+  const diagram = xmlDoc.querySelector('diagram');
+  
+  if (mxFile || diagram) {
+    return parseDrawIOXML(xmlDoc, fileName);
+  }
+  
+  // Try to parse generic XML with shape-like elements
+  const shapes = xmlDoc.querySelectorAll('shape, object, node, element, rect, circle');
+  
+  shapes.forEach((shape, index) => {
+    const nodeId = shape.getAttribute('id') || `xml-node-${index}`;
+    
+    // Extract attributes
+    const x = parseFloat(shape.getAttribute('x') || '0');
+    const y = parseFloat(shape.getAttribute('y') || '0');
+    const width = parseFloat(shape.getAttribute('width') || '100');
+    const height = parseFloat(shape.getAttribute('height') || '80');
+    const label = shape.getAttribute('label') || shape.textContent || `Node ${index + 1}`;
+    
+    nodes.push({
+      id: nodeId,
+      type: 'rect',
+      position: { x: x * 2, y: y * 2 }, // Scale up for better visibility
+      data: {
+        label,
+        width,
+        height,
+        fill: '#e3f2fd',
+        stroke: '#1976d2',
+        strokeWidth: 2
+      }
+    });
+  });
+  
+  // If no shapes found, create a default node
+  if (nodes.length === 0) {
+    nodes.push({
+      id: 'default-1',
+      type: 'rect',
+      position: { x: 100, y: 100 },
+      data: {
+        label: 'Imported XML',
+        width: 120,
+        height: 80,
+        fill: '#e3f2fd',
+        stroke: '#1976d2',
+        strokeWidth: 2
+      }
+    });
+  }
+  
+  return {
+    nodes,
+    edges,
+    viewport: { x: 0, y: 0, zoom: 1 },
+    grid: { visible: true, size: 20, snap: false },
+    fileName: fileName.replace(/\.[^/.]+$/, ""),
+    version: '1.0'
+  };
+};
+
+/**
+ * Parse Draw.io XML format
+ */
+const parseDrawIOXML = (xmlDoc: Document, fileName: string): CanvasData => {
+  const nodes: any[] = [];
+  const edges: any[] = [];
+  
+  // Find all mxCell elements
+  const cells = xmlDoc.querySelectorAll('mxCell');
+  
+  cells.forEach((cell, index) => {
+    const cellId = cell.getAttribute('id');
+    const value = cell.getAttribute('value') || '';
+    const style = cell.getAttribute('style') || '';
+    const vertex = cell.getAttribute('vertex') === '1';
+    const edge = cell.getAttribute('edge') === '1';
+    
+    if (vertex && cellId !== '0' && cellId !== '1') {
+      // This is a vertex (node)
+      const geometry = cell.querySelector('mxGeometry');
+      const x = parseFloat(geometry?.getAttribute('x') || '0');
+      const y = parseFloat(geometry?.getAttribute('y') || '0');
+      const width = parseFloat(geometry?.getAttribute('width') || '100');
+      const height = parseFloat(geometry?.getAttribute('height') || '80');
+      
+      // Parse style for colors
+      let fill = '#e3f2fd';
+      let stroke = '#1976d2';
+      if (style.includes('fillColor=')) {
+        const match = style.match(/fillColor=([^;]+)/);
+        if (match) fill = match[1];
+      }
+      if (style.includes('strokeColor=')) {
+        const match = style.match(/strokeColor=([^;]+)/);
+        if (match) stroke = match[1];
+      }
+      
+      nodes.push({
+        id: cellId || `drawio-node-${index}`,
+        type: style.includes('ellipse') ? 'circle' : 'rect',
+        position: { x, y },
+        data: {
+          label: value || `Node ${index + 1}`,
+          width,
+          height,
+          fill: fill.startsWith('#') ? fill : `#${fill}`,
+          stroke: stroke.startsWith('#') ? stroke : `#${stroke}`,
+          strokeWidth: 2
+        }
+      });
+    } else if (edge) {
+      // This is an edge
+      const source = cell.getAttribute('source');
+      const target = cell.getAttribute('target');
+      
+      if (source && target) {
+        edges.push({
+          id: cellId || `drawio-edge-${index}`,
+          source,
+          target,
+          type: 'default',
+          data: { label: value }
+        });
+      }
+    }
+  });
+  
+  return {
+    nodes,
+    edges,
+    viewport: { x: 0, y: 0, zoom: 1 },
+    grid: { visible: true, size: 20, snap: false },
+    fileName: fileName.replace(/\.[^/.]+$/, ""),
+    version: '1.0'
+  };
+};
+
+/**
+ * Parse CSV content to CanvasData
+ */
+const parseCSVToCanvasData = (content: string, fileName: string): CanvasData => {
+  const nodes: any[] = [];
+  const edges: any[] = [];
+  
+  const lines = content.split('\n').filter(line => line.trim());
+  const headers = lines[0]?.split(',').map(h => h.trim().toLowerCase());
+  
+  if (!headers) {
+    throw new Error('Empty CSV file');
+  }
+  
+  // Check if this is a node list or edge list
+  const isEdgeList = headers.includes('source') && headers.includes('target');
+  
+  if (isEdgeList) {
+    // Parse as edge list
+    const sourceIndex = headers.indexOf('source');
+    const targetIndex = headers.indexOf('target');
+    const labelIndex = headers.indexOf('label');
+    
+    const nodeSet = new Set<string>();
+    
+    for (let i = 1; i < lines.length; i++) {
+      const values = lines[i].split(',').map(v => v.trim());
+      const source = values[sourceIndex];
+      const target = values[targetIndex];
+      const label = labelIndex >= 0 ? values[labelIndex] : '';
+      
+      if (source && target) {
+        nodeSet.add(source);
+        nodeSet.add(target);
+        
+        edges.push({
+          id: `edge-${i}`,
+          source,
+          target,
+          type: 'default',
+          data: { label }
+        });
+      }
+    }
+    
+    // Create nodes from the edge endpoints
+    Array.from(nodeSet).forEach((nodeId, index) => {
+      nodes.push({
+        id: nodeId,
+        type: 'rect',
+        position: { 
+          x: 100 + (index % 5) * 150, 
+          y: 100 + Math.floor(index / 5) * 120 
+        },
+        data: {
+          label: nodeId,
+          width: 120,
+          height: 80,
+          fill: '#e3f2fd',
+          stroke: '#1976d2',
+          strokeWidth: 2
+        }
+      });
+    });
+  } else {
+    // Parse as node list
+    const idIndex = headers.indexOf('id') || headers.indexOf('name') || 0;
+    const labelIndex = headers.indexOf('label') || headers.indexOf('name') || idIndex;
+    const typeIndex = headers.indexOf('type');
+    
+    for (let i = 1; i < lines.length; i++) {
+      const values = lines[i].split(',').map(v => v.trim());
+      const id = values[idIndex] || `node-${i}`;
+      const label = values[labelIndex] || id;
+      const type = typeIndex >= 0 ? values[typeIndex] : 'rect';
+      
+      nodes.push({
+        id,
+        type: type === 'circle' ? 'circle' : 'rect',
+        position: { 
+          x: 100 + (i % 5) * 150, 
+          y: 100 + Math.floor(i / 5) * 120 
+        },
+        data: {
+          label,
+          width: 120,
+          height: 80,
+          fill: '#e3f2fd',
+          stroke: '#1976d2',
+          strokeWidth: 2
+        }
+      });
+    }
+  }
+  
+  return {
+    nodes,
+    edges,
+    viewport: { x: 0, y: 0, zoom: 1 },
+    grid: { visible: true, size: 20, snap: false },
+    fileName: fileName.replace(/\.[^/.]+$/, ""),
+    version: '1.0'
+  };
+};
+
+/**
+ * Parse TXT content to CanvasData
+ */
+const parseTXTToCanvasData = (content: string, fileName: string): CanvasData => {
+  const nodes: any[] = [];
+  const edges: any[] = [];
+  
+  const lines = content.split('\n').filter(line => line.trim());
+  
+  // Check if lines contain arrows or connections (-> or -- or =>)
+  const connectionPattern = /(.+?)(?:\s*(?:->|-->|=>|--)\s*)(.+)/;
+  
+  lines.forEach((line, index) => {
+    const match = line.match(connectionPattern);
+    
+    if (match) {
+      // This line represents a connection
+      const source = match[1].trim();
+      const target = match[2].trim();
+      
+      // Create nodes if they don't exist
+      if (!nodes.find(n => n.id === source)) {
+        nodes.push({
+          id: source,
+          type: 'rect',
+          position: { 
+            x: 100 + (nodes.length % 4) * 180, 
+            y: 100 + Math.floor(nodes.length / 4) * 120 
+          },
+          data: {
+            label: source,
+            width: 140,
+            height: 80,
+            fill: '#e3f2fd',
+            stroke: '#1976d2',
+            strokeWidth: 2
+          }
+        });
+      }
+      
+      if (!nodes.find(n => n.id === target)) {
+        nodes.push({
+          id: target,
+          type: 'rect',
+          position: { 
+            x: 100 + (nodes.length % 4) * 180, 
+            y: 100 + Math.floor(nodes.length / 4) * 120 
+          },
+          data: {
+            label: target,
+            width: 140,
+            height: 80,
+            fill: '#e3f2fd',
+            stroke: '#1976d2',
+            strokeWidth: 2
+          }
+        });
+      }
+      
+      // Create edge
+      edges.push({
+        id: `edge-${index}`,
+        source,
+        target,
+        type: 'default',
+        data: { label: '' }
+      });
+    } else if (line.trim()) {
+      // This line represents a standalone node
+      const nodeId = line.trim();
+      nodes.push({
+        id: nodeId,
+        type: 'rect',
+        position: { 
+          x: 100 + (index % 4) * 180, 
+          y: 100 + Math.floor(index / 4) * 120 
+        },
+        data: {
+          label: nodeId,
+          width: 140,
+          height: 80,
+          fill: '#e3f2fd',
+          stroke: '#1976d2',
+          strokeWidth: 2
+        }
+      });
+    }
+  });
+  
+  // If no nodes were created, create a default one
+  if (nodes.length === 0) {
+    nodes.push({
+      id: 'default-1',
+      type: 'rect',
+      position: { x: 100, y: 100 },
+      data: {
+        label: 'Imported Text',
+        width: 120,
+        height: 80,
+        fill: '#e3f2fd',
+        stroke: '#1976d2',
+        strokeWidth: 2
+      }
+    });
+  }
+  
+  return {
+    nodes,
+    edges,
+    viewport: { x: 0, y: 0, zoom: 1 },
+    grid: { visible: true, size: 20, snap: false },
+    fileName: fileName.replace(/\.[^/.]+$/, ""),
+    version: '1.0'
+  };
 };
 
 // Helper functions

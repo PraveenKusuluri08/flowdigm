@@ -2,7 +2,7 @@
 // contexts/CanvasContext.js - Fixed for Stable Positioning
 import React, { createContext, useReducer, useCallback, useEffect } from 'react';
 import type { CanvasData } from '../types/importExport';
-import { exportAsJSON, importFromJSON, exportAsPNG, exportAsJPEG, exportAsSVG, exportAsPNGSimple, exportAsPNGCanvas } from '../utils/importExportUtils';
+import { exportAsJSON, importFile, exportAsPNG, exportAsJPEG, exportAsSVG, exportAsPNGSimple, exportAsPNGCanvas } from '../utils/importExportUtils';
 import { saveFileToDevice, loadFileFromDevice, setupAutoSave, loadAutoSave, clearAutoSave, hasUnsavedWork } from '../utils/fileSystemUtils';
 import { processImageFileForShapes, createImageFileInput } from '../utils/imageProcessingUtils';
 
@@ -481,7 +481,8 @@ const CanvasProvider = ({ children }: { children: React.ReactNode }) => {
 
   const importFromFile = useCallback(async (file: File) => {
     try {
-      const canvasData = await importFromJSON(file);
+      // Use the enhanced importFile function that supports multiple formats
+      const canvasData = await importFile(file);
       importCanvas(canvasData);
     } catch (error) {
       console.error('Import error:', error);
