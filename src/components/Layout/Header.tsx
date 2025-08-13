@@ -8,10 +8,8 @@ import {
   Save,
   Download,
   Upload,
-  Cloud,
   HardDrive,
   Globe,
-  Github,
   ExternalLink,
 } from "lucide-react";
 import { CanvasContext } from "../../context/CanvasEditorProvider";
@@ -141,11 +139,6 @@ const Header = () => {
     input.click();
     document.body.removeChild(input);
   }, [importFromFile]);
-
-  const handleCloudImport = useCallback((source: string) => {
-    setShowImportDropdown(false);
-    alert(`${source} integration coming soon! Please use Device import for now.`);
-  }, []);
 
   const handleBrowserImport = useCallback(() => {
     setShowImportDropdown(false);
@@ -397,55 +390,6 @@ const Header = () => {
                       <span className="text-sm">URL</span>
                       <span className="ml-auto text-xs text-green-600">✓</span>
                     </button>
-                    
-                    <div className="border-t border-gray-100 mt-2 pt-2">
-                      <div className="px-4 py-1 text-xs text-gray-500">Cloud Services (Coming Soon)</div>
-                      
-                      <button
-                        onClick={() => handleCloudImport('Google Drive')}
-                        className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-gray-500"
-                      >
-                        <Cloud size={16} />
-                        <span className="text-sm">Google Drive</span>
-                        <span className="ml-auto text-xs text-orange-500">Soon</span>
-                      </button>
-                      
-                      <button
-                        onClick={() => handleCloudImport('OneDrive')}
-                        className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-gray-500"
-                      >
-                        <Cloud size={16} />
-                        <span className="text-sm">OneDrive</span>
-                        <span className="ml-auto text-xs text-orange-500">Soon</span>
-                      </button>
-                      
-                      <button
-                        onClick={() => handleCloudImport('Dropbox')}
-                        className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-gray-500"
-                      >
-                        <Cloud size={16} />
-                        <span className="text-sm">Dropbox</span>
-                        <span className="ml-auto text-xs text-orange-500">Soon</span>
-                      </button>
-                      
-                      <button
-                        onClick={() => handleCloudImport('GitHub')}
-                        className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-gray-500"
-                      >
-                        <Github size={16} />
-                        <span className="text-sm">GitHub</span>
-                        <span className="ml-auto text-xs text-orange-500">Soon</span>
-                      </button>
-                      
-                      <button
-                        onClick={() => handleCloudImport('GitLab')}
-                        className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-gray-500"
-                      >
-                        <Github size={16} />
-                        <span className="text-sm">GitLab</span>
-                        <span className="ml-auto text-xs text-orange-500">Soon</span>
-                      </button>
-                    </div>
                     
                     <div className="border-t border-gray-100 mt-2 pt-2">
                       <div className="px-4 py-1 text-xs text-gray-500">

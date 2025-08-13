@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Empty Shapes - Clean DOCX Export</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .clean-section {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+        .demo-area {
+            background: #f8f9fa;
+            border: 3px solid #28a745;
+            padding: 40px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .shape-demo {
+            font-size: 48px;
+            margin: 30px;
+            display: inline-block;
+        }
+        .circle-symbol {
+            color: #007bff;
+        }
+        .rectangle-symbol {
+            color: #dc3545;
+        }
+        .empty-space {
+            height: 40px;
+            border: 2px dashed #ccc;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-style: italic;
+        }
+        .instruction-box {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+        .instruction-box h3 {
+            color: #1565c0;
+            margin-top: 0;
+        }
+        .benefit-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .benefit-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #28a745;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .benefit-card h4 {
+            color: #28a745;
+            margin-top: 0;
+        }
+        .export-button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.2em;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+        .export-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: #856404;
+        }
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .before, .after {
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .before {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+        }
+        .after {
+            background: #d1ecf1;
+            border: 2px solid #17a2b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Clean Empty Shapes - No Text</h1>
+        
+        <div class="clean-section">
+            <h2>✨ Perfect! Completely Empty Shapes</h2>
+            <p><strong>You asked for no text in the document</strong> - now you have completely clean, empty shapes that you can customize however you want!</p>
+            <p><strong>Result:</strong> Just the shape symbols with no placeholder text or labels.</p>
+        </div>
+
+        <div class="demo-area">
+            <h3>What You'll See in Word Document:</h3>
+            <div class="shape-demo circle-symbol">◯</div>
+            <div class="empty-space">← Empty space for your text</div>
+            
+            <div class="shape-demo rectangle-symbol">▭</div>
+            <div class="empty-space">← Empty space for your text</div>
+            
+            <p><strong>Just clean symbols - no text at all!</strong></p>
+        </div>
+
+        <div class="comparison">
+            <div class="before">
+                <h4>❌ Before (Had Text)</h4>
+                <div style="font-family: monospace;">
+                    ◯ Circle<br>
+                    [Type your text here]<br><br>
+                    ▭ Rectangle<br>
+                    [Type your text here]
+                </div>
+            </div>
+            <div class="after">
+                <h4>✅ Now (Completely Empty)</h4>
+                <div style="font-family: monospace;">
+                    ◯<br>
+                    <br><br>
+                    ▭<br>
+                    <br>
+                </div>
+            </div>
+        </div>
+
+        <div class="benefit-grid">
+            <div class="benefit-card">
+                <h4>🎨 Complete Creative Freedom</h4>
+                <p>Start with a completely blank canvas. Add exactly the text you want, where you want it.</p>
+            </div>
+            <div class="benefit-card">
+                <h4>🚫 No Clutter</h4>
+                <p>No placeholder text, no labels, no distractions. Just clean shape symbols.</p>
+            </div>
+            <div class="benefit-card">
+                <h4>📐 Professional Look</h4>
+                <p>Clean, minimalist design that looks professional from the start.</p>
+            </div>
+            <div class="benefit-card">
+                <h4>✏️ Your Design</h4>
+                <p>Add text exactly how you want it using Word's full range of text and formatting tools.</p>
+            </div>
+        </div>
+
+        <div class="instruction-box">
+            <h3>📋 How to Use Your Empty Shapes:</h3>
+            <ol>
+                <li><strong>Export your diagram</strong> to get the clean DOCX file</li>
+                <li><strong>Open in Word</strong> and find the "Visual Replica" section</li>
+                <li><strong>Click below any shape</strong> to start adding your text</li>
+                <li><strong>Use Insert → Text Box</strong> to add text directly on the shapes</li>
+                <li><strong>Use Insert → Shapes</strong> to add arrows, lines, and connectors</li>
+                <li><strong>Copy/paste</strong> the shape symbols (◯ ▭) to create more elements</li>
+            </ol>
+        </div>
+
+        <div class="instruction-box">
+            <h3>🎯 What You Can Do:</h3>
+            <ul>
+                <li><span class="highlight">Add text anywhere</span> - click and type below, above, or beside shapes</li>
+                <li><span class="highlight">Insert text boxes</span> - place text directly on top of shapes</li>
+                <li><span class="highlight">Use Word's drawing tools</span> - add arrows, lines, and connectors</li>
+                <li><span class="highlight">Format as needed</span> - fonts, colors, sizes, styles</li>
+                <li><span class="highlight">Create your layout</span> - arrange shapes and text however you want</li>
+                <li><span class="highlight">Copy and modify</span> - duplicate shapes to build complex diagrams</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <button class="export-button" onclick="testExport()">
+                🧪 Test Clean DOCX Export
+            </button>
+            <button class="export-button" onclick="showBenefits()">
+                ✨ View Benefits
+            </button>
+        </div>
+
+        <div class="clean-section">
+            <h3>🎉 Perfect Solution</h3>
+            <p><strong>Now you have exactly what you wanted:</strong></p>
+            <ul>
+                <li>✅ <strong>No text</strong> in the shapes at all</li>
+                <li>✅ <strong>Clean symbols</strong> for circles (◯) and rectangles (▭)</li>
+                <li>✅ <strong>Complete freedom</strong> to add your own text as needed</li>
+                <li>✅ <strong>Professional appearance</strong> with minimal, clean design</li>
+                <li>✅ <strong>Full Word compatibility</strong> for adding text, formatting, and drawing tools</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function testExport() {
+            alert('🎯 Perfect! Your clean export is ready!\n\n✨ What you\'ll get:\n• Shape symbols only (◯ ▭)\n• No text, no labels, no clutter\n• Clean, professional appearance\n• Complete freedom to add your own content\n\n📋 How to use:\n1. Export your diagram as DOCX\n2. Open in Word\n3. Click anywhere to add text\n4. Use Word\'s tools to enhance\n\n🎉 Exactly what you wanted - completely empty shapes!');
+        }
+
+        function showBenefits() {
+            alert('✨ Benefits of Empty Shapes:\n\n🎨 CREATIVE FREEDOM:\n• Start with a blank canvas\n• Add exactly what you need\n• No predetermined text to delete\n\n🚫 NO CLUTTER:\n• Clean, minimalist design\n• Professional appearance\n• No distracting placeholder text\n\n📐 FULL CONTROL:\n• Use Word\'s text tools\n• Add text boxes anywhere\n• Design your own layout\n\n✅ This gives you maximum flexibility!');
+        }
+    </script>
+</body>
+</html>

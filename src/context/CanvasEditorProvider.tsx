@@ -2,7 +2,7 @@
 // contexts/CanvasContext.js - Fixed for Stable Positioning
 import React, { createContext, useReducer, useCallback, useEffect } from 'react';
 import type { CanvasData } from '../types/importExport';
-import { exportAsJSON, importFile, exportAsPNG, exportAsJPEG, exportAsSVG, exportAsPNGSimple, exportAsPNGCanvas } from '../utils/importExportUtils';
+import { exportAsJSON, importFile, exportAsPNG, exportAsJPEG, exportAsSVG, exportAsPNGSimple, exportFile } from '../utils/importExportUtils';
 import { saveFileToDevice, loadFileFromDevice, setupAutoSave, loadAutoSave, clearAutoSave, hasUnsavedWork } from '../utils/fileSystemUtils';
 import { processImageFileForShapes, createImageFileInput } from '../utils/imageProcessingUtils';
 
@@ -434,12 +434,18 @@ const CanvasProvider = ({ children }: { children: React.ReactNode }) => {
       switch (format.toLowerCase()) {
         case 'png':
           try {
-            await exportAsPNGSimple(fileName);
+            const canvasElement = document.querySelector('.react-flow') as HTMLElement;
+            if (canvasElement) {
+              await exportAsPNG(canvasElement, fileName);
+            } else {
+              await exportAsPNGSimple(canvasElement, fileName);
+            }
           } catch (error) {
             console.error('Enhanced export failed, trying canvas-based fallback:', error);
             try {
               if (reactFlowNodes.length > 0) {
-                await exportAsPNGCanvas(reactFlowNodes, reactFlowEdges, fileName);
+                const canvasElement = document.querySelector('.react-flow') as HTMLElement;
+                await exportAsPNG(canvasElement, fileName);
               } else if (targetCanvasElement) {
                 await exportAsPNG(targetCanvasElement, fileName);
               }
@@ -469,6 +475,33 @@ const CanvasProvider = ({ children }: { children: React.ReactNode }) => {
           break;
         case 'json':
           exportAsJSON(canvasData, fileName);
+          break;
+        case 'webp':
+        case 'pdf':
+        case 'pptx':
+        case 'docx':
+        case 'html':
+        case 'xml':
+        case 'url':
+          // Use the advanced exportFile function for comprehensive formats
+          try {
+            console.log(`🚀 Using advanced export for format: ${format}`);
+            await exportFile(
+              format as any,
+              fileName,
+              {
+                quality: 1.0,
+                scale: 2,
+                backgroundColor: '#ffffff',
+                includeMetadata: true,
+                includeGrid: false,
+                cropToContent: true
+              }
+            );
+          } catch (error) {
+            console.error(`❌ Advanced ${format} export failed:`, error);
+            throw new Error(`Failed to export ${format.toUpperCase()}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+          }
           break;
         default:
           throw new Error(`Unsupported export format: ${format}`);

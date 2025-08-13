@@ -8,8 +8,7 @@ import {
   ChevronLeft,
   ChevronRight,
   GitBranch,
-  Home,
-  Zap
+  Home
 } from 'lucide-react';
 import logo from '../assets/images/logo.jpeg';
 
@@ -26,15 +25,13 @@ interface MainLeftNavbarProps {
   onSectionChange: (section: string) => void;
   collapsed?: boolean;
   setCollapsed?: (collapsed: boolean) => void;
-  onIntegrationOpen?: () => void;
 }
 
 const MainLeftNavbar: React.FC<MainLeftNavbarProps> = ({ 
   activeSection, 
   onSectionChange,
   collapsed = false,
-  setCollapsed,
-  onIntegrationOpen
+  setCollapsed
 }) => {
   const isCollapsed = collapsed;
   const setIsCollapsed = setCollapsed || (() => {});
@@ -69,16 +66,6 @@ const MainLeftNavbar: React.FC<MainLeftNavbarProps> = ({
       label: 'BPMN',
       icon: GitBranch,
       onClick: () => onSectionChange('bpmn')
-    },
-    {
-      id: 'integration',
-      label: 'Integration',
-      icon: Zap,
-      isAction: true,
-      onClick: () => {
-        console.log('Integration clicked');
-        onIntegrationOpen?.();
-      }
     }
   ];
 

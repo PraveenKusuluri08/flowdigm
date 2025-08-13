@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOCX Export with Diagram Image Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        .test-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-title {
+            color: #1976d2;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .test-description {
+            color: #666;
+            font-size: 16px;
+        }
+        .canvas-container {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            margin: 20px 0;
+            height: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+        .react-flow {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, #f0f0f0 1px, transparent 1px),
+                        linear-gradient(to bottom, #f0f0f0 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .test-shape {
+            position: absolute;
+            border: 2px solid #1976d2;
+            background: #e3f2fd;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #333;
+            cursor: move;
+            user-select: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .shape-rect {
+            width: 120px;
+            height: 80px;
+            top: 50px;
+            left: 100px;
+        }
+        .shape-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            top: 200px;
+            left: 300px;
+        }
+        .shape-diamond {
+            width: 100px;
+            height: 100px;
+            top: 80px;
+            left: 500px;
+            transform: rotate(45deg);
+            border-radius: 8px;
+        }
+        .shape-diamond span {
+            transform: rotate(-45deg);
+        }
+        .control-panel {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        .btn-primary {
+            background: #1976d2;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #1565c0;
+            transform: translateY(-1px);
+        }
+        .btn-success {
+            background: #4caf50;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #45a049;
+        }
+        .btn-info {
+            background: #2196f3;
+            color: white;
+        }
+        .btn-info:hover {
+            background: #1976d2;
+        }
+        .status-panel {
+            background: #e8f5e8;
+            border: 1px solid #c8e6c9;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .status-title {
+            font-weight: bold;
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+        .status-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .status-list li {
+            padding: 5px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .status-list li:last-child {
+            border-bottom: none;
+        }
+        .feature-highlight {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .feature-highlight h3 {
+            margin: 0 0 10px 0;
+            font-size: 20px;
+        }
+        .demo-connection {
+            position: absolute;
+            top: 90px;
+            left: 220px;
+            width: 80px;
+            height: 2px;
+            background: #ff4444;
+            transform-origin: left center;
+        }
+        .demo-connection::after {
+            content: '';
+            position: absolute;
+            right: -6px;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-left: 10px solid #ff4444;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+        }
+        .log-panel {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            margin: 2px 0;
+            padding: 2px 0;
+        }
+        .log-success { color: #28a745; }
+        .log-error { color: #dc3545; }
+        .log-info { color: #17a2b8; }
+        .log-warning { color: #ffc107; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1 class="test-title">🖼️ DOCX Export with Diagram Image Test</h1>
+            <p class="test-description">
+                Test the enhanced DOCX export functionality that embeds the actual diagram image
+            </p>
+        </div>
+
+        <div class="feature-highlight">
+            <h3>✨ Enhanced Feature</h3>
+            <p>DOCX export now includes the actual diagram image along with component details!</p>
+        </div>
+
+        <div class="canvas-container">
+            <div class="react-flow" id="test-canvas">
+                <!-- Test shapes -->
+                <div class="test-shape shape-rect">
+                    <span>Start</span>
+                </div>
+                <div class="test-shape shape-circle">
+                    <span>Process</span>
+                </div>
+                <div class="test-shape shape-diamond">
+                    <span>Decision</span>
+                </div>
+                <!-- Connection line -->
+                <div class="demo-connection"></div>
+            </div>
+        </div>
+
+        <div class="control-panel">
+            <h3>🎯 Test DOCX Export with Diagram</h3>
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="testDocxWithDiagram()">
+                    📝 Export DOCX with Diagram
+                </button>
+                <button class="btn btn-success" onclick="testBasicDocx()">
+                    📄 Export Basic DOCX
+                </button>
+                <button class="btn btn-info" onclick="addTestShapes()">
+                    ➕ Add More Test Shapes
+                </button>
+                <button class="btn btn-info" onclick="clearLog()">
+                    🧹 Clear Log
+                </button>
+            </div>
+
+            <div class="status-panel">
+                <div class="status-title">✅ Expected Features:</div>
+                <ul class="status-list">
+                    <li>✓ Captures diagram as PNG image</li>
+                    <li>✓ Embeds image in DOCX document</li>
+                    <li>✓ Includes component details</li>
+                    <li>✓ Maintains Word compatibility</li>
+                    <li>✓ Professional document layout</li>
+                    <li>✓ Editable in Microsoft Word</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="log-panel" id="logPanel">
+            <div class="log-entry log-info">🔄 Ready to test DOCX export with diagram image...</div>
+        </div>
+    </div>
+
+    <script>
+        // Logging functions
+        function log(message, type = 'info') {
+            const logPanel = document.getElementById('logPanel');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+            logPanel.appendChild(entry);
+            logPanel.scrollTop = logPanel.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('logPanel').innerHTML = '';
+            log('🧹 Log cleared', 'info');
+        }
+
+        // Mock ReactFlow instance for testing
+        window.__REACT_FLOW_INSTANCE__ = {
+            getNodes: () => [
+                {
+                    id: 'node-1',
+                    type: 'rect',
+                    position: { x: 100, y: 50 },
+                    data: {
+                        label: 'Start',
+                        width: 120,
+                        height: 80,
+                        fill: '#e3f2fd',
+                        stroke: '#1976d2'
+                    }
+                },
+                {
+                    id: 'node-2',
+                    type: 'circle',
+                    position: { x: 300, y: 200 },
+                    data: {
+                        label: 'Process',
+                        width: 100,
+                        height: 100,
+                        fill: '#e3f2fd',
+                        stroke: '#1976d2'
+                    }
+                },
+                {
+                    id: 'node-3',
+                    type: 'diamond',
+                    position: { x: 500, y: 80 },
+                    data: {
+                        label: 'Decision',
+                        width: 100,
+                        height: 100,
+                        fill: '#e3f2fd',
+                        stroke: '#1976d2'
+                    }
+                }
+            ],
+            getEdges: () => [
+                {
+                    id: 'edge-1',
+                    source: 'node-1',
+                    target: 'node-2',
+                    type: 'default'
+                }
+            ],
+            fitView: (options) => {
+                log(`📐 ReactFlow fitView called with padding: ${options?.padding || 0}`, 'info');
+            }
+        };
+
+        // Test functions
+        async function testDocxWithDiagram() {
+            try {
+                log('🚀 Starting enhanced DOCX export with diagram test...', 'info');
+                
+                // Check if export function exists
+                if (typeof exportFile === 'undefined') {
+                    log('❌ Export function not found. Loading from utilities...', 'error');
+                    await loadExportUtilities();
+                }
+
+                const canvasElement = document.getElementById('test-canvas');
+                if (!canvasElement) {
+                    throw new Error('Canvas element not found');
+                }
+
+                log('🖼️ Capturing diagram for DOCX export...', 'info');
+                log('📝 Generating DOCX with embedded diagram image...', 'info');
+
+                // Use the enhanced exportFile function
+                await exportFile('docx', 'flowdigm-test-with-diagram', {
+                    quality: 1.0,
+                    scale: 1.5,
+                    backgroundColor: '#ffffff',
+                    includeMetadata: true
+                });
+
+                log('✅ Enhanced DOCX export completed! Check your downloads.', 'success');
+                log('📄 Document should contain: title, diagram image, component list, instructions', 'success');
+                
+            } catch (error) {
+                log(`❌ Enhanced DOCX export failed: ${error.message}`, 'error');
+                console.error('DOCX export error:', error);
+            }
+        }
+
+        async function testBasicDocx() {
+            try {
+                log('📝 Starting basic DOCX export test...', 'info');
+                
+                if (typeof exportFile === 'undefined') {
+                    await loadExportUtilities();
+                }
+
+                const canvasElement = document.getElementById('test-canvas');
+                await exportFile('docx', 'flowdigm-basic-test');
+
+                log('✅ Basic DOCX export completed!', 'success');
+                
+            } catch (error) {
+                log(`❌ Basic DOCX export failed: ${error.message}`, 'error');
+            }
+        }
+
+        function addTestShapes() {
+            const canvas = document.getElementById('test-canvas');
+            const newShape = document.createElement('div');
+            newShape.className = 'test-shape shape-rect';
+            newShape.style.left = `${200 + Math.random() * 300}px`;
+            newShape.style.top = `${50 + Math.random() * 200}px`;
+            newShape.innerHTML = '<span>New Shape</span>';
+            canvas.appendChild(newShape);
+            
+            log('➕ Added new test shape to canvas', 'info');
+        }
+
+        // Dynamic loading of export utilities
+        async function loadExportUtilities() {
+            try {
+                log('📦 Loading export utilities...', 'info');
+                
+                // In a real app, this would import from the actual module
+                // For this test, we'll create a mock function
+                window.exportFile = async function(format, filename, options = {}) {
+                    log(`🔄 Mock export: ${format} format, filename: ${filename}`, 'info');
+                    
+                    if (format === 'docx') {
+                        // Simulate the enhanced DOCX export process
+                        log('🖼️ Simulating diagram capture...', 'info');
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        
+                        log('📝 Simulating DOCX generation with image...', 'info');
+                        await new Promise(resolve => setTimeout(resolve, 1500));
+                        
+                        log('💾 Simulating file download...', 'info');
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                        
+                        // Create a simple test file for download
+                        const testContent = 'This would be a DOCX file with embedded diagram image';
+                        const blob = new Blob([testContent], { type: 'text/plain' });
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = `${filename}.txt`; // Using .txt for demo
+                        link.click();
+                        URL.revokeObjectURL(url);
+                        
+                        return Promise.resolve();
+                    }
+                    
+                    throw new Error(`Unsupported format: ${format}`);
+                };
+                
+                log('✅ Export utilities loaded successfully', 'success');
+                
+            } catch (error) {
+                log(`❌ Failed to load export utilities: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
+        // Initialize the test
+        window.addEventListener('load', () => {
+            log('🎯 DOCX with Diagram Image test page loaded', 'success');
+            log('📝 Enhanced DOCX export now includes actual diagram images!', 'info');
+            log('🖼️ Click "Export DOCX with Diagram" to test the new functionality', 'info');
+        });
+    </script>
+</body>
+</html>

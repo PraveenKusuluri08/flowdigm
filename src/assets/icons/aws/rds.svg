@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <defs>
+    <linearGradient id="rdsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3F48CC;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2937AA;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <ellipse cx="24" cy="20" rx="18" ry="8" fill="url(#rdsGradient)" stroke="#1F2788" stroke-width="1"/>
+  <ellipse cx="24" cy="28" rx="18" ry="8" fill="url(#rdsGradient)" stroke="#1F2788" stroke-width="1"/>
+  <rect x="6" y="20" width="36" height="8" fill="url(#rdsGradient)"/>
+  <text x="24" y="44" text-anchor="middle" font-family="Arial, sans-serif" font-size="6" fill="#3F48CC">RDS</text>
+</svg>
