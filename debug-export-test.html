@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Export Debug Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .debug-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 800px;
+            margin: 0 auto;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+    </style>
+</head>
+<body>
+    <div class="debug-container">
+        <h1>🔍 Export Function Debug Test</h1>
+        <p>This page will help diagnose why export formats are not working.</p>
+
+        <div class="status info" id="initStatus">
+            🔄 Initializing debug tests...
+        </div>
+
+        <h3>🧪 Quick Tests</h3>
+        <button class="test-button" onclick="testExportFunctionAvailability()">Test Export Function Availability</button>
+        <button class="test-button" onclick="testLibraryImports()">Test Library Imports</button>
+        <button class="test-button" onclick="testCanvasDetection()">Test Canvas Detection</button>
+        <button class="test-button" onclick="testReactFlowInstance()">Test ReactFlow Instance</button>
+        <button class="test-button" onclick="testSimpleExport()">Test Simple Export</button>
+
+        <h3>📋 Export Test by Format</h3>
+        <button class="test-button" onclick="testSpecificFormat('png')">Test PNG</button>
+        <button class="test-button" onclick="testSpecificFormat('jpeg')">Test JPEG</button>
+        <button class="test-button" onclick="testSpecificFormat('svg')">Test SVG</button>
+        <button class="test-button" onclick="testSpecificFormat('pdf')">Test PDF</button>
+        <button class="test-button" onclick="testSpecificFormat('docx')">Test DOCX</button>
+        <button class="test-button" onclick="testSpecificFormat('pptx')">Test PPTX</button>
+
+        <h3>📝 Debug Log</h3>
+        <div class="log" id="debugLog">
+            Waiting for tests...<br>
+        </div>
+
+        <h3>🎯 Recommendations</h3>
+        <div id="recommendations" class="status warning" style="display: none;">
+            Based on test results, here are the recommended fixes...
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('debugLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : 'ℹ️';
+            logDiv.innerHTML += `[${timestamp}] ${prefix} ${message}<br>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function updateStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('initStatus');
+            statusDiv.className = `status ${type}`;
+            statusDiv.innerHTML = message;
+        }
+
+        async function testExportFunctionAvailability() {
+            log('🔍 Testing export function availability...');
+            
+            const tests = [
+                { name: 'window.exportFile', test: () => typeof window.exportFile === 'function' },
+                { name: 'window.exportCanvas', test: () => typeof window.exportCanvas === 'function' },
+                { name: 'window.__CANVAS_CONTEXT__', test: () => window.__CANVAS_CONTEXT__ !== undefined },
+                { name: 'Context.exportCanvas', test: () => window.__CANVAS_CONTEXT__ && typeof window.__CANVAS_CONTEXT__.exportCanvas === 'function' }
+            ];
+
+            let availableCount = 0;
+            
+            tests.forEach(test => {
+                try {
+                    const result = test.test();
+                    log(`${test.name}: ${result ? 'Available' : 'Not Available'}`, result ? 'success' : 'error');
+                    if (result) availableCount++;
+                } catch (error) {
+                    log(`${test.name}: Error - ${error.message}`, 'error');
+                }
+            });
+
+            log(`Export functions availability: ${availableCount}/${tests.length} functions found`, availableCount > 0 ? 'success' : 'error');
+            
+            if (availableCount === 0) {
+                updateStatus('🚨 No export functions found! The application may not be fully loaded.', 'error');
+            } else {
+                updateStatus(`✅ Found ${availableCount} export functions available.`, 'success');
+            }
+        }
+
+        async function testLibraryImports() {
+            log('📦 Testing library imports...');
+            
+            const libraries = [
+                { name: 'html2canvas', test: () => window.html2canvas !== undefined },
+                { name: 'jsPDF', test: () => window.jspdf !== undefined },
+                { name: 'PptxGenJS', test: () => window.PptxGenJS !== undefined },
+                { name: 'dom-to-image', test: () => window.domtoimage !== undefined }
+            ];
+
+            let loadedCount = 0;
+            
+            libraries.forEach(lib => {
+                try {
+                    const result = lib.test();
+                    log(`${lib.name}: ${result ? 'Loaded' : 'Not Loaded'}`, result ? 'success' : 'warning');
+                    if (result) loadedCount++;
+                } catch (error) {
+                    log(`${lib.name}: Error - ${error.message}`, 'error');
+                }
+            });
+
+            log(`Libraries status: ${loadedCount}/${libraries.length} libraries globally available`, loadedCount > 0 ? 'success' : 'warning');
+            
+            if (loadedCount === 0) {
+                log('ℹ️ Libraries may be imported as ES modules and not globally available (this is normal)', 'info');
+            }
+        }
+
+        async function testCanvasDetection() {
+            log('🎯 Testing canvas detection...');
+            
+            const selectors = [
+                '.react-flow',
+                '[data-testid="rf__wrapper"]',
+                '.react-flow__renderer',
+                '#canvas-container',
+                'canvas',
+                '.react-flow__viewport'
+            ];
+
+            let foundCount = 0;
+            
+            selectors.forEach(selector => {
+                const element = document.querySelector(selector);
+                log(`Selector "${selector}": ${element ? 'Found' : 'Not Found'}`, element ? 'success' : 'warning');
+                if (element) {
+                    foundCount++;
+                    log(`  - Element: ${element.tagName} with classes: ${element.className}`, 'info');
+                }
+            });
+
+            if (foundCount === 0) {
+                log('❌ No canvas elements found! Make sure you are in the FlowDigm application.', 'error');
+                updateStatus('🚨 No canvas elements detected. Please open this test in the FlowDigm application.', 'error');
+            } else {
+                log(`✅ Found ${foundCount} potential canvas elements`, 'success');
+            }
+        }
+
+        async function testReactFlowInstance() {
+            log('⚛️ Testing ReactFlow instance...');
+            
+            try {
+                const reactFlowInstance = window.__REACT_FLOW_INSTANCE__;
+                
+                if (!reactFlowInstance) {
+                    log('❌ ReactFlow instance not found', 'error');
+                    return;
+                }
+                
+                log('✅ ReactFlow instance found', 'success');
+                
+                const nodes = reactFlowInstance.getNodes ? reactFlowInstance.getNodes() : [];
+                const edges = reactFlowInstance.getEdges ? reactFlowInstance.getEdges() : [];
+                
+                log(`📊 ReactFlow data: ${nodes.length} nodes, ${edges.length} edges`, 'info');
+                
+                if (nodes.length === 0) {
+                    log('⚠️ No nodes found in ReactFlow. Try adding some shapes first.', 'warning');
+                }
+                
+            } catch (error) {
+                log(`❌ Error accessing ReactFlow: ${error.message}`, 'error');
+            }
+        }
+
+        async function testSimpleExport() {
+            log('🧪 Testing simple export functionality...');
+            
+            try {
+                // First check if we can create a simple test canvas
+                const testCanvas = document.createElement('canvas');
+                testCanvas.width = 200;
+                testCanvas.height = 100;
+                const ctx = testCanvas.getContext('2d');
+                
+                if (!ctx) {
+                    log('❌ Cannot create canvas context', 'error');
+                    return;
+                }
+                
+                // Draw simple test content
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, 200, 100);
+                ctx.fillStyle = '#000000';
+                ctx.fillText('Test Export', 10, 50);
+                
+                // Try to create data URL
+                const dataUrl = testCanvas.toDataURL('image/png');
+                
+                if (dataUrl.startsWith('data:image/png')) {
+                    log('✅ Basic canvas export functionality works', 'success');
+                    
+                    // Test download simulation
+                    const link = document.createElement('a');
+                    link.download = 'test-export.png';
+                    link.href = dataUrl;
+                    log('✅ Download link creation works', 'success');
+                    
+                    // Actually trigger a test download
+                    log('🔄 Triggering test download...', 'info');
+                    link.click();
+                    log('✅ Test download completed', 'success');
+                    
+                } else {
+                    log('❌ Canvas toDataURL failed', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Simple export test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testSpecificFormat(format) {
+            log(`🎯 Testing ${format.toUpperCase()} export...`);
+            
+            try {
+                // Check if export function is available
+                if (typeof window.exportFile === 'function') {
+                    log(`✅ Using window.exportFile for ${format}`, 'success');
+                    
+                    // Create a simple test element if no real canvas exists
+                    let testElement = document.querySelector('.react-flow');
+                    if (!testElement) {
+                        testElement = document.createElement('div');
+                        testElement.className = 'react-flow';
+                        testElement.style.cssText = 'width: 400px; height: 300px; background: white; border: 1px solid #ccc; position: relative;';
+                        
+                        const testShape = document.createElement('div');
+                        testShape.className = 'react-flow__node';
+                        testShape.style.cssText = 'position: absolute; left: 50px; top: 50px; width: 100px; height: 60px; background: #e3f2fd; border: 2px solid #1976d2; display: flex; align-items: center; justify-content: center;';
+                        testShape.textContent = 'Test Shape';
+                        
+                        testElement.appendChild(testShape);
+                        document.body.appendChild(testElement);
+                        
+                        log('✅ Created test canvas element', 'info');
+                    }
+                    
+                    // Try the export
+                    await window.exportFile(format, `debug-test-${format}`, {
+                        quality: 1.0,
+                        scale: 1,
+                        backgroundColor: '#ffffff',
+                        includeMetadata: false
+                    });
+                    
+                    log(`✅ ${format.toUpperCase()} export completed successfully!`, 'success');
+                    
+                } else if (window.__CANVAS_CONTEXT__ && typeof window.__CANVAS_CONTEXT__.exportCanvas === 'function') {
+                    log(`✅ Using context exportCanvas for ${format}`, 'success');
+                    await window.__CANVAS_CONTEXT__.exportCanvas(format);
+                    log(`✅ ${format.toUpperCase()} export completed successfully!`, 'success');
+                    
+                } else {
+                    log(`❌ No export function available for ${format}`, 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ ${format.toUpperCase()} export failed: ${error.message}`, 'error');
+                console.error(`Export error for ${format}:`, error);
+            }
+        }
+
+        // Initialize debug tests
+        window.addEventListener('load', () => {
+            log('🚀 Export Debug Test Utility Loaded');
+            log('🔗 Checking if running in FlowDigm application...');
+            
+            if (window.location.hostname === 'localhost' && window.location.port === '5173') {
+                log('✅ Running in FlowDigm development environment', 'success');
+                updateStatus('✅ Connected to FlowDigm application', 'success');
+            } else {
+                log('⚠️ Not running in FlowDigm environment - some tests may fail', 'warning');
+                updateStatus('⚠️ Not in FlowDigm environment - limited testing available', 'warning');
+            }
+            
+            // Auto-run initial tests
+            setTimeout(() => {
+                testExportFunctionAvailability();
+            }, 1000);
+        });
+
+        // Add global test functions
+        window.testExportFunctionAvailability = testExportFunctionAvailability;
+        window.testLibraryImports = testLibraryImports;
+        window.testCanvasDetection = testCanvasDetection;
+        window.testReactFlowInstance = testReactFlowInstance;
+        window.testSimpleExport = testSimpleExport;
+        window.testSpecificFormat = testSpecificFormat;
+    </script>
+</body>
+</html>

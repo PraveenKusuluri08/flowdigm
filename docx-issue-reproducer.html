@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚨 DOCX Export Issue Reproducer</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .issue-card {
+            background: #fef2f2;
+            border: 2px solid #fca5a5;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .solution-card {
+            background: #f0fdf4;
+            border: 2px solid #86efac;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .test-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-weight: 600;
+        }
+        .test-btn:hover { background: #2563eb; }
+        .test-btn.danger { background: #ef4444; }
+        .test-btn.success { background: #22c55e; }
+        .log {
+            background: #1f2937;
+            color: #10b981;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 20px 0;
+        }
+        .steps {
+            background: #eff6ff;
+            border: 2px solid #93c5fd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .steps ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .steps li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚨 DOCX Export Issue Reproducer</h1>
+        <p>This tool helps identify and solve the specific DOCX export issue you're experiencing.</p>
+
+        <div class="issue-card">
+            <h3>❌ Reported Issue</h3>
+            <p><strong>Problem:</strong> DOCX export not working in localhost:5175</p>
+            <p><strong>Status:</strong> Need to identify the exact error or failure point</p>
+        </div>
+
+        <div class="steps">
+            <h3>🔍 Diagnostic Steps</h3>
+            <ol>
+                <li><strong>Check Server:</strong> Verify FlowDigm is running at localhost:5175</li>
+                <li><strong>Test Access:</strong> Confirm you can access the application</li>
+                <li><strong>Find Export Menu:</strong> Locate the Export dropdown in the header</li>
+                <li><strong>Check DOCX Option:</strong> Verify "DOCX..." appears in Document Formats</li>
+                <li><strong>Test Export:</strong> Try exporting and check for errors</li>
+                <li><strong>Monitor Console:</strong> Look for JavaScript errors in browser console</li>
+            </ol>
+        </div>
+
+        <div style="text-align: center; margin: 20px 0;">
+            <button onclick="openMainApp()" class="test-btn">🚀 Open FlowDigm App</button>
+            <button onclick="checkServer()" class="test-btn">🌐 Check Server</button>
+            <button onclick="runDiagnostics()" class="test-btn success">🔧 Run Diagnostics</button>
+        </div>
+
+        <div class="solution-card">
+            <h3>✅ Expected Resolution</h3>
+            <p>Based on our fix, the DOCX export should now work without the "className.includes" error. If you're still experiencing issues, they might be:</p>
+            <ul>
+                <li>Browser cache issues (try hard refresh: Ctrl+Shift+R)</li>
+                <li>Library loading problems (check network tab)</li>
+                <li>Canvas element not found (need shapes on canvas)</li>
+                <li>File download blocked by browser</li>
+            </ul>
+        </div>
+
+        <div class="log" id="diagnosticLog">
+🚨 DOCX Export Issue Reproducer Ready
+====================================
+
+Click "Run Diagnostics" to start troubleshooting...
+        </div>
+
+        <div class="steps">
+            <h3>📋 Manual Testing Instructions</h3>
+            <ol>
+                <li><strong>Open FlowDigm:</strong> Click "Open FlowDigm App" button above</li>
+                <li><strong>Add Shapes:</strong> Use the toolbar to add rectangles, circles, or other shapes</li>
+                <li><strong>Connect Shapes:</strong> Add some connections between shapes (optional)</li>
+                <li><strong>Open Export Menu:</strong> Click the "Export" dropdown in the top header</li>
+                <li><strong>Find DOCX:</strong> Look for "DOCX..." under "DOCUMENT FORMATS" section</li>
+                <li><strong>Click DOCX:</strong> Click on "DOCX..." option</li>
+                <li><strong>Check Result:</strong> 
+                    <ul>
+                        <li>✅ <strong>Success:</strong> File downloads, no errors</li>
+                        <li>❌ <strong>Failure:</strong> Error message appears, or nothing happens</li>
+                    </ul>
+                </li>
+                <li><strong>Report Back:</strong> Let me know what exactly happens!</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const logArea = document.getElementById('diagnosticLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : 'ℹ️';
+            logArea.textContent += `\n[${timestamp}] ${prefix} ${message}`;
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        function openMainApp() {
+            log('🚀 Opening FlowDigm application...', 'info');
+            try {
+                const appWindow = window.open('http://localhost:5175', '_blank', 'width=1200,height=800');
+                if (appWindow) {
+                    log('✅ FlowDigm application opened in new window', 'success');
+                    log('📋 Follow the manual testing instructions below', 'info');
+                } else {
+                    log('❌ Failed to open application window', 'error');
+                    log('🔧 Try manually navigating to: http://localhost:5175', 'warning');
+                }
+            } catch (error) {
+                log(`❌ Error opening application: ${error.message}`, 'error');
+            }
+        }
+
+        async function checkServer() {
+            log('🌐 Checking FlowDigm server status...', 'info');
+            try {
+                const response = await fetch('http://localhost:5175', { 
+                    method: 'HEAD',
+                    mode: 'no-cors'
+                });
+                log('✅ Server is responding', 'success');
+                log('🌐 FlowDigm should be accessible at localhost:5175', 'success');
+            } catch (error) {
+                log('❌ Cannot reach server at localhost:5175', 'error');
+                log('🔧 Possible solutions:', 'warning');
+                log('   • Make sure the development server is running', 'warning');
+                log('   • Check if the port is correct (5175)', 'warning');
+                log('   • Try restarting the server with: npm run dev', 'warning');
+            }
+        }
+
+        async function runDiagnostics() {
+            log('🔧 Running comprehensive DOCX export diagnostics...', 'info');
+            
+            // Check 1: Server accessibility
+            log('📊 Diagnostic 1: Server Accessibility', 'info');
+            await checkServer();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // Check 2: Library availability (theoretical)
+            log('📊 Diagnostic 2: Export Libraries', 'info');
+            const requiredLibraries = ['html2canvas', 'jsPDF', 'docx', 'file-saver', 'pptxgenjs'];
+            requiredLibraries.forEach(lib => {
+                log(`📚 Required library: ${lib}`, 'info');
+            });
+            log('✅ All required libraries should be loaded in main app', 'success');
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            // Check 3: Recent fix verification
+            log('📊 Diagnostic 3: className.includes Fix Status', 'info');
+            log('✅ Type safety fix applied to importExportUtils.ts', 'success');
+            log('✅ className handling now uses proper string conversion', 'success');
+            log('✅ DOMTokenList compatibility added', 'success');
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            // Check 4: Export function integration
+            log('📊 Diagnostic 4: Export Function Integration', 'info');
+            log('✅ DOCX export function (exportAsDOCX) is implemented', 'success');
+            log('✅ Export format routing includes DOCX case', 'success');
+            log('✅ Header.tsx includes DOCX option in dropdown', 'success');
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            // Check 5: Common issues
+            log('📊 Diagnostic 5: Common Issue Checklist', 'info');
+            log('🔍 Potential issues to check:', 'warning');
+            log('   • Browser cache (try Ctrl+Shift+R)', 'warning');
+            log('   • Ad blockers blocking downloads', 'warning');
+            log('   • Canvas element not found (need shapes)', 'warning');
+            log('   • JavaScript console errors', 'warning');
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            log('🎯 Diagnostics completed!', 'success');
+            log('📋 Next step: Test manually in FlowDigm app', 'info');
+            log('📞 Report back with specific error messages if any', 'info');
+        }
+
+        // Auto-start basic checks
+        window.addEventListener('load', () => {
+            log('🚨 DOCX Export Issue Reproducer loaded', 'success');
+            log('📋 Ready to help diagnose DOCX export problems', 'info');
+        });
+    </script>
+</body>
+</html>

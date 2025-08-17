@@ -1,6 +1,7 @@
 // utils/dragDropUtils.js
 import { v4 as uuidv4 } from 'uuid';
 import { findShapeById } from '../components/CanvasEditor/shapeDefinition';
+import { awsAllServices, gcpAllServices, azureAllServices } from '../components/Sidebar/CloudServiceIcons';
 
 /**
  * Creates a shape object from sidebar drag and drop
@@ -12,7 +13,17 @@ import { findShapeById } from '../components/CanvasEditor/shapeDefinition';
 export const createShapeFromSidebar = (shapeId, position, options = {}) => {
   const shapeDefinition = findShapeById(shapeId);
   
-  if (!shapeDefinition) {
+  // Get cloud service data if available
+  let cloudServiceData = null;
+  if (shapeId.startsWith('aws-') && awsAllServices && awsAllServices[shapeId]) {
+    cloudServiceData = awsAllServices[shapeId];
+  } else if (shapeId.startsWith('gcp-') && gcpAllServices && gcpAllServices[shapeId]) {
+    cloudServiceData = gcpAllServices[shapeId];
+  } else if (shapeId.startsWith('azure-') && azureAllServices && azureAllServices[shapeId]) {
+    cloudServiceData = azureAllServices[shapeId];
+  }
+  
+  if (!shapeDefinition && !cloudServiceData) {
     console.warn(`Shape definition not found for: ${shapeId}`);
     return null;
   }
@@ -32,8 +43,8 @@ export const createShapeFromSidebar = (shapeId, position, options = {}) => {
     id: generateId(),
     type: shapeId,
     shapeId: shapeId,
-    name: shapeDefinition.name || shapeId,
-    tooltip: shapeDefinition.tooltip || shapeDefinition.name || shapeId,
+    name: cloudServiceData?.name || shapeDefinition?.name || shapeId,
+    tooltip: cloudServiceData?.description || shapeDefinition?.tooltip || shapeDefinition?.name || shapeId,
     x: position.x,
     y: position.y,
     width: options.width || getDefaultWidth(shapeId),
@@ -42,6 +53,12 @@ export const createShapeFromSidebar = (shapeId, position, options = {}) => {
     stroke: options.stroke || getDefaultStroke(shapeId),
     strokeWidth: options.strokeWidth || 1,
     rotation: 0,
+    // Add cloud service data for icon rendering
+    icon: cloudServiceData?.icon || null,
+    iconUrl: cloudServiceData?.iconUrl || null,
+    iconRaw: cloudServiceData?.iconRaw || null,
+    serviceName: cloudServiceData?.name || shapeId,
+    serviceType: shapeId.startsWith('aws-') ? 'AWS' : shapeId.startsWith('gcp-') ? 'GCP' : shapeId.startsWith('azure-') ? 'AZURE' : null,
     // Add connection points for interactive shapes
     connectionPoints: {
       top: { x: 0.5, y: 0 },
@@ -114,7 +131,21 @@ const getDefaultStroke = (shapeId) => {
  * Handle different shape types and return appropriate shape object
  */
 const handleShapeType = (baseShape, shapeDefinition, position) => {
-  switch (shapeDefinition.type) {
+  // Check for cloud services by ID prefix first
+  if (baseShape.shapeId.startsWith('aws-')) {
+    return handleAWSShape(baseShape, shapeDefinition);
+  }
+  
+  if (baseShape.shapeId.startsWith('gcp-')) {
+    return handleGCPShape(baseShape, shapeDefinition);
+  }
+  
+  if (baseShape.shapeId.startsWith('azure-')) {
+    return handleAzureShape(baseShape, shapeDefinition);
+  }
+  
+  // Handle other shape types
+  switch (shapeDefinition?.type) {
     case 'basic':
       return handleBasicShape(baseShape, shapeDefinition);
       
@@ -127,30 +158,6 @@ const handleShapeType = (baseShape, shapeDefinition, position) => {
       
     case 'flowchart':
       return handleFlowchartShape(baseShape, shapeDefinition);
-      
-    case 'aws-compute':
-    case 'aws-storage':
-    case 'aws-database':
-    case 'aws-network':
-    case 'aws-security':
-    case 'aws-management':
-    case 'aws-analytics':
-    case 'aws-ml':
-    case 'aws-integration':
-      return handleAWSShape(baseShape, shapeDefinition);
-      
-    case 'azure-compute':
-    case 'azure-storage':
-    case 'azure-database':
-    case 'azure-network':
-    case 'azure-security':
-      return handleAzureShape(baseShape, shapeDefinition);
-      
-    case 'gcp-compute':
-    case 'gcp-storage':
-    case 'gcp-database':
-    case 'gcp-network':
-      return handleGCPShape(baseShape, shapeDefinition);
       
     case 'infrastructure':
     case 'user':
@@ -231,7 +238,13 @@ const handleAWSShape = (baseShape, shapeDefinition) => {
     width: 120,
     height: 80,
     stroke: getAWSServiceColor(shapeDefinition.type),
-    strokeWidth: 2
+    strokeWidth: 2,
+    // Ensure icon data is preserved
+    icon: baseShape.icon,
+    iconUrl: baseShape.iconUrl,
+    iconRaw: baseShape.iconRaw,
+    serviceName: baseShape.serviceName,
+    serviceType: baseShape.serviceType
   };
 };
 
@@ -247,7 +260,13 @@ const handleAzureShape = (baseShape, shapeDefinition) => {
     width: 120,
     height: 80,
     stroke: '#0078D4',
-    strokeWidth: 2
+    strokeWidth: 2,
+    // Ensure icon data is preserved
+    icon: baseShape.icon,
+    iconUrl: baseShape.iconUrl,
+    iconRaw: baseShape.iconRaw,
+    serviceName: baseShape.serviceName,
+    serviceType: baseShape.serviceType
   };
 };
 
@@ -263,7 +282,13 @@ const handleGCPShape = (baseShape, shapeDefinition) => {
     width: 120,
     height: 80,
     stroke: '#4285F4',
-    strokeWidth: 2
+    strokeWidth: 2,
+    // Ensure icon data is preserved
+    icon: baseShape.icon,
+    iconUrl: baseShape.iconUrl,
+    iconRaw: baseShape.iconRaw,
+    serviceName: baseShape.serviceName,
+    serviceType: baseShape.serviceType
   };
 };
 

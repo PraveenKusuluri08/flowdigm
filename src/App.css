@@ -19,12 +19,11 @@
   flex: 1;
   height: 100vh;
   overflow: hidden;
-  width: calc(100vw - 256px); /* 256px = 64 * 4 (w-64) */
-  transition: width 0.3s ease, margin-left 0.3s ease;
+  /* Remove fixed width to allow DrawingCanvas to handle its own layout */
+  transition: margin-left 0.3s ease;
 }
 
 .main-content.collapsed {
-  width: calc(100vw - 80px); /* 80px = 20 * 4 (w-20) */
   margin-left: 0;
 }
 

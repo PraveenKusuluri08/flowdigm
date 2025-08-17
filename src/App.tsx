@@ -1,24 +1,52 @@
-import { useState } from 'react';
-import { CanvasProvider } from './context/CanvasEditorProvider';
-import { SidebarProvider } from './context/Sidebarprovider';
-import { ReactFlowProvider } from 'reactflow';
+import React, { useState, useCallback, useRef } from 'react';
+import { ReactFlow, Node, Edge, useReactFlow, addEdge, Connection, useNodesState, useEdgesState, ReactFlowProvider } from 'reactflow';
 import 'reactflow/dist/style.css';
 import './App.css';
+
+// Components
 import MainLeftNavbar from './components/MainLeftNavbar';
 import LeftSidebar from './components/Sidebar/LeftSidebar';
-import Toolbar from './components/CanvasEditor/Toolbar';
+import RightSidebar from './components/Sidebar/RightSidebar';
 import DrawingCanvas from './components/CanvasEditor/Drawingcanvas';
 import Header from './components/Layout/Header';
 import BPMNEditor from './components/BPMN/BPMNEditor';
 import CloudIntegration from './components/CloudIntegration';
 import { useIntegrationPanel } from './hooks/useBidirectionalIntegration';
+import { RawIconNode } from './components/CanvasEditor/ReactFlowNodes';
+import Toolbar from './components/CanvasEditor/Toolbar';
 
-function App() {
-  const [activeSection, setActiveSection] = useState('dashboard');
+// Context providers
+import { CanvasProvider } from './context/CanvasEditorProvider';
+import { SidebarProvider } from './context/Sidebarprovider';
+
+// Import/Export utilities
+import { 
+  UniversalImportHandler, 
+  UniversalExportHandler, 
+  downloadBlob,
+  ExportOptions 
+} from './utils/bidirectionalImportExport';
+
+// Node types
+const nodeTypes = {
+  rawIconNode: RawIconNode,
+};
+
+function AppContent() {
+  const [activeSection, setActiveSection] = useState('shapes');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
+  const [hasSelection, setHasSelection] = useState(false);
   
   // Integration panel state and actions
   const integrationPanel = useIntegrationPanel();
+  
+  const reactFlowInstance = useReactFlow();
+  const reactFlowWrapper = useRef<HTMLDivElement>(null);
 
   const handleSectionChange = (section: string) => {
     setActiveSection(section);
@@ -27,6 +55,157 @@ function App() {
   const handleIntegrationOpen = () => {
     integrationPanel.openPanel();
   };
+
+  // Handle connections
+  const onConnect = useCallback(
+    (params: Connection) => setEdges((eds) => addEdge(params, eds)),
+    [setEdges]
+  );
+
+  // Handle node selection
+  const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
+    setSelectedNode(node);
+    setHasSelection(true);
+  }, []);
+
+  const onPaneClick = useCallback(() => {
+    setSelectedNode(null);
+    setHasSelection(false);
+  }, []);
+
+  // Zoom controls
+  const onZoomIn = useCallback(() => {
+    reactFlowInstance.zoomIn();
+  }, [reactFlowInstance]);
+
+  const onZoomOut = useCallback(() => {
+    reactFlowInstance.zoomOut();
+  }, [reactFlowInstance]);
+
+  const onFitView = useCallback(() => {
+    reactFlowInstance.fitView();
+  }, [reactFlowInstance]);
+
+  // Edit operations
+  const onUndo = useCallback(() => {
+    // Implement undo functionality
+    console.log('Undo');
+  }, []);
+
+  const onRedo = useCallback(() => {
+    // Implement redo functionality
+    console.log('Redo');
+  }, []);
+
+  const onDelete = useCallback(() => {
+    if (selectedNode) {
+      setNodes((nds) => nds.filter((node) => node.id !== selectedNode.id));
+      setEdges((eds) => eds.filter((edge) => edge.source !== selectedNode.id && edge.target !== selectedNode.id));
+      setSelectedNode(null);
+      setHasSelection(false);
+    }
+  }, [selectedNode, setNodes, setEdges]);
+
+  const onCopy = useCallback(() => {
+    if (selectedNode) {
+      // Implement copy functionality
+      console.log('Copy node:', selectedNode);
+    }
+  }, [selectedNode]);
+
+  const onPaste = useCallback(() => {
+    // Implement paste functionality
+    console.log('Paste');
+  }, []);
+
+  // Style change handler
+  const onStyleChange = useCallback((style: any) => {
+    if (selectedNode) {
+      setNodes((nds) =>
+        nds.map((node) =>
+          node.id === selectedNode.id
+            ? { ...node, data: { ...node.data, ...style } }
+            : node
+        )
+      );
+    }
+  }, [selectedNode, setNodes]);
+
+  // Import functionality
+  const onImport = useCallback(async (file: File) => {
+    try {
+      console.log('Importing file:', file.name);
+      const importedDiagram = await UniversalImportHandler.importFile(file);
+      
+      // Add imported nodes to canvas
+      setNodes((nds) => [...nds, ...importedDiagram.nodes]);
+      setEdges((eds) => [...eds, ...importedDiagram.edges]);
+      
+      // Fit view to show all imported content
+      setTimeout(() => {
+        reactFlowInstance.fitView();
+      }, 100);
+      
+      console.log('Successfully imported:', importedDiagram);
+      alert(`Successfully imported ${importedDiagram.nodes.length} nodes and ${importedDiagram.edges.length} edges from ${file.name}`);
+    } catch (error) {
+      console.error('Import failed:', error);
+      alert(`Import failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }, [setNodes, setEdges, reactFlowInstance]);
+
+  // Export functionality
+  const onExport = useCallback(async (format: string) => {
+    try {
+      if (nodes.length === 0) {
+        alert('No content to export! Please add some elements to the canvas first.');
+        return;
+      }
+
+      const options: ExportOptions = {
+        format: format as any,
+        quality: 100,
+        scale: 100,
+        backgroundColor: '#ffffff',
+        includeMetadata: true
+      };
+
+      const blob = await UniversalExportHandler.exportDiagram(nodes, edges, options);
+      const filename = `flowdigm-diagram.${format}`;
+      downloadBlob(blob, filename);
+      
+      console.log('Successfully exported diagram');
+      alert(`Successfully exported diagram as ${format.toUpperCase()}`);
+    } catch (error) {
+      console.error('Export failed:', error);
+      alert(`Export failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }, [nodes, edges]);
+
+  // Save functionality
+  const onSave = useCallback(async () => {
+    try {
+      const data = {
+        nodes,
+        edges,
+        metadata: {
+          savedAt: new Date().toISOString(),
+          source: 'flowdigm'
+        }
+      };
+      
+      const blob = new Blob([JSON.stringify(data, null, 2)], { 
+        type: 'application/json' 
+      });
+      downloadBlob(blob, 'flowdigm-diagram.json');
+      
+      console.log('Successfully saved diagram');
+      alert('Diagram saved successfully!');
+    } catch (error) {
+      console.error('Save failed:', error);
+      alert(`Save failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }, [nodes, edges]);
 
   const renderContent = () => {
     switch (activeSection) {
@@ -98,36 +277,24 @@ function App() {
                 <h3>Quick Start Templates</h3>
                 <div className="templates-grid">
                   <div className="template-card primary">
-                    <div className="template-icon">➕</div>
-                    <h4>Blank Canvas</h4>
-                    <p>Start from scratch</p>
-                  </div>
-                  <div className="template-card">
-                    <div className="template-icon">📋</div>
-                    <h4>Flowchart</h4>
-                    <p>Process mapping</p>
-                  </div>
-                  <div className="template-card">
-                    <div className="template-icon">🧠</div>
-                    <h4>Mind Map</h4>
-                    <p>Brainstorming</p>
-                  </div>
-                  <div className="template-card">
                     <div className="template-icon">📊</div>
-                    <h4>Kanban Board</h4>
-                    <p>Project management</p>
-                  </div>
-                  <div className="template-card">
-                    <div className="template-card">
-                      <div className="template-icon">🔄</div>
-                      <h4>BPMN Process</h4>
-                      <p>Business workflows</p>
-                    </div>
+                    <h4>Flowchart</h4>
+                    <p>Create process flows and decision trees</p>
                   </div>
                   <div className="template-card">
                     <div className="template-icon">🏗️</div>
                     <h4>Architecture</h4>
-                    <p>System design</p>
+                    <p>Design system and network diagrams</p>
+                  </div>
+                  <div className="template-card">
+                    <div className="template-icon">👥</div>
+                    <h4>Organization</h4>
+                    <p>Build org charts and team structures</p>
+                  </div>
+                  <div className="template-card">
+                    <div className="template-icon">🔗</div>
+                    <h4>Network</h4>
+                    <p>Map network topologies and connections</p>
                   </div>
                 </div>
               </div>
@@ -136,14 +303,14 @@ function App() {
               <div className="recent-section">
                 <div className="section-header">
                   <h3>Recent Projects</h3>
-                  <button className="btn-text">View all →</button>
+                  <button className="btn-text">View All</button>
                 </div>
                 <div className="projects-list">
                   <div className="project-item">
-                    <div className="project-icon">📄</div>
+                    <div className="project-icon">📊</div>
                     <div className="project-info">
-                      <h4>Untitled Diagram</h4>
-                      <p>Modified today</p>
+                      <h4>System Architecture v2</h4>
+                      <p>Updated 2 hours ago</p>
                     </div>
                     <div className="project-actions">
                       <span className="star">⭐</span>
@@ -151,21 +318,10 @@ function App() {
                     </div>
                   </div>
                   <div className="project-item">
-                    <div className="project-icon">🚀</div>
+                    <div className="project-icon">🔗</div>
                     <div className="project-info">
-                      <h4>Project Architecture</h4>
-                      <p>Modified 2 days ago</p>
-                    </div>
-                    <div className="project-actions">
-                      <span className="star">☆</span>
-                      <span className="menu">⋯</span>
-                    </div>
-                  </div>
-                  <div className="project-item">
-                    <div className="project-icon">📊</div>
-                    <div className="project-info">
-                      <h4>System Flow</h4>
-                      <p>Modified last week</p>
+                      <h4>Network Topology</h4>
+                      <p>Updated yesterday</p>
                     </div>
                     <div className="project-actions">
                       <span className="star">☆</span>
@@ -180,7 +336,22 @@ function App() {
       case 'shapes':
         return (
           <div className="shapes-section">
-            <Header />
+            <Header 
+              onSave={onSave}
+              onImport={onImport}
+              onExport={onExport}
+              onUndo={onUndo}
+              onRedo={onRedo}
+              onDelete={onDelete}
+              onCopy={onCopy}
+              onPaste={onPaste}
+              onZoomIn={onZoomIn}
+              onZoomOut={onZoomOut}
+              onFitView={onFitView}
+              canUndo={canUndo}
+              canRedo={canRedo}
+              hasSelection={hasSelection}
+            />
             <div className="shapes-content">
               <LeftSidebar />
               <div className="canvas-area">
@@ -206,68 +377,51 @@ function App() {
       case 'ai':
         return (
           <div className="ai-section">
-            {/* Chat Section - 60% */}
             <div className="ai-chat-section">
               <div className="ai-header">
-                <h2>ArchPlot AI Assistant</h2>
+                <h2>🤖 AI Assistant</h2>
+                <p>Get help with your diagrams and workflows</p>
               </div>
               
-              {/* Messages */}
               <div className="ai-messages">
                 <div className="message assistant">
                   <div className="message-bubble">
-                    Hello! I'm your AI assistant. How can I help you with your diagrams today?
+                    Hello! I'm your AI assistant. I can help you create diagrams, suggest improvements, and answer questions about your projects. What would you like to work on today?
                   </div>
                 </div>
               </div>
               
-              {/* Input */}
               <div className="ai-input-section">
                 <div className="ai-input-container">
-                  <input
-                    type="text"
-                    placeholder="Type your message..."
-                    className="ai-input"
+                  <input 
+                    type="text" 
+                    className="ai-input" 
+                    placeholder="Ask me anything about your diagrams..."
                   />
-                  <button className="ai-send-btn">
-                    Send
-                  </button>
+                  <button className="ai-send-btn">Send</button>
                 </div>
               </div>
             </div>
             
-            {/* AI Generated Content - 40% */}
             <div className="ai-content-section">
-              <div className="ai-header">
-                <h2>ArchPlot AI Generated Content</h2>
+              <div className="ai-suggestion-card">
+                <h3>💡 Quick Suggestions</h3>
+                <ul className="ai-suggestion-list">
+                  <li>Create a flowchart for your business process</li>
+                  <li>Design a network architecture diagram</li>
+                  <li>Build an organizational chart</li>
+                  <li>Map your system dependencies</li>
+                </ul>
               </div>
               
-              <div className="ai-content-area">
-                <div className="ai-suggestion-card">
-                  <h3>Suggested Diagram Structure</h3>
-                  <p>
-                    Based on your conversation, here's a suggested structure for your diagram:
-                  </p>
-                  <ul className="ai-suggestion-list">
-                    <li>Start with a process node</li>
-                    <li>Add decision points for key choices</li>
-                    <li>Include input/output operations</li>
-                    <li>End with a terminator</li>
-                  </ul>
-                </div>
-                
-                <div className="ai-actions-card">
-                  <h3>Quick Actions</h3>
-                  <button className="ai-action-btn">
-                    Create flowchart template
-                  </button>
-                  <button className="ai-action-btn">
-                    Generate process diagram
-                  </button>
-                  <button className="ai-action-btn">
-                    Suggest improvements
-                  </button>
-                </div>
+              <div className="ai-actions-card">
+                <h3>🚀 AI Actions</h3>
+                <button className="ai-action-btn">
+                  Generate process diagram
+                </button>
+                <button className="ai-action-btn">
+                  Suggest improvements
+                </button>
               </div>
             </div>
           </div>
@@ -301,67 +455,68 @@ function App() {
           </div>
         );
       default:
-        return (
-          <div className="shapes-section">
-            <Header />
-            <DrawingCanvas />
-          </div>
-        );
+        return <DrawingCanvas />;
     }
   };
 
   return (
     <div className="app">
-      <CanvasProvider>
-        <SidebarProvider>
-          <ReactFlowProvider>
-            <MainLeftNavbar 
-              activeSection={activeSection} 
-              onSectionChange={handleSectionChange}
-              collapsed={sidebarCollapsed}
-              setCollapsed={setSidebarCollapsed}
-              onIntegrationOpen={handleIntegrationOpen}
-            />
-            <div className={`main-content ${sidebarCollapsed ? 'collapsed' : ''}`}>
-              {renderContent()}
-            </div>
-            
-            {/* Cloud Integration Modal */}
-            {integrationPanel.isVisible && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl h-5/6 overflow-hidden">
-                  {/* Modal Header */}
-                  <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-blue-500 rounded-lg">
-                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-                        </svg>
-                      </div>
-                      <h2 className="text-xl font-semibold text-gray-800">Cloud Integration</h2>
-                    </div>
-                    <button
-                      onClick={integrationPanel.closePanel}
-                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                      title="Close"
-                    >
-                      <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-
-                  {/* Modal Content */}
-                  <div className="p-6 overflow-y-auto" style={{ height: 'calc(100% - 80px)' }}>
-                    <CloudIntegration />
-                  </div>
+      <MainLeftNavbar 
+        activeSection={activeSection} 
+        onSectionChange={handleSectionChange}
+        collapsed={sidebarCollapsed}
+        setCollapsed={setSidebarCollapsed}
+        onIntegrationOpen={handleIntegrationOpen}
+      />
+      <div className={`main-content ${sidebarCollapsed ? 'collapsed' : ''}`}>
+        {renderContent()}
+      </div>
+      
+      {/* Cloud Integration Modal */}
+      {integrationPanel.isVisible && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl h-5/6 overflow-hidden">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-500 rounded-lg">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                  </svg>
                 </div>
+                <h2 className="text-xl font-semibold text-gray-800">Cloud Integration</h2>
               </div>
-            )}
-          </ReactFlowProvider>
-        </SidebarProvider>
-      </CanvasProvider>
+              <button
+                onClick={integrationPanel.closePanel}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                title="Close"
+              >
+                <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 overflow-y-auto" style={{ height: 'calc(100% - 80px)' }}>
+              <CloudIntegration />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
+  );
+}
+
+function App() {
+  return (
+    <CanvasProvider>
+      <SidebarProvider>
+        <ReactFlowProvider>
+          <AppContent />
+        </ReactFlowProvider>
+      </SidebarProvider>
+    </CanvasProvider>
   );
 }
 

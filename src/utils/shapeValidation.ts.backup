@@ -1,0 +1,249 @@
+// Shape validation utilities
+import { findShapeById } from '../components/Sidebar/shapeDefinition';
+
+export interface ValidationResult {
+  isValid: boolean;
+  expectedShapeId?: string;
+  currentShapeId: string;
+  expectedShapeName?: string;
+  currentShapeName?: string;
+  suggestions: string[];
+  confidence: number; // 0-1, how confident we are in the match
+}
+
+// Common shape name variations and synonyms
+const SHAPE_SYNONYMS: Record<string, string[]> = {
+  // General shapes
+  'rectangle': ['box', 'square', 'rect', 'rectangle', 'rectangular'],
+  'circle': ['round', 'circle', 'circular', 'oval', 'ellipse'],
+  'triangle': ['triangle', 'triangular', 'arrow'],
+  'diamond': ['diamond', 'rhombus', 'decision'],
+  'hexagon': ['hexagon', 'hex', 'hexagonal'],
+  'star': ['star', 'asterisk'],
+  'pentagon': ['pentagon', 'pentagonal'],
+  'octagon': ['octagon', 'octagonal', 'stop'],
+  
+  // Flowchart shapes
+  'process': ['process', 'rectangle', 'box', 'task', 'activity'],
+  'decision': ['decision', 'diamond', 'choice', 'if', 'condition'],
+  'terminal': ['terminal', 'start', 'end', 'begin', 'finish'],
+  'data': ['data', 'input', 'output', 'io'],
+  'connector': ['connector', 'circle', 'junction'],
+  
+  // Arrow shapes
+  'arrow': ['arrow', 'pointer', 'direction'],
+  'up': ['up', 'north', 'upward'],
+  'down': ['down', 'south', 'downward'],
+  'left': ['left', 'west', 'leftward'],
+  'right': ['right', 'east', 'rightward'],
+  
+  // Infrastructure shapes
+  'server': ['server', 'computer', 'host', 'machine'],
+  'database': ['database', 'db', 'data', 'storage'],
+  'cloud': ['cloud', 'aws', 'gcp', 'azure'],
+  'network': ['network', 'connection', 'link'],
+  'security': ['security', 'lock', 'shield', 'firewall'],
+  
+  // UML shapes
+  'class': ['class', 'object', 'entity'],
+  'interface': ['interface', 'contract'],
+  'package': ['package', 'module', 'namespace'],
+  'note': ['note', 'comment', 'annotation'],
+  'actor': ['actor', 'user', 'person', 'role'],
+};
+
+// Normalize text for comparison
+function normalizeText(text: string): string {
+  return text.toLowerCase()
+    .replace(/[^a-z0-9\s]/g, '') // Remove special characters
+    .replace(/\s+/g, ' ') // Normalize whitespace
+    .trim();
+}
+
+// Extract potential shape names from label text
+function extractShapeHints(label: string): string[] {
+  const normalized = normalizeText(label);
+  const words = normalized.split(' ');
+  const hints: string[] = [];
+  
+  // Check each word against shape synonyms
+  for (const word of words) {
+    for (const [shapeType, synonyms] of Object.entries(SHAPE_SYNONYMS)) {
+      if (synonyms.includes(word)) {
+        hints.push(shapeType);
+      }
+    }
+  }
+  
+  // Check for compound matches
+  const fullText = normalized;
+  for (const [shapeType, synonyms] of Object.entries(SHAPE_SYNONYMS)) {
+    for (const synonym of synonyms) {
+      if (fullText.includes(synonym)) {
+        hints.push(shapeType);
+      }
+    }
+  }
+  
+  return [...new Set(hints)]; // Remove duplicates
+}
+
+// Find best matching shape ID based on hints
+function findBestShapeMatch(hints: string[]): { shapeId: string; confidence: number } | null {
+  const matches: Array<{ shapeId: string; confidence: number }> = [];
+  
+  for (const hint of hints) {
+    // Direct shape ID matches for common shapes
+    const shapeIdMatches: Record<string, number> = {
+      'rectangle': 1.0,
+      'circle': 1.0,
+      'triangle': 1.0,
+      'diamond': 1.0,
+      'hexagon': 1.0,
+      'star': 1.0,
+      'pentagon': 1.0,
+      'octagon': 1.0,
+      'process': 0.9,
+      'decision': 0.9,
+      'terminal': 0.9,
+      'data': 0.8,
+      'connector': 0.8,
+    };
+    
+    if (shapeIdMatches[hint]) {
+      matches.push({ shapeId: hint, confidence: shapeIdMatches[hint] });
+    }
+  }
+  
+  if (matches.length === 0) return null;
+  
+  // Sort by confidence and return best match
+  matches.sort((a, b) => b.confidence - a.confidence);
+  return matches[0];
+}
+
+// Get shape name for display
+function getShapeName(shapeId: string): string {
+  const shape = findShapeById(shapeId);
+  if (!shape) return shapeId;
+  
+  // Try different property names based on shape structure
+  const shapeAny = shape as any;
+  return shapeAny.tooltip || shapeAny.name || shapeAny.serviceName || shapeId;
+}
+
+// Main validation function
+export function validateShapeLabel(nodeData: any): ValidationResult {
+  const currentShapeId = nodeData.shapeId || 'rectangle';
+  const label = nodeData.label || '';
+  
+  // Get current shape info
+  const currentShapeName = getShapeName(currentShapeId);
+  
+  // If no label, can't validate
+  if (!label.trim()) {
+    return {
+      isValid: true, // No label means no validation needed
+      currentShapeId,
+      currentShapeName,
+      suggestions: [],
+      confidence: 1.0
+    };
+  }
+  
+  // Extract shape hints from label
+  const hints = extractShapeHints(label);
+  
+  if (hints.length === 0) {
+    // No shape hints found in label
+    return {
+      isValid: true, // No shape hints means no validation needed
+      currentShapeId,
+      currentShapeName,
+      suggestions: [],
+      confidence: 1.0
+    };
+  }
+  
+  // Find best matching shape
+  const bestMatch = findBestShapeMatch(hints);
+  
+  if (!bestMatch) {
+    return {
+      isValid: true, // No clear match found
+      currentShapeId,
+      currentShapeName,
+      suggestions: hints,
+      confidence: 0.5
+    };
+  }
+  
+  // Check if current shape matches expected shape
+  const isValid = bestMatch.shapeId === currentShapeId;
+  const expectedShapeName = getShapeName(bestMatch.shapeId);
+  
+  return {
+    isValid,
+    expectedShapeId: bestMatch.shapeId,
+    currentShapeId,
+    expectedShapeName,
+    currentShapeName,
+    suggestions: isValid ? [] : [`Change to ${expectedShapeName}`],
+    confidence: bestMatch.confidence
+  };
+}
+
+// Auto-correct shape based on label
+export function autoCorrectShape(nodeData: any): any | null {
+  const validation = validateShapeLabel(nodeData);
+  
+  if (validation.isValid || !validation.expectedShapeId) {
+    return null; // No correction needed
+  }
+  
+  // Only auto-correct if confidence is high enough
+  if (validation.confidence < 0.7) {
+    return null;
+  }
+  
+  return {
+    ...nodeData,
+    shapeId: validation.expectedShapeId,
+    type: validation.expectedShapeId, // Update ReactFlow node type as well
+  };
+}
+
+// Validate all nodes in a diagram
+export function validateAllShapes(nodes: any[]): Array<{ nodeId: string; validation: ValidationResult }> {
+  return nodes.map(node => ({
+    nodeId: node.id,
+    validation: validateShapeLabel(node.data)
+  }));
+}
+
+// Get validation summary for UI display
+export function getValidationSummary(nodes: any[]): {
+  totalNodes: number;
+  validNodes: number;
+  invalidNodes: number;
+  suggestions: Array<{ nodeId: string; suggestion: string; confidence: number }>;
+} {
+  const results = validateAllShapes(nodes);
+  const validNodes = results.filter(r => r.validation.isValid).length;
+  const invalidNodes = results.length - validNodes;
+  
+  const suggestions = results
+    .filter(r => !r.validation.isValid && r.validation.suggestions.length > 0)
+    .map(r => ({
+      nodeId: r.nodeId,
+      suggestion: r.validation.suggestions[0],
+      confidence: r.validation.confidence
+    }));
+  
+  return {
+    totalNodes: results.length,
+    validNodes,
+    invalidNodes,
+    suggestions
+  };
+}

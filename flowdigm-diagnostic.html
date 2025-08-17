@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowDigm Export Diagnostic</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .diagnostic-section {
+            background: #e3f2fd;
+            border: 2px solid #1976d2;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .diagnostic-section h2 {
+            color: #1976d2;
+            margin-top: 0;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button.diagnostic {
+            background: #1976d2;
+        }
+        button.diagnostic:hover {
+            background: #1565c0;
+        }
+        #console {
+            background: #1e1e1e;
+            color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            height: 400px;
+            overflow-y: auto;
+            margin: 20px 0;
+            white-space: pre-wrap;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.warning { background: #fff3cd; color: #856404; }
+        .status.error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 FlowDigm Export Diagnostic Tool</h1>
+        
+        <div class="diagnostic-section">
+            <h2>🧪 Diagnostic Tests</h2>
+            <p>Run these tests to identify why export functionality is not working:</p>
+            <button class="diagnostic" onclick="runFullDiagnostic()">Run Full Diagnostic</button>
+            <button class="diagnostic" onclick="testBasicExports()">Test Basic Exports</button>
+            <button class="diagnostic" onclick="testEmergencyFunctions()">Test Emergency Functions</button>
+            <button class="diagnostic" onclick="createTestData()">Create Test Data</button>
+            <button onclick="clearConsole()">Clear Console</button>
+        </div>
+        
+        <div id="console"></div>
+        
+        <div class="diagnostic-section">
+            <h2>📝 Quick Actions</h2>
+            <button onclick="checkAllLibraries()">Check Libraries</button>
+            <button onclick="checkReactFlowSetup()">Check ReactFlow</button>
+            <button onclick="testDownloadBasic()">Test Download</button>
+            <button onclick="simulateExport()">Simulate Export</button>
+        </div>
+    </div>
+
+    <!-- Load required libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/file-saver/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
+    <script src="/emergency-export-fix.js"></script>
+    
+    <script>
+        let consoleElement = document.getElementById('console');
+        
+        // Capture console logs
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        function addToConsole(type, ...args) {
+            const timestamp = new Date().toLocaleTimeString();
+            const message = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ');
+            
+            const color = {
+                'log': '#ffffff',
+                'error': '#ff6b6b',
+                'warn': '#ffa726',
+                'success': '#4caf50',
+                'info': '#42a5f5'
+            }[type] || '#ffffff';
+            
+            consoleElement.innerHTML += `<div style="color: ${color}; margin: 2px 0;">[${timestamp}] ${message}</div>`;
+            consoleElement.scrollTop = consoleElement.scrollHeight;
+        }
+        
+        console.log = (...args) => {
+            originalLog.apply(console, args);
+            addToConsole('log', ...args);
+        };
+        
+        console.error = (...args) => {
+            originalError.apply(console, args);
+            addToConsole('error', ...args);
+        };
+        
+        console.warn = (...args) => {
+            originalWarn.apply(console, args);
+            addToConsole('warn', ...args);
+        };
+        
+        function clearConsole() {
+            consoleElement.innerHTML = '';
+        }
+
+// Quick diagnostic script to test exports
+console.log('🔍 FlowDigm Export Diagnostic Starting...');
+
+// Function to check if all required libraries are loaded
+function checkLibraries() {
+    console.log('\n=== LIBRARY CHECK ===');
+    const libs = {
+        'html2canvas': typeof html2canvas,
+        'jsPDF': typeof window.jspdf,
+        'PptxGenJS': typeof window.PptxGenJS, 
+        'saveAs': typeof saveAs,
+        'domtoimage': typeof domtoimage
+    };
+    
+    Object.entries(libs).forEach(([name, type]) => {
+        const status = type !== 'undefined' ? '✅' : '❌';
+        console.log(`${status} ${name}: ${type}`);
+    });
+    
+    return Object.values(libs).every(type => type !== 'undefined');
+}
+
+// Function to check ReactFlow setup
+function checkReactFlow() {
+    console.log('\n=== REACTFLOW CHECK ===');
+    
+    const instance = window.__REACT_FLOW_INSTANCE__;
+    console.log('ReactFlow instance:', !!instance ? '✅' : '❌');
+    
+    if (instance) {
+        try {
+            const nodes = instance.getNodes();
+            const edges = instance.getEdges();
+            console.log(`✅ Nodes: ${nodes.length}, Edges: ${edges.length}`);
+            return { nodes, edges, hasContent: nodes.length > 0 };
+        } catch (error) {
+            console.error('❌ Error accessing ReactFlow data:', error);
+            return { nodes: [], edges: [], hasContent: false };
+        }
+    }
+    
+    return { nodes: [], edges: [], hasContent: false };
+}
+
+// Function to check canvas elements
+function checkCanvasElements() {
+    console.log('\n=== CANVAS ELEMENTS CHECK ===');
+    
+    const selectors = [
+        '.react-flow',
+        '[data-testid="rf__wrapper"]',
+        '.react-flow__renderer',
+        '#canvas-container'
+    ];
+    
+    selectors.forEach(selector => {
+        const element = document.querySelector(selector);
+        const status = element ? '✅' : '❌';
+        console.log(`${status} ${selector}: ${element ? 'Found' : 'Not found'}`);
+        if (element) {
+            console.log(`   - Dimensions: ${element.offsetWidth}x${element.offsetHeight}`);
+            console.log(`   - Classes: ${element.className}`);
+        }
+    });
+    
+    return document.querySelector('.react-flow') || document.querySelector('[data-testid="rf__wrapper"]');
+}
+
+// Function to test export functions availability
+function checkExportFunctions() {
+    console.log('\n=== EXPORT FUNCTIONS CHECK ===');
+    
+    const exportFuncs = {
+        'window.exportFile': window.exportFile,
+        'window.exportCanvas': window.exportCanvas,
+        'window.exportAsPNGSimple': window.exportAsPNGSimple,
+        'window.exportAsJSON': window.exportAsJSON,
+        'window.emergencyExport': window.emergencyExport
+    };
+    
+    Object.entries(exportFuncs).forEach(([name, func]) => {
+        const status = typeof func === 'function' ? '✅' : '❌';
+        console.log(`${status} ${name}: ${typeof func}`);
+    });
+    
+    return exportFuncs;
+}
+
+// Function to test simple PNG export
+async function testSimplePNG() {
+    console.log('\n=== TESTING SIMPLE PNG EXPORT ===');
+    
+    try {
+        if (typeof window.exportAsPNGSimple === 'function') {
+            console.log('🔄 Calling exportAsPNGSimple...');
+            await window.exportAsPNGSimple('diagnostic-test');
+            console.log('✅ Simple PNG export completed');
+            return true;
+        } else {
+            console.error('❌ exportAsPNGSimple function not available');
+            return false;
+        }
+    } catch (error) {
+        console.error('❌ Simple PNG export failed:', error);
+        return false;
+    }
+}
+
+// Function to test emergency export
+async function testEmergencyExport() {
+    console.log('\n=== TESTING EMERGENCY EXPORT ===');
+    
+    try {
+        if (typeof window.emergencyExport === 'function') {
+            console.log('🔄 Calling emergencyExport...');
+            await window.emergencyExport('png', 'emergency-diagnostic');
+            console.log('✅ Emergency export completed');
+            return true;
+        } else {
+            console.error('❌ emergencyExport function not available');
+            return false;
+        }
+    } catch (error) {
+        console.error('❌ Emergency export failed:', error);
+        return false;
+    }
+}
+
+// Function to test comprehensive export
+async function testComprehensiveExport() {
+    console.log('\n=== TESTING COMPREHENSIVE EXPORT ===');
+    
+    try {
+        if (typeof window.exportFile === 'function') {
+            console.log('🔄 Calling comprehensive exportFile...');
+            await window.exportFile('png', 'comprehensive-diagnostic');
+            console.log('✅ Comprehensive export completed');
+            return true;
+        } else {
+            console.error('❌ exportFile function not available');
+            return false;
+        }
+    } catch (error) {
+        console.error('❌ Comprehensive export failed:', error);
+        return false;
+    }
+}
+
+// Main diagnostic function
+async function runFullDiagnostic() {
+    console.log('🚀 Starting Full FlowDigm Export Diagnostic\n');
+    
+    const results = {
+        libraries: checkLibraries(),
+        reactFlow: checkReactFlow(),
+        canvasElements: !!checkCanvasElements(),
+        exportFunctions: checkExportFunctions(),
+        tests: {}
+    };
+    
+    // Run export tests
+    console.log('\n=== RUNNING EXPORT TESTS ===');
+    
+    results.tests.simplePNG = await testSimplePNG();
+    results.tests.emergency = await testEmergencyExport();
+    results.tests.comprehensive = await testComprehensiveExport();
+    
+    // Summary
+    console.log('\n=== DIAGNOSTIC SUMMARY ===');
+    console.log('Libraries loaded:', results.libraries ? '✅' : '❌');
+    console.log('ReactFlow setup:', results.reactFlow.hasContent ? '✅ (with content)' : (results.reactFlow.nodes ? '⚠️ (no content)' : '❌'));
+    console.log('Canvas elements:', results.canvasElements ? '✅' : '❌');
+    console.log('Export functions:', Object.values(results.exportFunctions).some(f => typeof f === 'function') ? '✅' : '❌');
+    console.log('Export tests:');
+    Object.entries(results.tests).forEach(([test, passed]) => {
+        console.log(`  - ${test}:`, passed ? '✅' : '❌');
+    });
+    
+    if (!results.libraries) {
+        console.warn('⚠️ Some export libraries are missing. Check network connectivity and library loading.');
+    }
+    
+    if (!results.reactFlow.hasContent) {
+        console.warn('⚠️ No content found to export. Add some shapes to the canvas first.');
+    }
+    
+    if (!results.canvasElements) {
+        console.warn('⚠️ ReactFlow canvas elements not found. Check if the ReactFlow component is properly mounted.');
+    }
+    
+    return results;
+}
+
+// Auto-run diagnostic
+setTimeout(runFullDiagnostic, 1000);
+
+// Export functions for manual testing
+window.diagExport = {
+    runFullDiagnostic,
+    checkLibraries,
+    checkReactFlow,
+    checkCanvasElements,
+    checkExportFunctions,
+    testSimplePNG,
+    testEmergencyExport,
+    testComprehensiveExport
+};
+
+console.log('💡 Manual diagnostic functions available:');
+console.log('  - diagExport.runFullDiagnostic()');
+console.log('  - diagExport.testSimplePNG()');
+console.log('  - diagExport.testEmergencyExport()');
+console.log('  - diagExport.testComprehensiveExport()');
+
+// Additional test functions for the HTML interface
+function checkAllLibraries() {
+    checkLibraries();
+}
+
+function checkReactFlowSetup() {
+    checkReactFlow();
+    checkCanvasElements();
+}
+
+function testDownloadBasic() {
+    console.log('🔍 Testing basic download functionality...');
+    
+    try {
+        const testContent = 'FlowDigm diagnostic test file\nTimestamp: ' + new Date().toISOString();
+        const blob = new Blob([testContent], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = 'flowdigm-diagnostic-test.txt';
+        link.href = url;
+        link.click();
+        URL.revokeObjectURL(url);
+        
+        console.log('✅ Basic download test successful');
+    } catch (error) {
+        console.error('❌ Basic download test failed:', error);
+    }
+}
+
+function simulateExport() {
+    console.log('🎭 Simulating export functionality...');
+    
+    // Create mock ReactFlow data
+    if (!window.__REACT_FLOW_INSTANCE__) {
+        console.log('🔧 Creating mock ReactFlow instance...');
+        window.__REACT_FLOW_INSTANCE__ = {
+            getNodes: () => [
+                { 
+                    id: '1', 
+                    position: { x: 100, y: 100 }, 
+                    data: { label: 'Test Node 1', width: 120, height: 80 },
+                    type: 'rectangle'
+                },
+                { 
+                    id: '2', 
+                    position: { x: 300, y: 200 }, 
+                    data: { label: 'Test Node 2', width: 120, height: 80 },
+                    type: 'circle'
+                }
+            ],
+            getEdges: () => [
+                { id: 'e1-2', source: '1', target: '2', label: 'Test Connection' }
+            ],
+            fitView: () => console.log('fitView called')
+        };
+        console.log('✅ Mock ReactFlow instance created');
+    }
+    
+    // Test emergency export
+    testEmergencyExport();
+}
+
+function createTestData() {
+    console.log('🏗️ Creating test data and canvas...');
+    
+    // Create a test canvas element
+    let testCanvas = document.getElementById('test-canvas');
+    if (!testCanvas) {
+        testCanvas = document.createElement('div');
+        testCanvas.id = 'test-canvas';
+        testCanvas.className = 'react-flow';
+        testCanvas.style.cssText = `
+            width: 600px;
+            height: 400px;
+            background: linear-gradient(45deg, #f0f0f0 25%, transparent 25%, transparent 75%, #f0f0f0 75%),
+                        linear-gradient(45deg, #f0f0f0 25%, transparent 25%, transparent 75%, #f0f0f0 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+            position: relative;
+            border: 2px solid #ccc;
+            margin: 20px 0;
+        `;
+        
+        const content = document.createElement('div');
+        content.innerHTML = `
+            <div style="position: absolute; top: 50px; left: 50px; width: 120px; height: 80px; background: #e3f2fd; border: 2px solid #1976d2; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                Node 1
+            </div>
+            <div style="position: absolute; top: 200px; left: 300px; width: 120px; height: 80px; background: #fff3e0; border: 2px solid #f57c00; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                Node 2
+            </div>
+            <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
+                <line x1="170" y1="90" x2="300" y2="240" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+                <defs>
+                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+                    </marker>
+                </defs>
+            </svg>
+        `;
+        testCanvas.appendChild(content);
+        document.querySelector('.container').appendChild(testCanvas);
+        
+        console.log('✅ Test canvas created');
+    }
+    
+    // Create mock data
+    simulateExport();
+}
+
+function testBasicExports() {
+    console.log('🧪 Running basic export tests...');
+    createTestData();
+    setTimeout(() => {
+        testEmergencyExport();
+    }, 1000);
+}
+
+function testEmergencyFunctions() {
+    console.log('🚑 Testing emergency export functions...');
+    if (typeof window.emergencyExport === 'function') {
+        createTestData();
+        setTimeout(async () => {
+            await testEmergencyExport();
+        }, 1000);
+    } else {
+        console.error('❌ Emergency export functions not loaded');
+    }
+}
+
+// Auto-run initial diagnostic
+setTimeout(() => {
+    console.log('🚀 FlowDigm Diagnostic Tool Loaded');
+    console.log('📋 Click "Run Full Diagnostic" to identify export issues');
+    checkAllLibraries();
+}, 1000);
+
+    </script>
+</body>
+</html>

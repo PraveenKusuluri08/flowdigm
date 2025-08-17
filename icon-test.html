@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS Icon Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .icon-item {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .icon-item img {
+            width: 64px;
+            height: 64px;
+            object-fit: contain;
+            margin-bottom: 10px;
+        }
+        .icon-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .icon-description {
+            font-size: 12px;
+            color: #666;
+        }
+        .error {
+            color: red;
+            font-size: 12px;
+        }
+        .success {
+            color: green;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>AWS Icon Test</h1>
+    <p>Testing AWS icon loading and display</p>
+    
+    <div class="icon-grid" id="iconGrid">
+        <!-- Icons will be loaded here -->
+    </div>
+
+    <script>
+        // Test AWS icons
+        const testIcons = [
+            { id: 'aws-ec2', name: 'Amazon EC2', description: 'Virtual Machine Service', path: '/src/assets/icons/aws/Arch_Amazon-EC2_64.svg' },
+            { id: 'aws-s3', name: 'Amazon S3', description: 'Object Storage', path: '/src/assets/icons/aws/Arch_Amazon-Simple-Storage-Service_64.svg' },
+            { id: 'aws-lambda', name: 'AWS Lambda', description: 'Serverless Computing', path: '/src/assets/icons/aws/Arch_AWS-Lambda_64.svg' },
+            { id: 'aws-rds', name: 'Amazon RDS', description: 'Relational Database', path: '/src/assets/icons/aws/Arch_Amazon-RDS_64.svg' },
+            { id: 'aws-vpc', name: 'Amazon VPC', description: 'Virtual Private Cloud', path: '/src/assets/icons/aws/Arch_Amazon-Virtual-Private-Cloud_64.svg' },
+            { id: 'aws-dynamodb', name: 'Amazon DynamoDB', description: 'NoSQL Database', path: '/src/assets/icons/aws/Arch_Amazon-DynamoDB_64.svg' },
+            { id: 'aws-ecs', name: 'Amazon ECS', description: 'Container Service', path: '/src/assets/icons/aws/Arch_Amazon-Elastic-Container-Service_64.svg' },
+            { id: 'aws-eks', name: 'Amazon EKS', description: 'Kubernetes Service', path: '/src/assets/icons/aws/Arch_Amazon-Elastic-Kubernetes-Service_64.svg' },
+            { id: 'aws-route53', name: 'Amazon Route 53', description: 'DNS Service', path: '/src/assets/icons/aws/Arch_Amazon-Route-53_64.svg' },
+            { id: 'aws-cloudfront', name: 'Amazon CloudFront', description: 'Content Delivery Network', path: '/src/assets/icons/aws/Arch_Amazon-CloudFront_64.svg' },
+            { id: 'aws-api-gateway', name: 'Amazon API Gateway', description: 'API Management', path: '/src/assets/icons/aws/Arch_Amazon-API-Gateway_64.svg' },
+            { id: 'aws-iam', name: 'AWS IAM', description: 'Identity and Access Management', path: '/src/assets/icons/aws/Arch_AWS-Identity-and-Access-Management_64.svg' },
+            { id: 'aws-kms', name: 'AWS KMS', description: 'Key Management Service', path: '/src/assets/icons/aws/Arch_AWS-Key-Management-Service_64.svg' },
+            { id: 'aws-cognito', name: 'Amazon Cognito', description: 'User Authentication', path: '/src/assets/icons/aws/Arch_Amazon-Cognito_64.svg' },
+            { id: 'aws-sagemaker', name: 'Amazon SageMaker', description: 'Machine Learning Platform', path: '/src/assets/icons/aws/Arch_Amazon-SageMaker_64.svg' },
+            { id: 'aws-athena', name: 'Amazon Athena', description: 'Interactive Query Service', path: '/src/assets/icons/aws/Arch_Amazon-Athena_64.svg' },
+            { id: 'aws-emr', name: 'Amazon EMR', description: 'Big Data Processing', path: '/src/assets/icons/aws/Arch_Amazon-EMR_64.svg' },
+            { id: 'aws-glue', name: 'AWS Glue', description: 'ETL Service', path: '/src/assets/icons/aws/Arch_AWS-Glue_64.svg' },
+            { id: 'aws-quicksight', name: 'Amazon QuickSight', description: 'Business Intelligence', path: '/src/assets/icons/aws/Arch_Amazon-QuickSight_64.svg' },
+            { id: 'aws-cloudwatch', name: 'Amazon CloudWatch', description: 'Monitoring and Observability', path: '/src/assets/icons/aws/Arch_Amazon-CloudWatch_64.svg' },
+        ];
+
+        const iconGrid = document.getElementById('iconGrid');
+
+        testIcons.forEach(icon => {
+            const iconItem = document.createElement('div');
+            iconItem.className = 'icon-item';
+            
+            const img = document.createElement('img');
+            img.src = icon.path;
+            img.alt = icon.name;
+            img.onload = function() {
+                iconItem.innerHTML += '<div class="success">✓ Loaded successfully</div>';
+            };
+            img.onerror = function() {
+                iconItem.innerHTML += '<div class="error">✗ Failed to load</div>';
+            };
+            
+            iconItem.appendChild(img);
+            iconItem.innerHTML += `
+                <div class="icon-name">${icon.name}</div>
+                <div class="icon-description">${icon.description}</div>
+                <div class="icon-path">${icon.path}</div>
+            `;
+            
+            iconGrid.appendChild(iconItem);
+        });
+    </script>
+</body>
+</html>
