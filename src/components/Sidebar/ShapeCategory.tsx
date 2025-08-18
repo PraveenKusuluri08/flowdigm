@@ -47,9 +47,9 @@ const ShapeCategory: React.FC<ShapeCategoryProps> = ({ categoryKey: _categoryKey
   const handleToggleCategory = () => setIsExpanded(!isExpanded);
 
   const renderIcon = () => {
-    if (typeof category.icon === 'string') return <span className="text-lg">{category.icon}</span>;
+    if (typeof category.icon === 'string') return <span className="text-sm">{category.icon}</span>;
     const IconComponent = category.icon;
-    return <IconComponent size={16} className="text-gray-600" />;
+    return <IconComponent size={14} className="text-gray-600" />;
   };
 
   const useGrid = (category as any).layout === 'grid';
@@ -58,20 +58,22 @@ const ShapeCategory: React.FC<ShapeCategoryProps> = ({ categoryKey: _categoryKey
     <div className="group">
       <button
         onClick={handleToggleCategory}
-        className="w-full flex items-center gap-2 p-2 hover:bg-gray-50 text-left rounded-md transition-colors"
+        className="w-full flex items-center gap-2 p-2 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 text-left rounded-lg transition-all duration-300 border-2 border-transparent hover:border-blue-200 hover:shadow-lg"
       >
         {isExpanded ? (
-          <ChevronDown size={16} className="text-gray-500" />
+          <ChevronDown size={14} className="text-blue-600 group-hover:scale-110 transition-transform duration-300" />
         ) : (
-          <ChevronRight size={16} className="text-gray-500" />
+          <ChevronRight size={14} className="text-blue-600 group-hover:scale-110 transition-transform duration-300" />
         )}
-        {renderIcon()}
-        <span className="text-sm font-medium text-gray-700">{category.name}</span>
-        <span className="text-xs text-gray-500 ml-auto">({filteredShapes.length})</span>
+        <div className="p-1 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg">
+          {renderIcon()}
+        </div>
+        <span className="text-xs font-bold text-gray-800">{category.name}</span>
+        <span className="text-xs font-medium text-blue-600 ml-auto bg-blue-100 px-1 py-0.5 rounded text-xs">({filteredShapes.length})</span>
       </button>
 
       {isExpanded && (
-        <div className={useGrid ? 'grid grid-cols-3 gap-2 px-2' : 'ml-4 space-y-1 border-l border-gray-200 pl-2'}>
+        <div className={`mt-2 ${useGrid ? 'grid grid-cols-4 gap-2 px-2' : 'ml-4 space-y-1 border-l-2 border-blue-200 pl-2'}`}>
           {filteredShapes.length > 0 ? (
             filteredShapes.map(shape => (
               <ShapeItem
@@ -86,7 +88,7 @@ const ShapeCategory: React.FC<ShapeCategoryProps> = ({ categoryKey: _categoryKey
               />
             ))
           ) : (
-            <div className="text-xs text-gray-500 p-2">No shapes available</div>
+            <div className="text-sm text-gray-500 p-4 bg-gray-50 rounded-xl border border-gray-200">No shapes available</div>
           )}
         </div>
       )}

@@ -1,5 +1,5 @@
 // components/CanvasEditor/DrawingCanvas.tsx - USING YOUR LOCAL ICONS
-import React, { useCallback, useRef, useState, useMemo } from 'react';
+import React, { useCallback, useRef, useState, useMemo, useEffect } from 'react';
 import ReactFlow, {
   addEdge,
   Background,
@@ -16,11 +16,16 @@ import ReactFlow, {
 import type { Connection, Edge, Node } from 'reactflow';
 import 'reactflow/dist/style.css';
 
+// Import file management utilities
+import { fileManager } from '../../utils/fileManager';
+
 import { useCanvas } from '../../hooks/useCanvas';
 import { awsAllServices, gcpAllServices } from '../Sidebar/CloudServiceIcons';
 import RightSidebar from '../Sidebar/RightSidebar';
 import ContextMenu from '../ContextMenu';
 import PlaceItemMenu from '../PlaceItemMenu';
+import FileDialog from '../FileDialog';
+import SaveDialog from '../SaveDialog';
 import { 
   RectangleNode,
   CircleNode,
@@ -758,13 +763,34 @@ interface NodeData {
   minHeight?: number;
 }
 
-const DrawingCanvas = () => {
+interface DrawingCanvasProps {
+  nodes?: Node[];
+  edges?: Edge[];
+  onNodesChange?: (changes: any) => void;
+  onEdgesChange?: (changes: any) => void;
+}
+
+const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
+  nodes: externalNodes,
+  edges: externalEdges,
+  onNodesChange: externalOnNodesChange,
+  onEdgesChange: externalOnEdgesChange
+}) => {
   const { state: canvasState } = useCanvas();
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const { project } = useReactFlow();
+  const { project, getViewport } = useReactFlow();
   
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  // Use external state if provided, otherwise use internal state
+  const [internalNodes, setInternalNodes, onInternalNodesChange] = useNodesState([]);
+  const [internalEdges, setInternalEdges, onInternalEdgesChange] = useEdgesState([]);
+  
+  const nodes = externalNodes || internalNodes;
+  const setNodes = externalNodes ? (() => {}) : setInternalNodes;
+  const onNodesChange = externalOnNodesChange || onInternalNodesChange;
+  
+  const edges = externalEdges || internalEdges;
+  const setEdges = externalEdges ? (() => {}) : setInternalEdges;
+  const onEdgesChange = externalOnEdgesChange || onInternalEdgesChange;
   
   const [isConnecting, setIsConnecting] = useState(false);
   const [selectedNode, setSelectedNode] = useState<any>(null);
@@ -784,6 +810,17 @@ const DrawingCanvas = () => {
     x: 0,
     y: 0,
     targetNode: null as any
+  });
+
+  // File dialog state
+  const [fileDialog, setFileDialog] = useState({
+    isOpen: false,
+    mode: 'load' as 'load' | 'import' | 'export'
+  });
+
+  // Save dialog state
+  const [saveDialog, setSaveDialog] = useState({
+    isOpen: false
   });
 
   // Enhanced node type mappings - COMPLETE
@@ -960,7 +997,13 @@ const DrawingCanvas = () => {
         data: nodeData,
       };
 
-      setNodes((currentNodes) => [...currentNodes, newNode]);
+      if (externalNodes) {
+        // If using external state, we need to call the external handler
+        const change = { type: 'add' as const, item: newNode };
+        onNodesChange([change]);
+      } else {
+        setNodes((currentNodes) => [...currentNodes, newNode]);
+      }
 
     } catch (error) {
       console.error('❌ Local icons drop error:', error);
@@ -972,9 +1015,20 @@ const DrawingCanvas = () => {
     event.dataTransfer.dropEffect = 'move';
   }, []);
 
+  // Mark changes for auto-save
+  const markAsChanged = useCallback(() => {
+    fileManager.markAsChanged();
+  }, []);
+
   const onConnect = useCallback((params: Connection) => {
+    if (!params.source || !params.target) return;
+    
     const newEdge = { 
-      ...params, 
+      id: `edge-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+      source: params.source,
+      target: params.target,
+      sourceHandle: params.sourceHandle,
+      targetHandle: params.targetHandle,
       type: 'smoothstep',
       style: { 
         stroke: '#3b82f6', 
@@ -983,8 +1037,16 @@ const DrawingCanvas = () => {
       },
       animated: false,
     };
-    setEdges((eds) => addEdge(newEdge, eds));
-  }, [setEdges]);
+    
+    if (externalEdges) {
+      // If using external state, we need to call the external handler
+      const change = { type: 'add' as const, item: newEdge };
+      onEdgesChange([change]);
+    } else {
+      setEdges((eds) => addEdge(newEdge, eds));
+    }
+    markAsChanged();
+  }, [setEdges, onEdgesChange, externalEdges, markAsChanged]);
 
   const onConnectStart = useCallback(() => {
     setIsConnecting(true);
@@ -1075,6 +1137,102 @@ const DrawingCanvas = () => {
     }
   }, []);
 
+  // File management handlers
+  const handleSave = useCallback(async (filename: string, format: string, options?: any) => {
+    try {
+      const viewport = getViewport();
+      
+      if (format === 'archplot') {
+        // Save in native ArchPlot format
+        const { ArchPlotFileFormat } = await import('../../utils/archplotFileFormat');
+        await ArchPlotFileFormat.saveArchPlotFile(nodes, edges, filename, viewport);
+        console.log('✅ ArchPlot file saved successfully:', filename);
+      } else {
+        // Use export functions for other formats
+        const { exportFile } = await import('../../utils/importExportUtils');
+        await exportFile(format as any, filename, options);
+        console.log('✅ File exported successfully:', filename);
+      }
+    } catch (error) {
+      console.error('❌ Save failed:', error);
+      throw error;
+    }
+  }, [nodes, edges, getViewport]);
+
+  const handleLoad = useCallback(async (file: any) => {
+    try {
+      setNodes(file.nodes || []);
+      setEdges(file.edges || []);
+      console.log('✅ File loaded successfully:', file.name);
+    } catch (error) {
+      console.error('❌ Load failed:', error);
+      throw error;
+    }
+  }, [setNodes, setEdges]);
+
+  const handleImport = useCallback(async (file: File) => {
+    try {
+      const format = file.name.split('.').pop()?.toLowerCase() || 'json';
+      const importedFile = await fileManager.importFromFormat(file, format);
+      setNodes(importedFile.nodes || []);
+      setEdges(importedFile.edges || []);
+      console.log('✅ File imported successfully:', file.name);
+    } catch (error) {
+      console.error('❌ Import failed:', error);
+      throw error;
+    }
+  }, [setNodes, setEdges]);
+
+  const handleExport = useCallback(async (format: string, options: any) => {
+    try {
+      await fileManager.exportToFormat(nodes, edges, format, options);
+      console.log('✅ File exported successfully:', format);
+    } catch (error) {
+      console.error('❌ Export failed:', error);
+      throw error;
+    }
+  }, [nodes, edges]);
+
+  // Update nodes/edges change handlers to mark as changed
+  const onNodesChangeWithTracking = useCallback((changes: any) => {
+    onNodesChange(changes);
+    markAsChanged();
+  }, [onNodesChange, markAsChanged]);
+
+  const onEdgesChangeWithTracking = useCallback((changes: any) => {
+    onEdgesChange(changes);
+    markAsChanged();
+  }, [onEdgesChange, markAsChanged]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.ctrlKey || event.metaKey) {
+        switch (event.key.toLowerCase()) {
+          case 's':
+            event.preventDefault();
+            setSaveDialog({ isOpen: true });
+            break;
+          case 'o':
+            event.preventDefault();
+            setFileDialog({ isOpen: true, mode: 'load' });
+            break;
+          case 'e':
+            event.preventDefault();
+            setFileDialog({ isOpen: true, mode: 'export' });
+            break;
+          case 'i':
+            event.preventDefault();
+            setFileDialog({ isOpen: true, mode: 'import' });
+            break;
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const handleContextMenuAction = useCallback((action: string) => {
     const node = contextMenu.targetNode;
     
@@ -1160,18 +1318,7 @@ const DrawingCanvas = () => {
   return (
     <div className="flex h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       {/* Success Indicator for Local Icons */}
-      <div className="fixed top-4 left-4 z-50 bg-gradient-to-r from-green-500 to-emerald-600 text-white p-4 rounded-xl shadow-2xl text-sm border border-white/20 backdrop-blur-sm">
-        <div className="font-bold mb-2 flex items-center">
-          <span className="text-lg mr-2">✅</span>
-          Icons Working!
-        </div>
-        <div className="space-y-1 text-green-100">
-          <div>• AWS & GCP icons rendering correctly</div>
-          <div>• Using public/icons/ folder</div>
-          <div>• Real icon images displayed</div>
-          <div>• Drag & drop working!</div>
-        </div>
-      </div>
+      
       
       {/* Main Canvas Area */}
       <div className="flex-1 flex flex-col">
@@ -1181,8 +1328,8 @@ const DrawingCanvas = () => {
           <ReactFlow
             nodes={nodes}
             edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
+            onNodesChange={onNodesChangeWithTracking}
+            onEdgesChange={onEdgesChangeWithTracking}
             onConnect={onConnect}
             onConnectStart={onConnectStart}
             onConnectEnd={onConnectEnd}
@@ -1335,6 +1482,37 @@ const DrawingCanvas = () => {
         onClose={() => setPlaceItemMenu({ isVisible: false, x: 0, y: 0, targetNode: null })}
         onPlaceItem={handlePlaceItem}
       />
+
+              {/* File Dialog */}
+        <FileDialog
+          isOpen={fileDialog.isOpen}
+          onClose={() => setFileDialog({ isOpen: false, mode: 'load' })}
+          mode={fileDialog.mode}
+          onLoad={handleLoad}
+          onImport={handleImport}
+          onExport={handleExport}
+          currentNodes={nodes}
+          currentEdges={edges}
+        />
+
+        {/* Save Dialog */}
+        <SaveDialog
+          isOpen={saveDialog.isOpen}
+          onClose={() => setSaveDialog({ isOpen: false })}
+          onSave={handleSave}
+          currentNodes={nodes}
+          currentEdges={edges}
+          currentFilename="Untitled Diagram"
+        />
+
+      {/* Keyboard Shortcuts */}
+      <div className="fixed bottom-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-gray-200 p-3 text-xs text-gray-600">
+        <div className="font-medium mb-1">Keyboard Shortcuts:</div>
+        <div>Ctrl+S: Save</div>
+        <div>Ctrl+O: Open</div>
+        <div>Ctrl+E: Export</div>
+        <div>Ctrl+I: Import</div>
+      </div>
     </div>
   );
 };

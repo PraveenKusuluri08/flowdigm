@@ -47,7 +47,7 @@ export const ShapeItem: React.FC<ShapeItemProps> = ({ shape, variant = 'grid' })
         return (IconComponent as () => React.ReactElement)();
       } else {
         // For regular React components
-        return React.createElement(IconComponent as React.ComponentType<any>, { size: 24 });
+        return React.createElement(IconComponent as React.ComponentType<any>, { size: 20 });
       }
     } catch (error) {
       console.error('Error rendering icon:', error);
@@ -64,17 +64,19 @@ export const ShapeItem: React.FC<ShapeItemProps> = ({ shape, variant = 'grid' })
       onDragEnd={handleDragEnd}
       className={
         isGrid
-          ? 'flex flex-col items-center justify-center gap-1 p-2 rounded border border-transparent hover:border-gray-300 hover:bg-gray-50 cursor-move select-none min-h-[64px]'
-          : 'flex items-center gap-2 p-2 hover:bg-gray-100 cursor-move select-none rounded'
+          ? 'flex flex-col items-center justify-center gap-1 p-2 rounded-lg border-2 border-transparent hover:border-blue-300 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 cursor-move select-none min-h-[60px] transition-all duration-300 shadow-sm hover:shadow-lg group'
+          : 'flex items-center gap-2 p-2 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 cursor-move select-none rounded-lg border-2 border-transparent hover:border-blue-300 transition-all duration-300 shadow-sm hover:shadow-lg group'
       }
       title={shape.tooltip || shape.name}
     >
-      <div className={isGrid ? 'flex-shrink-0 text-gray-700' : 'flex-shrink-0'}>
+      <div className={`${isGrid ? 'flex-shrink-0 text-gray-700 group-hover:scale-110 transition-transform duration-300' : 'flex-shrink-0 group-hover:scale-110 transition-transform duration-300'}`}>
         {renderIcon()}
       </div>
-      <span className={isGrid ? 'text-xs text-gray-700 text-center truncate w-full' : 'text-sm truncate'}>
-        {shape.tooltip}
-      </span>
+      {!isGrid && (
+        <span className="text-xs font-medium truncate">
+          {shape.tooltip}
+        </span>
+      )}
     </div>
   );
 };

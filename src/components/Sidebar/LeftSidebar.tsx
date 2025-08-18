@@ -25,10 +25,17 @@ const LeftSidebar = () => {
   });
   
   return (
-    <div className="w-64 bg-white border-r border-gray-200 flex flex-col h-full flex-shrink-0">
+    <div className="w-64 bg-gradient-to-b from-white via-gray-50/50 to-blue-50/30 border-r border-white/20 flex flex-col h-full flex-shrink-0 backdrop-blur-sm">
       {/* Header */}
-      <div className="p-3 border-b border-gray-200 flex-shrink-0">
-        <h2 className="text-sm font-medium text-gray-700">Archplot</h2>
+      <div className="p-4 border-b border-white/20 flex-shrink-0 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 relative overflow-hidden">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-purple-400/20 animate-pulse"></div>
+        <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-10 translate-x-10"></div>
+        
+        <div className="relative z-10">
+          <h2 className="text-lg font-black text-white drop-shadow-lg">Shapes</h2>
+          <p className="text-blue-100 text-xs font-medium">Drag & Drop</p>
+        </div>
       </div>
       
       {/* Removed tabs; using accordion sections below */}
@@ -43,13 +50,19 @@ const LeftSidebar = () => {
         <QuickAccess />
       </div>
       
-      <div className="flex-1 overflow-y-auto p-3 space-y-3">
+      <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {/* General & Basic */}
         <button
-          className="w-full text-left text-xs font-semibold text-gray-700 bg-gray-50 hover:bg-gray-100 px-2 py-2 rounded"
+          className="w-full text-left text-sm font-bold text-gray-800 bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 px-3 py-2 rounded-xl border-2 border-transparent hover:border-blue-200 transition-all duration-300 shadow-sm hover:shadow-lg group"
           onClick={() => setExpanded((e) => ({ ...e, general: !e.general }))}
         >
-          {expanded.general ? '▼' : '▶'} General & Basic
+          <div className="flex items-center space-x-2">
+            <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full group-hover:scale-150 transition-transform duration-300"></div>
+            <span>General</span>
+            <div className="ml-auto text-blue-600 group-hover:scale-110 transition-transform duration-300">
+              {expanded.general ? '▼' : '▶'}
+            </div>
+          </div>
         </button>
         {expanded.general && (
           <div className="space-y-2">
@@ -61,10 +74,16 @@ const LeftSidebar = () => {
 
         {/* BPMN */}
         <button
-          className="w-full text-left text-xs font-semibold text-gray-700 bg-gray-50 hover:bg-gray-100 px-2 py-2 rounded"
+          className="w-full text-left text-sm font-bold text-gray-800 bg-gradient-to-r from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 px-3 py-2 rounded-xl border-2 border-transparent hover:border-green-200 transition-all duration-300 shadow-sm hover:shadow-lg group"
           onClick={() => setExpanded((e) => ({ ...e, bpmn: !e.bpmn }))}
         >
-          {expanded.bpmn ? '▼' : '▶'} BPMN
+          <div className="flex items-center space-x-2">
+            <div className="w-2 h-2 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full group-hover:scale-150 transition-transform duration-300"></div>
+            <span>BPMN</span>
+            <div className="ml-auto text-green-600 group-hover:scale-110 transition-transform duration-300">
+              {expanded.bpmn ? '▼' : '▶'}
+            </div>
+          </div>
         </button>
         {expanded.bpmn && (
           <div className="space-y-2">
@@ -76,10 +95,16 @@ const LeftSidebar = () => {
 
         {/* AWS */}
         <button
-          className="w-full text-left text-xs font-semibold text-gray-700 bg-gray-50 hover:bg-gray-100 px-2 py-2 rounded"
+          className="w-full text-left text-sm font-black text-gray-800 bg-gradient-to-r from-orange-50 to-red-50 hover:from-orange-100 hover:to-red-100 px-4 py-3 rounded-2xl border-2 border-transparent hover:border-orange-200 transition-all duration-300 shadow-sm hover:shadow-lg group"
           onClick={() => setExpanded((e) => ({ ...e, aws: !e.aws }))}
         >
-          {expanded.aws ? '▼' : '▶'} AWS
+          <div className="flex items-center space-x-3">
+            <div className="w-2 h-2 bg-gradient-to-r from-orange-500 to-red-600 rounded-full group-hover:scale-150 transition-transform duration-300"></div>
+            <span>AWS</span>
+            <div className="ml-auto text-orange-600 group-hover:scale-110 transition-transform duration-300">
+              {expanded.aws ? '▼' : '▶'}
+            </div>
+          </div>
         </button>
         {expanded.aws && (
           <div className="space-y-4">
@@ -94,10 +119,16 @@ const LeftSidebar = () => {
 
         {/* GCP */}
         <button
-          className="w-full text-left text-xs font-semibold text-gray-700 bg-gray-50 hover:bg-gray-100 px-2 py-2 rounded"
+          className="w-full text-left text-sm font-black text-gray-800 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 px-4 py-3 rounded-2xl border-2 border-transparent hover:border-blue-200 transition-all duration-300 shadow-sm hover:shadow-lg group"
           onClick={() => setExpanded((e) => ({ ...e, gcp: !e.gcp }))}
         >
-          {expanded.gcp ? '▼' : '▶'} GCP
+          <div className="flex items-center space-x-3">
+            <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full group-hover:scale-150 transition-transform duration-300"></div>
+            <span>GCP</span>
+            <div className="ml-auto text-blue-600 group-hover:scale-110 transition-transform duration-300">
+              {expanded.gcp ? '▼' : '▶'}
+            </div>
+          </div>
         </button>
         {expanded.gcp && (
           <div className="space-y-4">
@@ -111,10 +142,16 @@ const LeftSidebar = () => {
 
         {/* Azure */}
         <button
-          className="w-full text-left text-xs font-semibold text-gray-700 bg-gray-50 hover:bg-gray-100 px-2 py-2 rounded"
+          className="w-full text-left text-sm font-black text-gray-800 bg-gradient-to-r from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 px-4 py-3 rounded-2xl border-2 border-transparent hover:border-purple-200 transition-all duration-300 shadow-sm hover:shadow-lg group"
           onClick={() => setExpanded((e) => ({ ...e, azure: !e.azure }))}
         >
-          {expanded.azure ? '▼' : '▶'} Azure
+          <div className="flex items-center space-x-3">
+            <div className="w-2 h-2 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full group-hover:scale-150 transition-transform duration-300"></div>
+            <span>Azure</span>
+            <div className="ml-auto text-purple-600 group-hover:scale-110 transition-transform duration-300">
+              {expanded.azure ? '▼' : '▶'}
+            </div>
+          </div>
         </button>
         {expanded.azure && (
           <div className="space-y-4">

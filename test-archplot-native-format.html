@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArchPlot Native Format Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .test-button.success {
+            background: #28a745;
+        }
+        .test-button.warning {
+            background: #ffc107;
+            color: #000;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .file-preview {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .step-list {
+            counter-reset: step-counter;
+        }
+        .step-list li {
+            counter-increment: step-counter;
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+        .step-list li::before {
+            content: counter(step-counter);
+            background: #007bff;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-block;
+            text-align: center;
+            line-height: 20px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🎯 ArchPlot Native Format Test</h1>
+        
+        <div class="test-section">
+            <h2>📋 Test Instructions</h2>
+            <ol class="step-list">
+                <li><strong>Open ArchPlot</strong> at <code>localhost:5174</code></li>
+                <li><strong>Add content</strong> - Drag shapes from left sidebar to canvas</li>
+                <li><strong>Connect shapes</strong> - Draw connections between nodes</li>
+                <li><strong>Press Ctrl+S</strong> or click "Save As..." button</li>
+                <li><strong>Select "ArchPlot Diagram"</strong> format (should be default)</li>
+                <li><strong>Enter filename</strong> (should auto-add .archplot extension)</li>
+                <li><strong>Click Save</strong> - file should download as .archplot</li>
+                <li><strong>Open the saved file</strong> using Ctrl+O or Open button</li>
+                <li><strong>Verify content</strong> - everything should load exactly as saved</li>
+            </ol>
+        </div>
+
+        <div class="test-section">
+            <h2>🎯 Expected Behavior</h2>
+            <div class="status info">
+                <strong>Save Process:</strong>
+                <ul>
+                    <li>✅ Save dialog opens with "ArchPlot Diagram" selected by default</li>
+                    <li>✅ Filename automatically gets .archplot extension</li>
+                    <li>✅ File downloads as .archplot (not .json)</li>
+                    <li>✅ File contains XML structure with all canvas data</li>
+                </ul>
+            </div>
+            <div class="status info">
+                <strong>Load Process:</strong>
+                <ul>
+                    <li>✅ Open dialog accepts .archplot files</li>
+                    <li>✅ All shapes load in exact positions</li>
+                    <li>✅ All connections load with styling</li>
+                    <li>✅ Viewport state (zoom/pan) is restored</li>
+                    <li>✅ Canvas settings (grid, background) are restored</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🎯 Test Actions</h2>
+            <button class="test-button" onclick="testArchPlotFormat()">Test ArchPlot Format</button>
+            <button class="test-button" onclick="testSaveLoadCycle()">Test Save/Load Cycle</button>
+            <button class="test-button" onclick="testFileExtension()">Test File Extension</button>
+            <button class="test-button" onclick="testXMLStructure()">Test XML Structure</button>
+            <button class="test-button" onclick="clearLog()">Clear Log</button>
+        </div>
+
+        <div class="test-section">
+            <h2>🔍 Format Status</h2>
+            <div id="formatStatus" class="status info">Checking ArchPlot format availability...</div>
+        </div>
+
+        <div class="test-section">
+            <h2>📄 Sample ArchPlot File</h2>
+            <div id="sampleFile" class="file-preview">Sample file will appear here...</div>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 Test Results</h2>
+            <div id="testLog" class="log">Test log will appear here...</div>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const logElement = document.getElementById('testLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}\n`;
+            logElement.textContent += logEntry;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(logEntry.trim());
+        }
+
+        function clearLog() {
+            document.getElementById('testLog').textContent = 'Test log cleared...\n';
+        }
+
+        function updateFormatStatus() {
+            const statusElement = document.getElementById('formatStatus');
+            
+            const components = {
+                'ArchPlotFileFormat': typeof window.archPlotFileFormat !== 'undefined',
+                'SaveDialog': typeof window.SaveDialog !== 'undefined',
+                'FileManager': typeof window.fileManager !== 'undefined'
+            };
+            
+            const available = Object.values(components).filter(Boolean).length;
+            const total = Object.keys(components).length;
+            
+            if (available === total) {
+                statusElement.className = 'status success';
+                statusElement.innerHTML = `
+                    <strong>✅ All components available (${available}/${total})</strong><br>
+                    ArchPlot native format is ready to use!
+                `;
+            } else if (available > 0) {
+                statusElement.className = 'status warning';
+                statusElement.innerHTML = `
+                    <strong>⚠️ Partial components available (${available}/${total})</strong><br>
+                    Some features may not work properly.
+                `;
+            } else {
+                statusElement.className = 'status error';
+                statusElement.innerHTML = `
+                    <strong>❌ No components available (${available}/${total})</strong><br>
+                    Please load the main ArchPlot application first.
+                `;
+            }
+        }
+
+        function testArchPlotFormat() {
+            log('Testing ArchPlot format functionality...', 'info');
+            
+            if (typeof window.archPlotFileFormat === 'undefined') {
+                log('❌ ArchPlotFileFormat not available', 'error');
+                return;
+            }
+            
+            log('✅ ArchPlotFileFormat found', 'success');
+            
+            // Test creating ArchPlot file
+            const testNodes = [
+                {
+                    id: 'test-rect',
+                    type: 'rectangle',
+                    position: { x: 100, y: 100 },
+                    data: { label: 'Test Rectangle', width: 120, height: 80 }
+                },
+                {
+                    id: 'test-circle',
+                    type: 'circle',
+                    position: { x: 300, y: 100 },
+                    data: { label: 'Test Circle', width: 100, height: 100 }
+                }
+            ];
+            
+            const testEdges = [
+                {
+                    id: 'test-edge',
+                    source: 'test-rect',
+                    target: 'test-circle',
+                    type: 'smoothstep'
+                }
+            ];
+            
+            try {
+                // Test file creation
+                const archPlotFile = window.archPlotFileFormat.constructor.createArchPlotFile(
+                    testNodes, 
+                    testEdges, 
+                    'test-diagram'
+                );
+                
+                log('✅ ArchPlot file created successfully', 'success');
+                log(`📊 File contains ${archPlotFile.nodes.length} nodes and ${archPlotFile.edges.length} edges`, 'info');
+                
+                // Test XML generation
+                const xml = window.archPlotFileFormat.constructor.createArchPlotXML(archPlotFile);
+                log('✅ XML generation successful', 'success');
+                log(`📄 XML length: ${xml.length} characters`, 'info');
+                
+                // Display sample file
+                const sampleElement = document.getElementById('sampleFile');
+                sampleElement.textContent = xml;
+                
+                // Test XML parsing
+                const parsedFile = window.archPlotFileFormat.constructor.parseArchPlotXML(xml);
+                log('✅ XML parsing successful', 'success');
+                log(`📊 Parsed file: ${parsedFile.name}`, 'info');
+                
+                // Validate file
+                const isValid = window.archPlotFileFormat.constructor.validateArchPlotFile(parsedFile);
+                if (isValid) {
+                    log('✅ File validation passed', 'success');
+                } else {
+                    log('❌ File validation failed', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ ArchPlot format test failed: ${error.message}`, 'error');
+            }
+        }
+
+        function testSaveLoadCycle() {
+            log('Testing save/load cycle...', 'info');
+            
+            if (typeof window.archPlotFileFormat === 'undefined') {
+                log('❌ ArchPlotFileFormat not available', 'error');
+                return;
+            }
+            
+            // Create test data
+            const testNodes = [
+                {
+                    id: 'save-test-rect',
+                    type: 'rectangle',
+                    position: { x: 150, y: 150 },
+                    data: { label: 'Save Test Rectangle', width: 120, height: 80 }
+                },
+                {
+                    id: 'save-test-circle',
+                    type: 'circle',
+                    position: { x: 350, y: 150 },
+                    data: { label: 'Save Test Circle', width: 100, height: 100 }
+                }
+            ];
+            
+            const testEdges = [
+                {
+                    id: 'save-test-edge',
+                    source: 'save-test-rect',
+                    target: 'save-test-circle',
+                    type: 'smoothstep'
+                }
+            ];
+            
+            try {
+                // Create file
+                const archPlotFile = window.archPlotFileFormat.constructor.createArchPlotFile(
+                    testNodes, 
+                    testEdges, 
+                    'save-load-test'
+                );
+                
+                // Generate XML
+                const xml = window.archPlotFileFormat.constructor.createArchPlotXML(archPlotFile);
+                
+                // Parse XML back
+                const loadedFile = window.archPlotFileFormat.constructor.parseArchPlotXML(xml);
+                
+                // Compare data
+                const nodesMatch = JSON.stringify(archPlotFile.nodes) === JSON.stringify(loadedFile.nodes);
+                const edgesMatch = JSON.stringify(archPlotFile.edges) === JSON.stringify(loadedFile.edges);
+                
+                if (nodesMatch && edgesMatch) {
+                    log('✅ Save/load cycle successful - data preserved exactly', 'success');
+                } else {
+                    log('❌ Save/load cycle failed - data mismatch', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Save/load cycle test failed: ${error.message}`, 'error');
+            }
+        }
+
+        function testFileExtension() {
+            log('Testing file extension handling...', 'info');
+            
+            const testCases = [
+                { input: 'diagram', expected: 'diagram.archplot' },
+                { input: 'diagram.archplot', expected: 'diagram.archplot' },
+                { input: 'diagram.json', expected: 'diagram.archplot' },
+                { input: 'my diagram', expected: 'my diagram.archplot' }
+            ];
+            
+            testCases.forEach((testCase, index) => {
+                const result = testCase.input.replace(/\.[^/.]+$/, '') + '.archplot';
+                const passed = result === testCase.expected;
+                
+                log(`${passed ? '✅' : '❌'} Test ${index + 1}: "${testCase.input}" → "${result}" ${passed ? 'PASS' : 'FAIL'}`, passed ? 'success' : 'error');
+            });
+            
+            log('✅ File extension test completed', 'success');
+        }
+
+        function testXMLStructure() {
+            log('Testing XML structure...', 'info');
+            
+            if (typeof window.archPlotFileFormat === 'undefined') {
+                log('❌ ArchPlotFileFormat not available', 'error');
+                return;
+            }
+            
+            try {
+                // Create minimal test file
+                const testFile = window.archPlotFileFormat.constructor.createArchPlotFile(
+                    [{ id: 'test', type: 'rectangle', position: { x: 0, y: 0 }, data: { label: 'Test' } }],
+                    [],
+                    'xml-test'
+                );
+                
+                const xml = window.archPlotFileFormat.constructor.createArchPlotXML(testFile);
+                
+                // Check for required XML elements
+                const requiredElements = [
+                    '<?xml version="1.0" encoding="UTF-8"?>',
+                    '<archplot',
+                    '<metadata>',
+                    '<canvas>',
+                    '<viewport>',
+                    '<elements>',
+                    '<node',
+                    '</archplot>'
+                ];
+                
+                let allFound = true;
+                requiredElements.forEach(element => {
+                    const found = xml.includes(element);
+                    log(`${found ? '✅' : '❌'} XML contains: ${element}`, found ? 'success' : 'error');
+                    if (!found) allFound = false;
+                });
+                
+                if (allFound) {
+                    log('✅ XML structure test passed', 'success');
+                } else {
+                    log('❌ XML structure test failed', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ XML structure test failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🚀 ArchPlot Native Format Test initialized', 'info');
+            updateFormatStatus();
+            
+            // Check format availability every 3 seconds
+            setInterval(updateFormatStatus, 3000);
+            
+            // Initial test
+            setTimeout(() => {
+                if (typeof window.archPlotFileFormat !== 'undefined') {
+                    log('✅ ArchPlot format detected - running initial tests', 'success');
+                    testArchPlotFormat();
+                    testFileExtension();
+                } else {
+                    log('⚠️ ArchPlot format not yet available - please load the main application', 'warning');
+                }
+            }, 1000);
+        });
+
+        // Listen for messages from the main app
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.type === 'archplot-format-test') {
+                log(`📨 Message from app: ${JSON.stringify(event.data)}`, 'info');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -92,9 +92,9 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <div className="bg-white border-b border-gray-200 px-4 py-2 flex items-center justify-between">
+    <div className="bg-gradient-to-r from-white via-gray-50/50 to-blue-50/30 border-b border-white/20 px-4 py-2 flex items-center justify-between backdrop-blur-sm">
       {/* Left side - File operations */}
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-1">
         {/* File Menu */}
         <div className="relative group">
           <button className="flex items-center space-x-1 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md transition-colors">

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced UI Test - Miro-like Design</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .test-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin: 0;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin: 10px 0 0 0;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .feature-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+        }
+        .feature-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 0 15px 0;
+            color: #1a202c;
+        }
+        .feature-card p {
+            color: #4a5568;
+            line-height: 1.6;
+            margin: 0;
+        }
+        .ui-showcase {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+        }
+        .ui-showcase h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0 0 30px 0;
+            color: #1a202c;
+            text-align: center;
+        }
+        .button-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .button {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .button-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        .button-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+        .button-secondary {
+            background: white;
+            color: #4a5568;
+            border: 2px solid #e2e8f0;
+        }
+        .button-secondary:hover {
+            border-color: #cbd5e0;
+            background: #f7fafc;
+        }
+        .button-success {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.4);
+        }
+        .button-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(72, 187, 120, 0.6);
+        }
+        .dialog-preview {
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            border-radius: 16px;
+            padding: 30px;
+            border: 1px solid #e2e8f0;
+            margin-top: 20px;
+        }
+        .dialog-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .dialog-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a202c;
+        }
+        .format-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .format-option {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .format-option:hover {
+            border-color: #667eea;
+            background: #f7fafc;
+        }
+        .format-option.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #ebf4ff 0%, #e6fffa 100%);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+        }
+        .format-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+        .format-name {
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 5px;
+        }
+        .format-desc {
+            font-size: 14px;
+            color: #4a5568;
+        }
+        .test-instructions {
+            background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+            border-radius: 16px;
+            padding: 30px;
+            border: 1px solid #feb2b2;
+            margin-bottom: 30px;
+        }
+        .test-instructions h3 {
+            color: #c53030;
+            margin: 0 0 15px 0;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+        .test-instructions ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .test-instructions li {
+            margin: 8px 0;
+            color: #742a2a;
+            font-weight: 500;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-success { background: #48bb78; }
+        .status-warning { background: #ed8936; }
+        .status-error { background: #f56565; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="header">
+            <h1>🎨 Enhanced UI Showcase</h1>
+            <p>Miro-like Design with Modern Styling</p>
+        </div>
+
+        <div class="test-instructions">
+            <h3>🚀 How to Test the Enhanced UI</h3>
+            <ol>
+                <li><strong>Open ArchPlot</strong> at <code>localhost:5174</code></li>
+                <li><strong>Add some shapes</strong> to the canvas</li>
+                <li><strong>Press Ctrl+S</strong> or click the "Save As..." button</li>
+                <li><strong>Experience the new UI</strong> - notice the enhanced styling</li>
+                <li><strong>Try different formats</strong> and see the improved interactions</li>
+            </ol>
+        </div>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>🎯 Modern Save Dialog</h3>
+                <p>Professional modal with backdrop blur, gradient headers, and smooth animations. Features a two-panel layout with format categories and advanced options.</p>
+            </div>
+            <div class="feature-card">
+                <h3>🌈 Enhanced Buttons</h3>
+                <p>Gradient buttons with hover effects, shadows, and smooth transitions. Primary actions stand out with blue gradients, secondary actions have subtle borders.</p>
+            </div>
+            <div class="feature-card">
+                <h3>📱 Responsive Design</h3>
+                <p>Adaptive layout that works on all screen sizes. Clean typography with proper spacing and visual hierarchy that matches modern design standards.</p>
+            </div>
+            <div class="feature-card">
+                <h3>🎨 Color-Coded Categories</h3>
+                <p>Format categories are color-coded: Blue for native formats, Purple for images, Orange for documents, and Green for web formats.</p>
+            </div>
+            <div class="feature-card">
+                <h3>⚡ Smooth Interactions</h3>
+                <p>Hover effects, focus states, and loading animations provide excellent user feedback. All interactions feel smooth and responsive.</p>
+            </div>
+            <div class="feature-card">
+                <h3>📊 Rich Content Preview</h3>
+                <p>Visual preview cards showing nodes, edges, format, and file size. Grid layout with color-coded metrics for easy scanning.</p>
+            </div>
+        </div>
+
+        <div class="ui-showcase">
+            <h2>🎨 UI Components Showcase</h2>
+            
+            <div class="button-showcase">
+                <button class="button button-primary">
+                    <span>💾</span>
+                    Save As...
+                </button>
+                <button class="button button-secondary">
+                    <span>📁</span>
+                    Open File
+                </button>
+                <button class="button button-secondary">
+                    <span>📤</span>
+                    Import
+                </button>
+                <button class="button button-secondary">
+                    <span>📥</span>
+                    Export
+                </button>
+                <button class="button button-success">
+                    <span>✅</span>
+                    Save File
+                </button>
+            </div>
+
+            <div class="dialog-preview">
+                <div class="dialog-header">
+                    <div class="dialog-title">Save As - Enhanced UI</div>
+                    <button class="button button-secondary" style="padding: 8px; border-radius: 50%; width: 40px; height: 40px;">
+                        ✕
+                    </button>
+                </div>
+
+                <div class="format-grid">
+                    <div class="format-option selected">
+                        <div class="format-icon" style="background: #667eea; color: white;">📄</div>
+                        <div class="format-name">ArchPlot Diagram</div>
+                        <div class="format-desc">Native format with full data preservation</div>
+                    </div>
+                    <div class="format-option">
+                        <div class="format-icon" style="background: #9f7aea; color: white;">🖼️</div>
+                        <div class="format-name">PNG Image</div>
+                        <div class="format-desc">High-quality raster image</div>
+                    </div>
+                    <div class="format-option">
+                        <div class="format-icon" style="background: #ed8936; color: white;">📋</div>
+                        <div class="format-name">PDF Document</div>
+                        <div class="format-desc">Portable document format</div>
+                    </div>
+                    <div class="format-option">
+                        <div class="format-icon" style="background: #48bb78; color: white;">🌐</div>
+                        <div class="format-name">HTML Page</div>
+                        <div class="format-desc">Interactive web page</div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="button button-primary" style="padding: 15px 30px; font-size: 16px;">
+                        <span>💾</span>
+                        Save File
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="feature-card">
+            <h3>🔍 Key UI Improvements</h3>
+            <ul style="color: #4a5568; line-height: 1.8;">
+                <li><span class="status-indicator status-success"></span><strong>Backdrop Blur:</strong> Modern modal overlay with blur effect</li>
+                <li><span class="status-indicator status-success"></span><strong>Gradient Headers:</strong> Beautiful gradient backgrounds for visual appeal</li>
+                <li><span class="status-indicator status-success"></span><strong>Rounded Corners:</strong> Consistent 12px-20px border radius throughout</li>
+                <li><span class="status-indicator status-success"></span><strong>Enhanced Typography:</strong> Better font weights and spacing</li>
+                <li><span class="status-indicator status-success"></span><strong>Color-Coded Categories:</strong> Visual distinction between format types</li>
+                <li><span class="status-indicator status-success"></span><strong>Smooth Animations:</strong> 200ms transitions for all interactions</li>
+                <li><span class="status-indicator status-success"></span><strong>Shadow Effects:</strong> Subtle shadows for depth and hierarchy</li>
+                <li><span class="status-indicator status-success"></span><strong>Hover States:</strong> Interactive feedback on all clickable elements</li>
+                <li><span class="status-indicator status-success"></span><strong>Loading States:</strong> Spinner animations during save operations</li>
+                <li><span class="status-indicator status-success"></span><strong>Error Handling:</strong> Beautiful error messages with icons</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactivity to the showcase
+        document.querySelectorAll('.format-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.format-option').forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+
+        // Add hover effects to buttons
+        document.querySelectorAll('.button').forEach(button => {
+            button.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+            });
+            button.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body>
+</html>

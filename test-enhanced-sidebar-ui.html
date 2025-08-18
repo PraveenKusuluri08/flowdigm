@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Sidebar UI Showcase</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .showcase-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .hero-section {
+            text-align: center;
+            margin-bottom: 60px;
+            color: white;
+        }
+        
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin: 0;
+            text-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            margin: 15px 0 0 0;
+            font-weight: 300;
+        }
+        
+        .ui-layout {
+            display: flex;
+            gap: 0;
+            background: white;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            border: 1px solid rgba(255,255,255,0.2);
+            margin-bottom: 60px;
+        }
+        
+        .sidebar {
+            width: 320px;
+            background: linear-gradient(to bottom, #ffffff, rgba(249, 250, 251, 0.5), rgba(239, 246, 255, 0.3));
+            border-right: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #8b5cf6 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .sidebar-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+            animation: pulse 3s ease-in-out infinite;
+        }
+        
+        .sidebar-header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 80px;
+            height: 80px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            transform: translate(40px, -40px);
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.8; }
+        }
+        
+        .sidebar-title {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: white;
+            margin: 0;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .sidebar-subtitle {
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-top: 4px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .search-section {
+            padding: 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            background: linear-gradient(135deg, rgba(249, 250, 251, 0.5) 0%, rgba(239, 246, 255, 0.3) 100%);
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 16px 20px 16px 48px;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 1.1rem;
+        }
+        
+        .quick-access {
+            padding: 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            background: linear-gradient(135deg, rgba(250, 245, 255, 0.5) 0%, rgba(236, 254, 255, 0.3) 100%);
+        }
+        
+        .quick-access-title {
+            font-size: 0.9rem;
+            font-weight: 800;
+            color: #374151;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .quick-access-dot {
+            width: 8px;
+            height: 8px;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            border-radius: 50%;
+            margin-right: 12px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        .quick-access-content {
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid rgba(255,255,255,0.5);
+            text-align: center;
+            color: #6b7280;
+            font-weight: 500;
+        }
+        
+        .sidebar-content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+        
+        .category-button {
+            width: 100%;
+            text-align: left;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 2px solid transparent;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(239, 246, 255, 0.5) 0%, rgba(250, 245, 255, 0.5) 100%);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .category-button:hover {
+            border-color: #667eea;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .category-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        
+        .category-dot.blue { background: linear-gradient(135deg, #3b82f6, #8b5cf6); }
+        .category-dot.green { background: linear-gradient(135deg, #10b981, #059669); }
+        .category-dot.orange { background: linear-gradient(135deg, #f59e0b, #dc2626); }
+        .category-dot.purple { background: linear-gradient(135deg, #8b5cf6, #ec4899); }
+        
+        .category-name {
+            font-size: 0.9rem;
+            font-weight: 800;
+            color: #1f2937;
+            flex: 1;
+        }
+        
+        .category-count {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+        
+        .main-content {
+            flex: 1;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+        
+        .header {
+            padding: 20px 32px;
+            background: linear-gradient(135deg, #ffffff, rgba(248, 250, 252, 0.5), rgba(241, 245, 249, 0.3));
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header-buttons {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .header-button {
+            padding: 12px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: white;
+            color: #374151;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .header-button:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.15);
+            transform: translateY(-1px);
+        }
+        
+        .header-button.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #8b5cf6 100%);
+            color: white;
+            border-color: transparent;
+        }
+        
+        .header-button.primary:hover {
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .canvas-area {
+            padding: 40px;
+            text-align: center;
+            color: #6b7280;
+        }
+        
+        .canvas-placeholder {
+            background: rgba(255,255,255,0.8);
+            border: 2px dashed #d1d5db;
+            border-radius: 20px;
+            padding: 80px 40px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .canvas-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #374151;
+            margin-bottom: 12px;
+        }
+        
+        .canvas-subtitle {
+            font-size: 1rem;
+            color: #6b7280;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        
+        .feature-card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .feature-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #1f2937;
+            margin-bottom: 12px;
+        }
+        
+        .feature-description {
+            color: #6b7280;
+            line-height: 1.6;
+        }
+        
+        .test-instructions {
+            background: linear-gradient(135deg, rgba(255, 245, 245, 0.9) 0%, rgba(254, 215, 215, 0.9) 100%);
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid rgba(254, 178, 178, 0.3);
+            margin-bottom: 40px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .test-instructions h3 {
+            color: #dc2626;
+            margin: 0 0 20px 0;
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+        
+        .test-instructions ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .test-instructions li {
+            margin: 12px 0;
+            color: #991b1b;
+            font-weight: 600;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        
+        .test-instructions code {
+            background: rgba(255,255,255,0.8);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .ui-layout {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+            }
+            
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="showcase-container">
+        <div class="hero-section">
+            <h1 class="hero-title">🎨 Enhanced Sidebar UI</h1>
+            <p class="hero-subtitle">Ultra-modern sidebar with glass morphism and advanced interactions</p>
+        </div>
+
+        <div class="test-instructions">
+            <h3>🚀 How to Experience the Enhanced Sidebar UI</h3>
+            <ol>
+                <li><strong>Open ArchPlot</strong> at <code>localhost:5174</code></li>
+                <li><strong>Notice the beautiful sidebar</strong> with gradient header and glass morphism</li>
+                <li><strong>Try the enhanced search bar</strong> with smooth focus effects</li>
+                <li><strong>Explore category buttons</strong> with hover animations and color-coded dots</li>
+                <li><strong>Drag shapes from the sidebar</strong> to see the enhanced interactions</li>
+            </ol>
+        </div>
+
+        <div class="ui-layout">
+            <!-- Enhanced Sidebar -->
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <h2 class="sidebar-title">ArchPlot</h2>
+                    <p class="sidebar-subtitle">Diagram Designer</p>
+                </div>
+                
+                <div class="search-section">
+                    <div style="position: relative;">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" class="search-input" placeholder="Search shapes..." />
+                    </div>
+                </div>
+                
+                <div class="quick-access">
+                    <div class="quick-access-title">
+                        <div class="quick-access-dot"></div>
+                        Quick Access
+                    </div>
+                    <div class="quick-access-content">
+                        Recent and favorite shapes will appear here
+                    </div>
+                </div>
+                
+                <div class="sidebar-content">
+                    <button class="category-button">
+                        <div class="category-dot blue"></div>
+                        <span class="category-name">General & Basic</span>
+                        <span class="category-count">(12)</span>
+                    </button>
+                    
+                    <button class="category-button">
+                        <div class="category-dot green"></div>
+                        <span class="category-name">BPMN</span>
+                        <span class="category-count">(8)</span>
+                    </button>
+                    
+                    <button class="category-button">
+                        <div class="category-dot orange"></div>
+                        <span class="category-name">AWS</span>
+                        <span class="category-count">(45)</span>
+                    </button>
+                    
+                    <button class="category-button">
+                        <div class="category-dot blue"></div>
+                        <span class="category-name">GCP</span>
+                        <span class="category-count">(38)</span>
+                    </button>
+                    
+                    <button class="category-button">
+                        <div class="category-dot purple"></div>
+                        <span class="category-name">Azure</span>
+                        <span class="category-count">(32)</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Main Content Area -->
+            <div class="main-content">
+                <div class="header">
+                    <div class="header-buttons">
+                        <button class="header-button">📁 File</button>
+                        <button class="header-button">📂 Open</button>
+                        <button class="header-button primary">💾 Save As...</button>
+                        <button class="header-button">📤 Import</button>
+                        <button class="header-button">📥 Export</button>
+                    </div>
+                    
+                    <div class="header-buttons">
+                        <button class="header-button">↶ Undo</button>
+                        <button class="header-button">↷ Redo</button>
+                        <button class="header-button">📋 Copy</button>
+                        <button class="header-button">📄 Paste</button>
+                        <button class="header-button">🗑️ Delete</button>
+                    </div>
+                    
+                    <div class="header-buttons">
+                        <button class="header-button">🔍 Zoom Out</button>
+                        <button class="header-button">100%</button>
+                        <button class="header-button">🔍 Zoom In</button>
+                        <button class="header-button">⛶ Fit View</button>
+                        <button class="header-button">📤 Share</button>
+                        <button class="header-button">⚙️ Settings</button>
+                    </div>
+                </div>
+                
+                <div class="canvas-area">
+                    <div class="canvas-placeholder">
+                        <div class="canvas-title">Enhanced Canvas Area</div>
+                        <div class="canvas-subtitle">Drag shapes from the sidebar to start creating your diagram</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🎨</div>
+                <h3 class="feature-title">Glass Morphism</h3>
+                <p class="feature-description">Advanced backdrop blur effects with translucent backgrounds creating a modern glass-like appearance throughout the sidebar and header.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🌈</div>
+                <h3 class="feature-title">Gradient Design</h3>
+                <p class="feature-description">Beautiful gradient backgrounds, headers, and color-coded category indicators that create visual hierarchy and modern appeal.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3 class="feature-title">Smooth Animations</h3>
+                <p class="feature-description">Hover effects, scale transforms, and micro-interactions that make every element feel responsive and engaging.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3 class="feature-title">Enhanced Typography</h3>
+                <p class="feature-description">Custom font weights, improved spacing, and better visual hierarchy that makes content more readable and professional.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">💎</div>
+                <h3 class="feature-title">Premium Shadows</h3>
+                <p class="feature-description">Multi-layered shadow effects with color tinting that create depth and make elements feel elevated and interactive.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🎪</div>
+                <h3 class="feature-title">Interactive Elements</h3>
+                <p class="feature-description">Enhanced buttons, search bars, and category toggles with smooth transitions and visual feedback for better UX.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactivity to the showcase
+        document.querySelectorAll('.category-button').forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active state from all buttons
+                document.querySelectorAll('.category-button').forEach(btn => {
+                    btn.style.background = 'linear-gradient(135deg, rgba(239, 246, 255, 0.5) 0%, rgba(250, 245, 255, 0.5) 100%)';
+                    btn.style.borderColor = 'transparent';
+                });
+                
+                // Add active state to clicked button
+                this.style.background = 'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)';
+                this.style.borderColor = '#667eea';
+            });
+        });
+
+        // Add hover effects to header buttons
+        document.querySelectorAll('.header-button').forEach(button => {
+            button.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+            });
+            
+            button.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Simulate search functionality
+        const searchInput = document.querySelector('.search-input');
+        if (searchInput) {
+            searchInput.addEventListener('focus', function() {
+                this.style.borderColor = '#667eea';
+                this.style.boxShadow = '0 0 0 4px rgba(102, 126, 234, 0.1)';
+            });
+            
+            searchInput.addEventListener('blur', function() {
+                this.style.borderColor = '#e5e7eb';
+                this.style.boxShadow = 'none';
+            });
+        }
+    </script>
+</body>
+</html>

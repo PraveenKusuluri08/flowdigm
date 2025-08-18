@@ -1092,19 +1092,19 @@ export const CloudServiceIcon: React.FC<CloudServiceIconProps> = ({
 
   return (
     <div
-      className="flex flex-col items-center p-1 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all duration-200 cursor-grab active:cursor-grabbing"
+      className="flex flex-col items-center p-4 bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-gray-200 hover:border-blue-300 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 hover:shadow-lg transition-all duration-300 cursor-grab active:cursor-grabbing group"
       draggable
       onDragStart={handleDragStart}
       title={`${service.name} - ${service.description}`}
     >
-      <div className="w-8 h-8 flex items-center justify-center mb-1">
+      <div className="w-12 h-12 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
         {service.icon}
       </div>
       <div className="text-center">
-        <div className="text-xs font-medium text-gray-800 truncate max-w-16">
+        <div className="text-xs font-bold text-gray-800 truncate max-w-20">
           {service.name}
         </div>
-        <div className="text-xs text-gray-500 truncate max-w-16">
+        <div className="text-xs text-gray-600 truncate max-w-20 font-medium">
           {service.category}
         </div>
       </div>
@@ -1120,9 +1120,12 @@ interface ServiceCategoryProps {
 
 export const ServiceCategory: React.FC<ServiceCategoryProps> = ({ title, services }) => {
   return (
-    <div className="space-y-2">
-      <h3 className="text-xs font-medium text-gray-600 uppercase tracking-wide">{title}</h3>
-      <div className="grid grid-cols-2 gap-2">
+    <div className="space-y-4">
+      <h3 className="text-sm font-black text-gray-800 uppercase tracking-wide flex items-center">
+        <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mr-3 animate-pulse"></div>
+        {title}
+      </h3>
+      <div className="grid grid-cols-2 gap-3">
         {Object.entries(services).map(([serviceId, service]) => (
           <CloudServiceIcon key={serviceId} serviceId={serviceId} service={service} />
         ))}

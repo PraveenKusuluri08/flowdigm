@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { ReactFlow, Node, Edge, useReactFlow, addEdge, Connection, useNodesState, useEdgesState, ReactFlowProvider } from 'reactflow';
 import 'reactflow/dist/style.css';
 import './App.css';
@@ -37,6 +37,13 @@ function AppContent() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  
+  // Debug logging for nodes and edges changes
+  useEffect(() => {
+    console.log('🔄 App state updated - Nodes:', nodes.length, 'Edges:', edges.length);
+    console.log('📊 Current nodes:', nodes);
+    console.log('🔗 Current edges:', edges);
+  }, [nodes, edges]);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
@@ -182,30 +189,54 @@ function AppContent() {
     }
   }, [nodes, edges]);
 
-  // Save functionality
+  // File management functionality
   const onSave = useCallback(async () => {
     try {
-      const data = {
-        nodes,
-        edges,
-        metadata: {
-          savedAt: new Date().toISOString(),
-          source: 'flowdigm'
-        }
-      };
+      console.log('Save requested with nodes:', nodes.length, 'edges:', edges.length);
       
-      const blob = new Blob([JSON.stringify(data, null, 2)], { 
-        type: 'application/json' 
-      });
-      downloadBlob(blob, 'flowdigm-diagram.json');
+      if (nodes.length === 0) {
+        alert('No content to save! Please add some elements to the canvas first.');
+        return;
+      }
       
-      console.log('Successfully saved diagram');
-      alert('Diagram saved successfully!');
+      // This will be handled by the SaveDialog component in DrawingCanvas
+      console.log('Save dialog will be opened');
     } catch (error) {
       console.error('Save failed:', error);
       alert(`Save failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }, [nodes, edges]);
+
+  const onOpen = useCallback(async () => {
+    try {
+      console.log('Open requested');
+      
+      // Create file input for opening files
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.archplot,.json,.xml,.drawio,.svg';
+      input.onchange = async (event) => {
+        const file = (event.target as HTMLInputElement).files?.[0];
+        if (file) {
+          try {
+            const { fileManager } = await import('./utils/fileManager');
+            const loadedFile = await fileManager.loadFile(file);
+            setNodes(loadedFile.nodes || []);
+            setEdges(loadedFile.edges || []);
+            console.log('✅ File loaded successfully:', loadedFile.name);
+            alert(`File loaded successfully: ${loadedFile.name}`);
+          } catch (error) {
+            console.error('Load failed:', error);
+            alert(`Load failed: ${error instanceof Error ? error.message : String(error)}`);
+          }
+        }
+      };
+      input.click();
+    } catch (error) {
+      console.error('Open failed:', error);
+      alert(`Open failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }, [setNodes, setEdges]);
 
   const renderContent = () => {
     switch (activeSection) {
@@ -338,6 +369,7 @@ function AppContent() {
           <div className="shapes-section">
             <Header 
               onSave={onSave}
+              onOpen={onOpen}
               onImport={onImport}
               onExport={onExport}
               onUndo={onUndo}
@@ -359,7 +391,12 @@ function AppContent() {
                   <Toolbar />
                 </div>
                 <div className="canvas-content">
-                  <DrawingCanvas />
+                  <DrawingCanvas 
+                    nodes={nodes}
+                    edges={edges}
+                    onNodesChange={onNodesChange}
+                    onEdgesChange={onEdgesChange}
+                  />
                 </div>
               </div>
             </div>

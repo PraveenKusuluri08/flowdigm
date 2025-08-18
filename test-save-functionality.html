@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowDigm Save Functionality Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .test-button.success {
+            background: #28a745;
+        }
+        .test-button.danger {
+            background: #dc3545;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔧 FlowDigm Save Functionality Test</h1>
+        
+        <div class="test-section">
+            <h2>📋 Test Instructions</h2>
+            <ol>
+                <li>Open the main FlowDigm application</li>
+                <li>Add some shapes to the canvas (rectangles, circles, etc.)</li>
+                <li>Connect some shapes with lines</li>
+                <li>Try the save functionality using the buttons below</li>
+                <li>Check the console for detailed logs</li>
+            </ol>
+        </div>
+
+        <div class="test-section">
+            <h2>🎯 Quick Tests</h2>
+            <button class="test-button" onclick="testSaveFunction()">Test Save Function</button>
+            <button class="test-button" onclick="testLoadFunction()">Test Load Function</button>
+            <button class="test-button" onclick="testExportFunction()">Test Export Function</button>
+            <button class="test-button" onclick="clearLog()">Clear Log</button>
+        </div>
+
+        <div class="test-section">
+            <h2>🔍 Manual Tests</h2>
+            <div class="status info">
+                <strong>Manual Test Steps:</strong><br>
+                1. Press <kbd>Ctrl+S</kbd> to open save dialog<br>
+                2. Press <kbd>Ctrl+O</kbd> to open load dialog<br>
+                3. Press <kbd>Ctrl+E</kbd> to open export dialog<br>
+                4. Press <kbd>Ctrl+I</kbd> to open import dialog<br>
+                5. Use the toolbar buttons for file operations
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 Test Results</h2>
+            <div id="testLog" class="log">Test log will appear here...</div>
+        </div>
+
+        <div class="test-section">
+            <h2>🐛 Debug Information</h2>
+            <div id="debugInfo" class="log">Debug information will appear here...</div>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const logElement = document.getElementById('testLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}\n`;
+            logElement.textContent += logEntry;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(logEntry.trim());
+        }
+
+        function clearLog() {
+            document.getElementById('testLog').textContent = 'Test log cleared...\n';
+        }
+
+        function updateDebugInfo() {
+            const debugElement = document.getElementById('debugInfo');
+            const info = {
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent,
+                localStorage: Object.keys(localStorage).filter(key => key.startsWith('flowdigm')),
+                fileManager: typeof window.fileManager !== 'undefined' ? 'Available' : 'Not Available',
+                exportFunctions: typeof window.exportCanvas !== 'undefined' ? 'Available' : 'Not Available'
+            };
+            debugElement.textContent = JSON.stringify(info, null, 2);
+        }
+
+        function testSaveFunction() {
+            log('Testing save functionality...', 'info');
+            
+            try {
+                // Check if fileManager is available
+                if (typeof window.fileManager === 'undefined') {
+                    log('❌ fileManager not found in global scope', 'error');
+                    return;
+                }
+
+                // Create test data
+                const testNodes = [
+                    {
+                        id: 'test-node-1',
+                        type: 'rectangle',
+                        position: { x: 100, y: 100 },
+                        data: { label: 'Test Node 1', width: 100, height: 80 }
+                    },
+                    {
+                        id: 'test-node-2',
+                        type: 'circle',
+                        position: { x: 300, y: 100 },
+                        data: { label: 'Test Node 2', width: 80, height: 80 }
+                    }
+                ];
+
+                const testEdges = [
+                    {
+                        id: 'test-edge-1',
+                        source: 'test-node-1',
+                        target: 'test-node-2',
+                        type: 'smoothstep'
+                    }
+                ];
+
+                // Test save
+                window.fileManager.saveAs(testNodes, testEdges, 'test-diagram')
+                    .then(() => {
+                        log('✅ Save test completed successfully', 'success');
+                    })
+                    .catch(error => {
+                        log(`❌ Save test failed: ${error.message}`, 'error');
+                    });
+
+            } catch (error) {
+                log(`❌ Save test error: ${error.message}`, 'error');
+            }
+        }
+
+        function testLoadFunction() {
+            log('Testing load functionality...', 'info');
+            
+            try {
+                if (typeof window.fileManager === 'undefined') {
+                    log('❌ fileManager not found in global scope', 'error');
+                    return;
+                }
+
+                // Check for recent files
+                const recentFiles = localStorage.getItem('flowdigm_recent_files');
+                if (recentFiles) {
+                    const files = JSON.parse(recentFiles);
+                    log(`✅ Found ${files.length} recent files`, 'success');
+                    files.forEach((file, index) => {
+                        log(`  ${index + 1}. ${file.name} (${file.nodes.length} nodes, ${file.edges.length} edges)`, 'info');
+                    });
+                } else {
+                    log('ℹ️ No recent files found', 'info');
+                }
+
+            } catch (error) {
+                log(`❌ Load test error: ${error.message}`, 'error');
+            }
+        }
+
+        function testExportFunction() {
+            log('Testing export functionality...', 'info');
+            
+            try {
+                if (typeof window.exportCanvas === 'undefined') {
+                    log('❌ exportCanvas function not found in global scope', 'error');
+                    return;
+                }
+
+                // Test export
+                window.exportCanvas('png')
+                    .then(() => {
+                        log('✅ Export test completed successfully', 'success');
+                    })
+                    .catch(error => {
+                        log(`❌ Export test failed: ${error.message}`, 'error');
+                    });
+
+            } catch (error) {
+                log(`❌ Export test error: ${error.message}`, 'error');
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🚀 FlowDigm Save Functionality Test initialized', 'info');
+            updateDebugInfo();
+            
+            // Check for global functions
+            if (typeof window.fileManager !== 'undefined') {
+                log('✅ fileManager is available globally', 'success');
+            } else {
+                log('❌ fileManager is not available globally', 'error');
+            }
+
+            if (typeof window.exportCanvas !== 'undefined') {
+                log('✅ exportCanvas function is available globally', 'success');
+            } else {
+                log('❌ exportCanvas function is not available globally', 'error');
+            }
+        });
+
+        // Update debug info every 5 seconds
+        setInterval(updateDebugInfo, 5000);
+    </script>
+</body>
+</html>

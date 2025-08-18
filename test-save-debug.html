@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowDigm Save Debug Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .debug-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .debug-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .debug-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .debug-button:hover {
+            background: #0056b3;
+        }
+        .debug-log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-container">
+        <h1>🔧 FlowDigm Save Debug Test</h1>
+        
+        <div class="debug-section">
+            <h2>📋 Instructions</h2>
+            <ol>
+                <li>Open the main FlowDigm application at <code>localhost:5174</code></li>
+                <li>Add some shapes to the canvas (you should see them in the debug info below)</li>
+                <li>Try saving using Ctrl+S or the Save button</li>
+                <li>Check the console and this page for debug information</li>
+            </ol>
+        </div>
+
+        <div class="debug-section">
+            <h2>🎯 Debug Actions</h2>
+            <button class="debug-button" onclick="checkGlobalState()">Check Global State</button>
+            <button class="debug-button" onclick="testSaveDirect()">Test Save Direct</button>
+            <button class="debug-button" onclick="simulateCanvasContent()">Simulate Canvas Content</button>
+            <button class="debug-button" onclick="clearDebugLog()">Clear Log</button>
+        </div>
+
+        <div class="debug-section">
+            <h2>🔍 Current State</h2>
+            <div id="currentState" class="debug-log">Checking state...</div>
+        </div>
+
+        <div class="debug-section">
+            <h2>📊 Debug Log</h2>
+            <div id="debugLog" class="debug-log">Debug log will appear here...</div>
+        </div>
+
+        <div class="debug-section">
+            <h2>🐛 Issues Found</h2>
+            <div id="issuesFound" class="status info">No issues detected yet...</div>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const logElement = document.getElementById('debugLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}\n`;
+            logElement.textContent += logEntry;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(logEntry.trim());
+        }
+
+        function clearDebugLog() {
+            document.getElementById('debugLog').textContent = 'Debug log cleared...\n';
+        }
+
+        function updateCurrentState() {
+            const stateElement = document.getElementById('currentState');
+            const issuesElement = document.getElementById('issuesFound');
+            
+            const state = {
+                timestamp: new Date().toISOString(),
+                fileManager: typeof window.fileManager !== 'undefined' ? 'Available' : 'Not Available',
+                exportCanvas: typeof window.exportCanvas !== 'undefined' ? 'Available' : 'Not Available',
+                localStorage: Object.keys(localStorage).filter(key => key.startsWith('flowdigm')),
+                recentFiles: localStorage.getItem('flowdigm_recent_files') ? JSON.parse(localStorage.getItem('flowdigm_recent_files')).length : 0,
+                autoSaves: Object.keys(localStorage).filter(key => key.startsWith('flowdigm_autosave_')).length
+            };
+            
+            stateElement.textContent = JSON.stringify(state, null, 2);
+            
+            // Check for issues
+            const issues = [];
+            if (typeof window.fileManager === 'undefined') {
+                issues.push('fileManager not available globally');
+            }
+            if (typeof window.exportCanvas === 'undefined') {
+                issues.push('exportCanvas function not available globally');
+            }
+            if (state.recentFiles === 0) {
+                issues.push('No recent files found');
+            }
+            
+            if (issues.length === 0) {
+                issuesElement.className = 'status success';
+                issuesElement.textContent = '✅ No issues detected - everything looks good!';
+            } else {
+                issuesElement.className = 'status warning';
+                issuesElement.textContent = '⚠️ Issues found: ' + issues.join(', ');
+            }
+        }
+
+        function checkGlobalState() {
+            log('Checking global state...', 'info');
+            updateCurrentState();
+            
+            if (typeof window.fileManager !== 'undefined') {
+                log('✅ fileManager is available', 'success');
+                const currentFile = window.fileManager.getCurrentFile();
+                if (currentFile) {
+                    log(`📁 Current file: ${currentFile.name} (${currentFile.nodes.length} nodes, ${currentFile.edges.length} edges)`, 'info');
+                } else {
+                    log('📁 No current file loaded', 'info');
+                }
+            } else {
+                log('❌ fileManager is not available', 'error');
+            }
+            
+            if (typeof window.exportCanvas !== 'undefined') {
+                log('✅ exportCanvas function is available', 'success');
+            } else {
+                log('❌ exportCanvas function is not available', 'error');
+            }
+        }
+
+        function testSaveDirect() {
+            log('Testing direct save...', 'info');
+            
+            if (typeof window.fileManager === 'undefined') {
+                log('❌ fileManager not available', 'error');
+                return;
+            }
+            
+            // Create test data
+            const testNodes = [
+                {
+                    id: 'test-node-1',
+                    type: 'rectangle',
+                    position: { x: 100, y: 100 },
+                    data: { label: 'Test Rectangle', width: 100, height: 80 }
+                },
+                {
+                    id: 'test-node-2',
+                    type: 'circle',
+                    position: { x: 300, y: 100 },
+                    data: { label: 'Test Circle', width: 80, height: 80 }
+                }
+            ];
+            
+            const testEdges = [
+                {
+                    id: 'test-edge-1',
+                    source: 'test-node-1',
+                    target: 'test-node-2',
+                    type: 'smoothstep'
+                }
+            ];
+            
+            log(`📊 Testing save with ${testNodes.length} nodes and ${testEdges.length} edges`, 'info');
+            
+            window.fileManager.saveAs(testNodes, testEdges, 'debug-test-diagram')
+                .then(() => {
+                    log('✅ Direct save test completed successfully', 'success');
+                    updateCurrentState();
+                })
+                .catch(error => {
+                    log(`❌ Direct save test failed: ${error.message}`, 'error');
+                });
+        }
+
+        function simulateCanvasContent() {
+            log('Simulating canvas content...', 'info');
+            
+            // Simulate what should happen when content is added to canvas
+            const simulatedNodes = [
+                {
+                    id: 'simulated-rect',
+                    type: 'rectangle',
+                    position: { x: 150, y: 150 },
+                    data: { label: 'Rectangle', width: 120, height: 80 }
+                },
+                {
+                    id: 'simulated-circle',
+                    type: 'circle',
+                    position: { x: 350, y: 150 },
+                    data: { label: 'Circle', width: 100, height: 100 }
+                }
+            ];
+            
+            const simulatedEdges = [
+                {
+                    id: 'simulated-edge',
+                    source: 'simulated-rect',
+                    target: 'simulated-circle',
+                    type: 'smoothstep'
+                }
+            ];
+            
+            log(`🎨 Simulated canvas content: ${simulatedNodes.length} nodes, ${simulatedEdges.length} edges`, 'info');
+            log('📋 Node details:', 'info');
+            simulatedNodes.forEach((node, index) => {
+                log(`  ${index + 1}. ${node.type} at (${node.position.x}, ${node.position.y}) - "${node.data.label}"`, 'info');
+            });
+            
+            // Test if this content would save properly
+            if (typeof window.fileManager !== 'undefined') {
+                log('🧪 Testing if simulated content would save...', 'info');
+                window.fileManager.saveAs(simulatedNodes, simulatedEdges, 'simulated-content')
+                    .then(() => {
+                        log('✅ Simulated content saves successfully', 'success');
+                    })
+                    .catch(error => {
+                        log(`❌ Simulated content save failed: ${error.message}`, 'error');
+                    });
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🚀 FlowDigm Save Debug Test initialized', 'info');
+            updateCurrentState();
+            
+            // Check state every 2 seconds
+            setInterval(updateCurrentState, 2000);
+            
+            // Initial check
+            setTimeout(checkGlobalState, 1000);
+        });
+
+        // Listen for messages from the main app
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.type === 'flowdigm-debug') {
+                log(`📨 Message from app: ${JSON.stringify(event.data)}`, 'info');
+            }
+        });
+    </script>
+</body>
+</html>
