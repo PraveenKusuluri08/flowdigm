@@ -68,7 +68,7 @@ export class ArchPlotFileFormat {
     // Add nodes
     file.nodes.forEach(node => {
       xml += `
-    <node id="${this.escapeXML(node.id)}" type="${this.escapeXML(node.type)}" x="${node.position.x}" y="${node.position.y}">
+    <node id="${this.escapeXML(node.id)}" type="${this.escapeXML(node.type || 'default')}" x="${node.position.x}" y="${node.position.y}">
       <data>${this.escapeXML(JSON.stringify(node.data))}</data>
       ${node.style ? `<style>${this.escapeXML(JSON.stringify(node.style))}</style>` : ''}
     </node>`;
@@ -189,7 +189,7 @@ export class ArchPlotFileFormat {
     return {
       version,
       name,
-      description,
+      description: description || undefined,
       created,
       modified: new Date().toISOString(),
       nodes,

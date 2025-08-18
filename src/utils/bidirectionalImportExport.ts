@@ -26,7 +26,8 @@ export class VisioHandler {
   static async importFromVsdx(file: File): Promise<ImportedDiagram> {
     try {
       const arrayBuffer = await file.arrayBuffer();
-      const zip = await import('jszip').then(JSZip => new JSZip());
+      const JSZip = await import('jszip');
+      const zip = new JSZip.default();
       const zipContent = await zip.loadAsync(arrayBuffer);
       
       // Extract Visio XML content
