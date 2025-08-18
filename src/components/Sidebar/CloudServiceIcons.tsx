@@ -120,6 +120,19 @@ import AWSBudgetsIcon from '../../assets/icons/aws/Arch_AWS-Budgets_64.svg?react
 import AWSCostExplorerIcon from '../../assets/icons/aws/Arch_AWS-Cost-Explorer_64.svg?react';
 import AWSBillingConductorIcon from '../../assets/icons/aws/Arch_AWS-Billing-Conductor_64.svg?react';
 
+// Resolve AWS SVG file URLs at build time (so they work in production)
+const awsIconUrlMap = import.meta.glob('../../assets/icons/aws/*.svg', {
+  eager: true,
+  as: 'url'
+}) as Record<string, string>;
+
+const resolveAwsIconUrl = (fileName: string): string | undefined => {
+  for (const [path, url] of Object.entries(awsIconUrlMap)) {
+    if (path.endsWith(`/${fileName}`)) return url as unknown as string;
+  }
+  return undefined;
+};
+
 // AWS Icon wrapper component with proper styling - NO BORDERS, NO TEXT, smaller size
 const AwsIconWrapper = ({ iconUrl, size = 20 }: { iconUrl: string; size?: number }) => (
   <img 
@@ -134,13 +147,10 @@ const AwsIconWrapper = ({ iconUrl, size = 20 }: { iconUrl: string; size?: number
   />
 );
 
-// Dynamic AWS icon loader function
-const getAwsIcon = (serviceId: string) => {
-  // Remove 'aws-' prefix and convert to filename format
+// Helper to map AWS service id -> icon filename
+const getAwsIconFileName = (serviceId: string): string => {
   const iconName = serviceId.replace('aws-', '');
-  
-  // Common AWS service mappings
-  const iconMappings: { [key: string]: string } = {
+  const iconMappings: Record<string, string> = {
     'ec2': 'Arch_Amazon-EC2_64.svg',
     's3': 'Arch_Amazon-Simple-Storage-Service_64.svg',
     'lambda': 'Arch_AWS-Lambda_64.svg',
@@ -185,15 +195,16 @@ const getAwsIcon = (serviceId: string) => {
     'billing-conductor': 'Arch_AWS-Billing-Conductor_64.svg',
     // Add more mappings as needed
   };
+  const explicit = iconMappings[iconName];
+  if (explicit) return explicit;
+  return `Arch_${iconName.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('-')}_64.svg`;
+};
 
-  const iconFile = iconMappings[iconName];
-  if (iconFile) {
-    return <AwsIconWrapper iconUrl={`/src/assets/icons/aws/${iconFile}`} size={20} />;
-  }
-
-  // Fallback: try to construct the filename from the service ID
-  const fallbackIconFile = `Arch_${iconName.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('-')}_64.svg`;
-  return <AwsIconWrapper iconUrl={`/src/assets/icons/aws/${fallbackIconFile}`} size={20} />;
+// Dynamic AWS icon loader function that resolves a production-safe URL
+const getAwsIcon = (serviceId: string) => {
+  const fileName = getAwsIconFileName(serviceId);
+  const url = resolveAwsIconUrl(fileName);
+  return <AwsIconWrapper iconUrl={url || ''} size={20} />;
 };
 
 // AWS Service Icons - Using dynamic loading for better compatibility
@@ -1071,7 +1082,9 @@ export const CloudServiceIcon: React.FC<CloudServiceIconProps> = ({
     // Get the actual service data from awsAllServices if it's an AWS service
     if (serviceId.startsWith('aws-') && awsAllServices[serviceId]) {
       const awsService = awsAllServices[serviceId];
-      payload.iconUrl = awsService.iconUrl;
+      const fileName = getAwsIconFileName(serviceId);
+      const url = resolveAwsIconUrl(fileName);
+      payload.iconUrl = url || awsService.iconUrl;
       payload.serviceName = awsService.name;
       payload.description = awsService.description;
       payload.category = awsService.category;
