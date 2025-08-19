@@ -25,16 +25,12 @@ const LeftSidebar = () => {
   });
   
   return (
-    <div className="w-64 bg-gradient-to-b from-white via-gray-50/50 to-blue-50/30 border-r border-white/20 flex flex-col h-full flex-shrink-0 backdrop-blur-sm">
+    <div className="w-64 bg-white border-r border-gray-200 flex flex-col h-full flex-shrink-0">
       {/* Header */}
-      <div className="p-4 border-b border-white/20 flex-shrink-0 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 relative overflow-hidden">
-        {/* Animated background elements */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-purple-400/20 animate-pulse"></div>
-        <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-10 translate-x-10"></div>
-        
+      <div className="p-3 border-b border-gray-200 flex-shrink-0 bg-white relative">
         <div className="relative z-10">
-          <h2 className="text-lg font-black text-white drop-shadow-lg">Shapes</h2>
-          <p className="text-blue-100 text-xs font-medium">Drag & Drop</p>
+          <h2 className="text-base font-semibold text-gray-800">Shapes</h2>
+          <p className="text-gray-500 text-xs">Drag & Drop</p>
         </div>
       </div>
       
@@ -53,13 +49,13 @@ const LeftSidebar = () => {
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {/* General & Basic */}
         <button
-          className="w-full text-left text-sm font-bold text-gray-800 bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 px-3 py-2 rounded-xl border-2 border-transparent hover:border-blue-200 transition-all duration-300 shadow-sm hover:shadow-lg group"
+          className="w-full text-left text-xs font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 px-2 py-1.5 rounded-md border border-transparent hover:border-gray-300 transition-all duration-200 group"
           onClick={() => setExpanded((e) => ({ ...e, general: !e.general }))}
         >
           <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full group-hover:scale-150 transition-transform duration-300"></div>
+            <div className="w-1 h-1 bg-gray-400 rounded-full group-hover:bg-gray-600 transition-colors duration-200"></div>
             <span>General</span>
-            <div className="ml-auto text-blue-600 group-hover:scale-110 transition-transform duration-300">
+            <div className="ml-auto text-gray-500 group-hover:text-gray-700 transition-colors duration-200">
               {expanded.general ? '▼' : '▶'}
             </div>
           </div>
@@ -74,13 +70,13 @@ const LeftSidebar = () => {
 
         {/* BPMN */}
         <button
-          className="w-full text-left text-sm font-bold text-gray-800 bg-gradient-to-r from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 px-3 py-2 rounded-xl border-2 border-transparent hover:border-green-200 transition-all duration-300 shadow-sm hover:shadow-lg group"
+          className="w-full text-left text-xs font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 px-2 py-1.5 rounded-md border border-transparent hover:border-gray-300 transition-all duration-200 group"
           onClick={() => setExpanded((e) => ({ ...e, bpmn: !e.bpmn }))}
         >
           <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full group-hover:scale-150 transition-transform duration-300"></div>
+            <div className="w-1 h-1 bg-gray-400 rounded-full group-hover:bg-gray-600 transition-colors duration-200"></div>
             <span>BPMN</span>
-            <div className="ml-auto text-green-600 group-hover:scale-110 transition-transform duration-300">
+            <div className="ml-auto text-gray-500 group-hover:text-gray-700 transition-colors duration-200">
               {expanded.bpmn ? '▼' : '▶'}
             </div>
           </div>

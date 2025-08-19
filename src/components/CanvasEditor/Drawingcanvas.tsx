@@ -6,12 +6,10 @@ import ReactFlow, {
   useNodesState,
   useEdgesState,
   ConnectionMode,
-  Panel,
   useReactFlow,
   ConnectionLineType,
   BackgroundVariant,
-  Controls,
-  MiniMap
+  
 } from 'reactflow';
 import type { Connection, Edge, Node } from 'reactflow';
 import 'reactflow/dist/style.css';
@@ -1204,34 +1202,7 @@ const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     markAsChanged();
   }, [onEdgesChange, markAsChanged]);
 
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.ctrlKey || event.metaKey) {
-        switch (event.key.toLowerCase()) {
-          case 's':
-            event.preventDefault();
-            setSaveDialog({ isOpen: true });
-            break;
-          case 'o':
-            event.preventDefault();
-            setFileDialog({ isOpen: true, mode: 'load' });
-            break;
-          case 'e':
-            event.preventDefault();
-            setFileDialog({ isOpen: true, mode: 'export' });
-            break;
-          case 'i':
-            event.preventDefault();
-            setFileDialog({ isOpen: true, mode: 'import' });
-            break;
-        }
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  // Keyboard shortcuts removed per request
 
   const handleContextMenuAction = useCallback((action: string) => {
     const node = contextMenu.targetNode;
@@ -1350,7 +1321,6 @@ const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
             onDrop={onDrop}
             onDragOver={onDragOver}
             fitView
-            attributionPosition="bottom-left"
             style={{ background: 'transparent' }}
           >
             {/* Professional Background */}
@@ -1361,73 +1331,7 @@ const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
               size={1}
             />
             
-            {/* Enhanced Controls */}
-            <Controls 
-              style={{
-                background: 'rgba(255, 255, 255, 0.9)',
-                border: '1px solid #e2e8f0',
-                borderRadius: '12px',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                backdropFilter: 'blur(8px)'
-              }}
-            />
-            
-            {/* Professional Mini Map */}
-            <MiniMap 
-              style={{ 
-                height: 120,
-                background: 'rgba(255, 255, 255, 0.9)',
-                border: '1px solid #e2e8f0',
-                borderRadius: '12px',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                backdropFilter: 'blur(8px)'
-              }}
-              nodeStrokeColor={(n) => {
-                if (n.selected) return '#3b82f6';
-                return '#94a3b8';
-              }}
-              nodeColor={(n) => {
-                if (n.selected) return '#dbeafe';
-                return '#f8fafc';
-              }}
-              nodeBorderRadius={6}
-            />
-            
-            {/* Professional Zoom Panel */}
-            <Panel position="bottom-right" className="bg-white/90 backdrop-blur-sm rounded-xl shadow-xl border border-white/20 p-3">
-              <div className="flex items-center space-x-3">
-                <button
-                  onClick={() => {
-                    console.log('Professional zoom in');
-                  }}
-                  className="w-8 h-8 flex items-center justify-center bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-sm"
-                  title="Zoom In"
-                >
-                  +
-                </button>
-                <span className="text-sm text-gray-600 font-medium min-w-[40px] text-center">
-                  100%
-                </span>
-                <button
-                  onClick={() => {
-                    console.log('Professional zoom out');
-                  }}
-                  className="w-8 h-8 flex items-center justify-center bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-lg hover:from-gray-600 hover:to-gray-700 transition-all duration-200 shadow-sm"
-                  title="Zoom Out"
-                >
-                  -
-                </button>
-                <button
-                  onClick={() => {
-                    console.log('Professional fit view');
-                  }}
-                  className="w-8 h-8 flex items-center justify-center bg-gradient-to-r from-indigo-500 to-indigo-600 text-white rounded-lg hover:from-indigo-600 hover:to-indigo-700 transition-all duration-200 shadow-sm"
-                  title="Fit to View"
-                >
-                  ⌂
-                </button>
-              </div>
-            </Panel>
+            {/* Controls, MiniMap, and custom zoom panel removed per request */}
           </ReactFlow>
         </div>
       </div>
@@ -1496,23 +1400,16 @@ const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
         />
 
         {/* Save Dialog */}
-        <SaveDialog
+        {/* <SaveDialog
           isOpen={saveDialog.isOpen}
           onClose={() => setSaveDialog({ isOpen: false })}
           onSave={handleSave}
           currentNodes={nodes}
           currentEdges={edges}
           currentFilename="Untitled Diagram"
-        />
+        /> */}
 
-      {/* Keyboard Shortcuts */}
-      <div className="fixed bottom-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-gray-200 p-3 text-xs text-gray-600">
-        <div className="font-medium mb-1">Keyboard Shortcuts:</div>
-        <div>Ctrl+S: Save</div>
-        <div>Ctrl+O: Open</div>
-        <div>Ctrl+E: Export</div>
-        <div>Ctrl+I: Import</div>
-      </div>
+      {/* Keyboard shortcuts hint removed */}
     </div>
   );
 };

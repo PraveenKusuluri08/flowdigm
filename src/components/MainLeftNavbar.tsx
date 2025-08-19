@@ -118,23 +118,23 @@ const MainLeftNavbar: React.FC<MainLeftNavbarProps> = ({
         onClick={item.onClick}
         className={`
           w-full flex items-center text-left transition-all duration-200
-          ${isCollapsed ? 'justify-center px-2 py-4' : 'gap-4 px-6 py-4'}
+          ${isCollapsed ? 'justify-center px-2 py-2' : 'gap-3 px-4 py-2'}
           ${isActive && !item.isAction
-            ? 'bg-orange-500 text-white shadow-md' 
-            : 'text-gray-700 hover:bg-orange-50 hover:text-orange-600'
+            ? 'bg-gray-800 text-white' 
+            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-800'
           }
           relative group
         `}
         title={isCollapsed ? item.label : undefined}
       >
-        <IconComponent size={20} className="flex-shrink-0" />
+        <IconComponent size={16} className="flex-shrink-0" />
         {!isCollapsed && (
-          <span className="text-sm font-medium">{item.label}</span>
+          <span className="text-xs font-medium">{item.label}</span>
         )}
         
         {/* Active indicator */}
         {isActive && !item.isAction && (
-          <div className="absolute right-0 top-0 bottom-0 w-1 bg-orange-600"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-gray-800"></div>
         )}
         
         {/* Tooltip for collapsed state */}
@@ -149,42 +149,42 @@ const MainLeftNavbar: React.FC<MainLeftNavbarProps> = ({
 
   return (
     <div className={`
-      bg-white border-r border-gray-200 flex flex-col h-full shadow-sm transition-all duration-300
+      bg-white border-r border-gray-200 flex flex-col h-full transition-all duration-200
       ${isCollapsed ? 'w-20' : 'w-64'}
     `}>
       {/* Header */}
-      <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+      <div className="p-3 border-b border-gray-200 flex items-center justify-between">
         {!isCollapsed ? (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <img 
               src={logo} 
               alt="ArchPlot Logo" 
-              className="w-8 h-8 rounded-lg object-cover"
+              className="w-6 h-6 rounded object-cover"
             />
-            <h1 className="text-xl font-semibold text-gray-800">ArchPlot</h1>
+            <h1 className="text-base font-semibold text-gray-800">ArchPlot</h1>
           </div>
         ) : (
           <div className="flex justify-center">
             <img 
               src={logo} 
               alt="ArchPlot Logo" 
-              className="w-10 h-10 rounded-lg object-cover"
+              className="w-8 h-8 rounded object-cover"
             />
           </div>
         )}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-2 text-gray-500 hover:text-orange-600 transition-colors rounded-md hover:bg-orange-50"
+          className="p-1.5 text-gray-500 hover:text-gray-700 transition-colors rounded hover:bg-gray-100"
           title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
-          {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+          {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
         </button>
       </div>
 
       {/* Navigation Items */}
       <div className="flex-1 flex flex-col">
         {/* Top Navigation Items */}
-        <nav className="flex-1 py-4">
+        <nav className="flex-1 py-2">
           {topNavItems.map((item) => (
             <NavButton
               key={item.id}
@@ -195,7 +195,7 @@ const MainLeftNavbar: React.FC<MainLeftNavbarProps> = ({
         </nav>
 
         {/* Bottom Navigation Items */}
-        <nav className="border-t border-gray-200 py-4">
+        <nav className="border-t border-gray-200 py-2">
           {bottomNavItems.map((item) => (
             <NavButton key={item.id} item={item} />
           ))}
@@ -204,11 +204,11 @@ const MainLeftNavbar: React.FC<MainLeftNavbarProps> = ({
           {!isCollapsed && (
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="w-full flex items-center text-left transition-all duration-200 text-gray-500 hover:bg-orange-50 hover:text-orange-600 gap-4 px-6 py-4"
+              className="w-full flex items-center text-left transition-all duration-200 text-gray-500 hover:bg-gray-100 hover:text-gray-700 gap-3 px-4 py-2"
               title="Collapse sidebar"
             >
-              <ChevronLeft size={20} className="flex-shrink-0" />
-              <span className="text-sm font-medium">Collapse</span>
+              <ChevronLeft size={16} className="flex-shrink-0" />
+              <span className="text-xs font-medium">Collapse</span>
             </button>
           )}
         </nav>
