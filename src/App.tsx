@@ -13,7 +13,7 @@ import BPMNEditor from './components/BPMN/BPMNEditor';
 import CloudIntegration from './components/CloudIntegration';
 import { useIntegrationPanel } from './hooks/useBidirectionalIntegration';
 import { RawIconNode } from './components/CanvasEditor/ReactFlowNodes';
-import Toolbar from './components/CanvasEditor/Toolbar';
+// import Toolbar from './components/CanvasEditor/Toolbar';
 
 // Context providers
 import { CanvasProvider } from './context/CanvasEditorProvider';
@@ -387,9 +387,9 @@ function AppContent() {
             <div className="shapes-content">
               <LeftSidebar />
               <div className="canvas-area">
-                <div className="canvas-toolbar">
+                {/* <div className="canvas-toolbar">
                   <Toolbar />
-                </div>
+                </div> */}
                 <div className="canvas-content">
                   <DrawingCanvas 
                     nodes={nodes}
